@@ -3,12 +3,12 @@ import os
 
 import django
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cmj.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "saap.settings")
 django.setup()
 
 
-from cmj.cerimonial.models import Processo, Contato
-from cmj.core.models import AreaTrabalho
+from saap.cerimonial.models import Processo, Contato
+from saap.core.models import AreaTrabalho
 
 
 if __name__ == "__main__":
