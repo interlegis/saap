@@ -1,0 +1,49 @@
+{% load i18n %}
+Cep:
+  {% trans 'Número do CEP' %}:
+  - numero
+
+RegiaoMunicipal:
+  {% trans 'Região Municipal' %}:
+  - tipo nome:8
+
+Distrito:
+  {% trans 'Distrito' %}:
+  - nome
+
+Bairro:
+  {% trans 'Bairro' %}:
+  - codigo:3 nome
+  - outros_nomes
+
+TipoLogradouro:
+  {% trans 'Tipos de Logradouro' %}:
+  - nome
+
+Logradouro:
+  {% trans 'Logradouro' %}:
+  - nome
+
+Trecho:
+  {% trans 'Trecho' %}:
+  - tipo logradouro:8
+  - municipio bairro distrito:2 regiao_municipal:2
+  - lado numero_inicial numero_final
+  - cep
+
+AreaTrabalho:
+  {% trans 'Área de Trabalho' %}:
+  - nome:5 parlamentar
+  - descricao
+OperadorAreaTrabalho:
+  {% trans 'Operador de Área de Trabalho' %}:
+  - user
+  - grupos_associados
+ImpressoEnderecamento:
+  {% trans 'Dados Básicos' %}:
+    - nome:8 tipo
+  {% trans 'Sobre a Página' %}:
+    - largura_pagina altura_pagina margem_esquerda margem_superior
+  {% trans 'Sobre a Etiqueta' %}:
+    - colunasfolha linhasfolha entre_colunas entre_linhas
+    - larguraetiqueta alturaetiqueta fontsize rotate
