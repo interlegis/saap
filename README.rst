@@ -123,9 +123,7 @@ Instalação e configuração das dependências do projeto
         mkdir ~/Envs/temp
         cd ~/Envs/temp
 
-        django-admin startproject cmj_temp
-
-        grep SECRET_KEY cmj_temp/cmj_temp/settings.py
+        django-admin generate_secret_key
 
     Copie a linha que aparecerá, volte para a pasta do projeto CMJ e apague sua pasta temporária::
 
