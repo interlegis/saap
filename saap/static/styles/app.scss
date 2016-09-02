@@ -551,7 +551,7 @@ body {
   min-height: 100%;
   position: relative;
   margin: 0;
-  .logo-cmj {
+  .logo-saap {
     position: absolute;
     opacity: 0.35;
     right: 1em;
@@ -1073,7 +1073,7 @@ body {
   }
 }
 
-/* Grid para home 
+/* Grid para home
 * {
   @include box-sizing(border-box);
 }
@@ -1083,7 +1083,7 @@ $pad: 20px;
 .grid {
   background: white;
   margin: 0 0 $pad 0;
-  
+
   &:after {
     /* Or @extend clearfix */
     content: "";
