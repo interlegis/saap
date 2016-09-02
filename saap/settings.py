@@ -17,17 +17,10 @@ from easy_thumbnails.conf import Settings as thumbnail_settings
 from unipath import Path
 
 
-"""@property    gerar nomes para urls
-def pretty_name(self):
-    return "{0}.{1}".format(slugify(self.title),
-            get_extension(self.file.name))"""
-
 config = AutoConfig()
 
 BASE_DIR = Path(__file__).ancestor(1)
 PROJECT_DIR = Path(__file__).ancestor(2)
-#print(BASE_DIR)
-#print(PROJECT_DIR)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
@@ -43,7 +36,6 @@ LOGIN_URL = '/login/?next='
 # SAAP_APPS business apps in dependency order
 SAAP_APPS = (
     'saap.core',
-    'saap.home',
     'saap.cerimonial',
 
     # manter sempre como o último da lista de apps
@@ -100,9 +92,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-
-    'wagtail.wagtailcore.middleware.SiteMiddleware',
-    'wagtail.wagtailredirects.middleware.RedirectMiddleware',
 )
 
 REST_FRAMEWORK = {
@@ -143,8 +132,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'saap.wsgi.application'
-
-WAGTAIL_SITE_NAME = 'Portal da Câmara Municipal de Jataí'
 
 AUTH_USER_MODEL = 'core.User'
 
@@ -208,7 +195,6 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_L10N = False
 USE_TZ = True
-# DATE_FORMAT = 'N j, Y'
 DATE_FORMAT = 'd/m/Y'
 SHORT_DATE_FORMAT = 'd/m/Y'
 DATE_INPUT_FORMATS = ('%d/%m/%Y', '%m-%d-%Y', '%Y-%m-%d')

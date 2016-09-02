@@ -10,8 +10,8 @@ from rest_framework import viewsets, mixins
 from rest_framework.authentication import SessionAuthentication,\
     BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
-from sapl.crud.base import Crud, make_pagination
-from sapl.parlamentares.models import Partido, Filiacao
+from saap.crud.base import Crud, make_pagination
+from saap.core.models import Partido, Filiacao
 
 from saap.core.forms import OperadorAreaTrabalhoForm, ImpressoEnderecamentoForm,\
     ListWithSearchForm
@@ -261,7 +261,7 @@ class PartidoCrud(DetailMasterCrud):
                     partido = filiacao_parlamentar.first().partido
                     return redirect(
                         reverse(
-                            'sapl.parlamentares:partido_detail',
+                            'saap.core:partido_detail',
                             args=(partido.pk,)))
 
             """else:

@@ -25,9 +25,9 @@ from django_filters.filters import CharFilter, ChoiceFilter, NumberFilter,\
     MethodFilter, DateFromToRangeFilter, ModelChoiceFilter, RangeFilter,\
     MultipleChoiceFilter, ModelMultipleChoiceFilter
 from django_filters.filterset import FilterSet, STRICTNESS
-from sapl.crispy_layout_mixin import to_column, SaplFormLayout, to_fieldsets,\
+from saap.crispy_layout_mixin import to_column, SaplFormLayout, to_fieldsets,\
     form_actions, to_row
-from sapl.parlamentares.models import Municipio
+from saap.core.models import Municipio
 
 from saap import settings
 from saap.cerimonial.models import LocalTrabalho, Endereco,\

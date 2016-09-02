@@ -41,8 +41,11 @@ class Rules:
 
     def config_groups(self, group_rules):
 
-        for group, rules in group_rules:
-            self._config_group(group, rules)
+        try:
+            for group, rules in group_rules:
+                self._config_group(group, rules)
+        except:
+            pass
 
     def groups_add_user(self, user, groups_name):
         if not isinstance(groups_name, list):

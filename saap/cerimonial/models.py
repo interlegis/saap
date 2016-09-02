@@ -4,8 +4,8 @@ from django.contrib.auth.models import Group
 from django.db import models
 from django.db.models.deletion import SET_NULL, PROTECT, CASCADE
 from django.utils.translation import ugettext_lazy as _
-from sapl.parlamentares.models import Parlamentar, Municipio, Partido
-from sapl.utils import UF
+from saap.core.models import Parlamentar, Municipio, Partido
+from saap.utils import UF
 
 from saap.core.models import SaapModelMixin, Trecho, Distrito, RegiaoMunicipal,\
     SaapAuditoriaModelMixin, SaapSearchMixin, AreaTrabalho, Bairro

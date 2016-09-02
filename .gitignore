@@ -7,3 +7,4 @@
 *pyc
 __pycache__
 staticfiles
+collected_static/

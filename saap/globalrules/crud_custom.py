@@ -19,9 +19,9 @@ from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import ContextMixin
 from django.views.generic.list import MultipleObjectMixin
-from sapl.crispy_layout_mixin import get_field_display
-from sapl.crud import base
-from sapl.crud.base import Crud, CrudBaseMixin, CrudListView, CrudCreateView,\
+from saap.crispy_layout_mixin import get_field_display
+from saap.crud import base
+from saap.crud.base import Crud, CrudBaseMixin, CrudListView, CrudCreateView,\
     CrudUpdateView, CrudDeleteView, CrudDetailView, make_pagination
 
 from saap.cerimonial.forms import PerfilForm

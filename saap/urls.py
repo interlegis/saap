@@ -18,12 +18,14 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.static import serve as view_static_server
+from django.views.generic.base import TemplateView
 
 import saap.cerimonial.urls
 import saap.core.urls
 
 
 urlpatterns = [
+    url(r'^$', TemplateView.as_view(template_name='index.html')),
     url(r'^django-admin/', admin.site.urls),
 
     url('', include('social.apps.django_app.urls', namespace='social')),

@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from sapl.parlamentares.models import Partido
+from saap.core.models import Partido
 
 from saap.cerimonial.models import Perfil, Endereco, Email, Telefone,\
     LocalTrabalho, Dependente, Contato, EnderecoPerfil, EmailPerfil,\

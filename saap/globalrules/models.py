@@ -5,7 +5,6 @@ from django.db import models, router
 from django.db.utils import DEFAULT_DB_ALIAS
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
-from sapl.settings import SAPL_APPS
 
 from saap.settings import SAAP_APPS
 
@@ -14,7 +13,7 @@ app_configs = list(apps.get_app_configs())
 
 for ac in app_configs:
 
-    if ac.name not in SAAP_APPS and ac.name not in SAPL_APPS:
+    if ac.name not in SAAP_APPS:
         continue
 
     app_models = ac.get_models()

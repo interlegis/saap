@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_filters.filterset import FilterSet
 
 from image_cropping.widgets import ImageCropWidget, CropWidget
-from sapl.crispy_layout_mixin import to_row
+from saap.crispy_layout_mixin import to_row
 import django_filters
 
 from saap.core.models import Trecho, TipoLogradouro, User, OperadorAreaTrabalho,\

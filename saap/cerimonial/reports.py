@@ -28,7 +28,7 @@ from reportlab.platypus.doctemplate import SimpleDocTemplate
 from reportlab.platypus.frames import Frame
 from reportlab.platypus.para import Paragraph
 from reportlab.platypus.tables import Table, TableStyle, LongTable
-from sapl.crud.base import make_pagination
+from saap.crud.base import make_pagination
 
 from saap.cerimonial.forms import ImpressoEnderecamentoContatoFilterSet,\
     ContatoAgrupadoPorProcessoFilterSet

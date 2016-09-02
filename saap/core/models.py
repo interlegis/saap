@@ -11,11 +11,11 @@ from django.db.models.deletion import PROTECT, CASCADE
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from image_cropping import ImageCropField, ImageRatioField
-from sapl.parlamentares.models import Municipio, Parlamentar
 
 from saap.core.rules import SEARCH_TRECHO
 from saap.globalrules.globalrules import rules, GROUP_SOCIAL_USERS
-from saap.utils import get_settings_auth_user_model, normalize, YES_NO_CHOICES
+from saap.utils import get_settings_auth_user_model, normalize
+from saap.utils import YES_NO_CHOICES, UF, restringe_tipos_de_arquivo_img
 
 from .rules import MENU_PERMS_FOR_USERS
 
@@ -244,6 +244,177 @@ class SaapAuditoriaModelMixin(SaapModelMixin):
 
     class Meta:
         abstract = True
+
+
+# - - - - - - - - - - - - - - #
+# Modelos importados do SAPL. #
+# - - - - - - - - - - - - - - #
+class Municipio(models.Model):  # Localidade
+    # TODO filter on migration leaving only cities
+
+    REGIAO_CHOICES = (
+        ('CO', 'Centro-Oeste'),
+        ('NE', 'Nordeste'),
+        ('NO', 'Norte'),
+        ('SE', 'Sudeste'),  # TODO convert on migrate SD => SE
+        ('SL', 'Sul'),
+        ('EX', 'Exterior'),
+    )
+
+    nome = models.CharField(max_length=50, blank=True)
+    uf = models.CharField(
+        max_length=2, blank=True, choices=UF)
+    regiao = models.CharField(
+        max_length=2, blank=True, choices=REGIAO_CHOICES)
+
+    class Meta:
+        verbose_name = _('Município')
+        verbose_name_plural = _('Municípios')
+
+    def __str__(self):
+        return _('%(nome)s - %(uf)s (%(regiao)s)') % {
+            'nome': self.nome, 'uf': self.uf, 'regiao': self.regiao
+        }
+
+
+def get_foto_media_path(instance, subpath, filename):
+    return './saap/parlamentar/%s/%s/%s' % (instance, subpath, filename)
+
+
+def foto_upload_path(instance, filename):
+    return get_foto_media_path(instance, 'foto', filename)
+
+
+class NivelInstrucao(models.Model):
+    descricao = models.CharField(
+        max_length=50, verbose_name=_('Nível de Instrução'))
+
+    class Meta:
+        verbose_name = _('Nível Instrução')
+        verbose_name_plural = _('Níveis Instrução')
+
+    def __str__(self):
+        return self.descricao
+
+
+class SituacaoMilitar(models.Model):
+    descricao = models.CharField(
+        max_length=50, verbose_name=_('Situação Militar'))
+
+    class Meta:
+        verbose_name = _('Tipo Situação Militar')
+        verbose_name_plural = _('Tipos Situações Militares')
+
+    def __str__(self):
+        return self.descricao
+
+
+class Parlamentar(models.Model):
+    FEMININO = 'F'
+    MASCULINO = 'M'
+    SEXO_CHOICE = ((FEMININO, _('Feminino')),
+                   (MASCULINO, _('Masculino')))
+
+    nivel_instrucao = models.ForeignKey(
+        NivelInstrucao,
+        blank=True,
+        null=True,
+        verbose_name=_('Nível Instrução'))
+    situacao_militar = models.ForeignKey(
+        SituacaoMilitar,
+        blank=True,
+        null=True,
+        verbose_name=_('Situação Militar'))
+    nome_completo = models.CharField(
+        max_length=50, verbose_name=_('Nome Completo'))
+    nome_parlamentar = models.CharField(
+        max_length=50,
+        verbose_name=_('Nome Parlamentar'))
+    sexo = models.CharField(
+        max_length=1, verbose_name=_('Sexo'), choices=SEXO_CHOICE)
+    data_nascimento = models.DateField(
+        blank=True, null=True, verbose_name=_('Data Nascimento'))
+    cpf = models.CharField(
+        max_length=14, blank=True, verbose_name=_('C.P.F'))
+    rg = models.CharField(
+        max_length=15, blank=True, verbose_name=_('R.G.'))
+    titulo_eleitor = models.CharField(
+        max_length=15,
+        blank=True,
+        verbose_name=_('Título de Eleitor'))
+    numero_gab_parlamentar = models.CharField(
+        max_length=10, blank=True, verbose_name=_('Nº Gabinete'))
+    telefone = models.CharField(
+        max_length=50, blank=True, verbose_name=_('Telefone'))
+    fax = models.CharField(
+        max_length=50, blank=True, verbose_name=_('Fax'))
+    endereco_residencia = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('Endereço Residencial'))
+    municipio_residencia = models.ForeignKey(
+        Municipio, blank=True, null=True, verbose_name=_('Município'))
+    cep_residencia = models.CharField(
+        max_length=9, blank=True, verbose_name=_('CEP'))
+    telefone_residencia = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name=_('Telefone Residencial'))
+    fax_residencia = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name=_('Fax Residencial'))
+    endereco_web = models.URLField(
+        max_length=100, blank=True, verbose_name=_('HomePage'))
+    profissao = models.CharField(
+        max_length=50, blank=True, verbose_name=_('Profissão'))
+    email = models.EmailField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('E-mail'))
+    locais_atuacao = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('Locais de Atuação'))
+    ativo = models.BooleanField(verbose_name=_('Ativo na Casa?'))
+    biografia = models.TextField(
+        blank=True, verbose_name=_('Biografia'))
+    # XXX Esse atribuito foi colocado aqui para não atrapalhar a migração
+    fotografia = models.ImageField(
+        blank=True,
+        null=True,
+        upload_to=foto_upload_path,
+        verbose_name=_('Fotografia'),
+        validators=[restringe_tipos_de_arquivo_img])
+
+    class Meta:
+        verbose_name = _('Parlamentar')
+        verbose_name_plural = _('Parlamentares')
+        ordering = ['nome_parlamentar']
+
+    def __str__(self):
+        return self.nome_completo
+
+
+class Partido(models.Model):
+    sigla = models.CharField(max_length=9, verbose_name=_('Sigla'))
+    nome = models.CharField(max_length=50, verbose_name=_('Nome'))
+    data_criacao = models.DateField(
+        blank=True, null=True, verbose_name=_('Data Criação'))
+    data_extincao = models.DateField(
+        blank=True, null=True, verbose_name=_('Data Extinção'))
+
+    class Meta:
+        verbose_name = _('Partido')
+        verbose_name_plural = _('Partidos')
+
+    def __str__(self):
+        return _('%(sigla)s - %(nome)s') % {
+            'sigla': self.sigla, 'nome': self.nome
+        }
+# - - - - - - - - - - - - - - - - - #
+# FIM - Modelos importados do SAPL. #
+# - - - - - - - - - - - - - - - - - #
 
 
 class AreaTrabalho(SaapAuditoriaModelMixin):
@@ -602,3 +773,22 @@ class ImpressoEnderecamento(models.Model):
 
     def __str__(self):
         return self.nome
+
+class Filiacao(models.Model):
+    data = models.DateField(verbose_name=_('Data Filiação'))
+    parlamentar = models.ForeignKey(Parlamentar)
+    partido = models.ForeignKey(Partido, verbose_name=_('Partido'))
+    data_desfiliacao = models.DateField(
+        blank=True, null=True, verbose_name=_('Data Desfiliação'))
+
+    class Meta:
+        verbose_name = _('Filiação')
+        verbose_name_plural = _('Filiações')
+        # A ordenação descrescente por data é importante para listagem de
+        # parlamentares e tela de Filiações do Parlamentar
+        ordering = ('parlamentar', '-data', '-data_desfiliacao')
+
+    def __str__(self):
+        return _('%(parlamentar)s - %(partido)s') % {
+            'parlamentar': self.parlamentar, 'partido': self.partido
+        }

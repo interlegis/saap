@@ -4,7 +4,7 @@ from django.db.models.aggregates import Max
 from django.http.response import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.edit import FormView
-from sapl.crispy_layout_mixin import CrispyLayoutFormMixin
+from saap.crispy_layout_mixin import CrispyLayoutFormMixin
 
 from saap.cerimonial.forms import LocalTrabalhoForm, EnderecoForm,\
     TipoAutoridadeForm, LocalTrabalhoPerfilForm,\
