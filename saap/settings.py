@@ -12,9 +12,9 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 from decouple import AutoConfig
 from dj_database_url import parse as db_url
-from django.utils.translation import ugettext_lazy as _
 from easy_thumbnails.conf import Settings as thumbnail_settings
 from unipath import Path
+import os
 
 
 config = AutoConfig()
@@ -43,9 +43,11 @@ SAAP_APPS = (
 
 )
 
-INITIAL_VALUE_FORMS_UF = config('INITIAL_VALUE_FORMS_UF')
-INITIAL_VALUE_FORMS_MUNICIPIO = config('INITIAL_VALUE_FORMS_MUNICIPIO')
-INITIAL_VALUE_FORMS_CEP = config('INITIAL_VALUE_FORMS_CEP')
+INITIAL_VALUE_FORMS_UF = config('INITIAL_VALUE_FORMS_UF', default='DF')
+INITIAL_VALUE_FORMS_MUNICIPIO = config(
+    'INITIAL_VALUE_FORMS_MUNICIPIO', default='Brasília')
+INITIAL_VALUE_FORMS_CEP = config(
+    'INITIAL_VALUE_FORMS_CEP', default='71608-000')
 
 INSTALLED_APPS = (
     'django_admin_bootstrapped',  # must come before django.contrib.admin
@@ -68,7 +70,7 @@ INSTALLED_APPS = (
     'sass_processor',
     'rest_framework',
 
-    #'haystack',
+    # 'haystack',
     # "elasticstack",
 
     'taggit',
@@ -137,9 +139,11 @@ AUTH_USER_MODEL = 'core.User'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+default_dburl = 'sqlite:///{}'.format(os.path.join(PROJECT_DIR, 'db.sqlite3'))
 DATABASES = {
     'default': config(
         'DATABASE_URL',
+        default=default_dburl,
         cast=db_url,
     )
 }
@@ -153,16 +157,32 @@ AUTHENTICATION_BACKENDS = (
 
 """ 'social.backends.twitter.TwitterOAuth' """
 
-SOCIAL_AUTH_FACEBOOK_KEY = config('SOCIAL_AUTH_FACEBOOK_KEY', cast=str)
-SOCIAL_AUTH_FACEBOOK_SECRET = config('SOCIAL_AUTH_FACEBOOK_SECRET', cast=str)
+SOCIAL_AUTH_FACEBOOK_KEY = config(
+    'SOCIAL_AUTH_FACEBOOK_KEY',
+    default='',
+    cast=str)
+SOCIAL_AUTH_FACEBOOK_SECRET = config(
+    'SOCIAL_AUTH_FACEBOOK_SECRET',
+    default='',
+    cast=str)
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config(
-    'SOCIAL_AUTH_GOOGLE_OAUTH2_KEY', cast=str)
+    'SOCIAL_AUTH_GOOGLE_OAUTH2_KEY',
+    default='',
+    cast=str)
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config(
-    'SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET', cast=str)
+    'SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET',
+    default='',
+    cast=str)
 
-SOCIAL_AUTH_TWITTER_KEY = config('SOCIAL_AUTH_TWITTER_KEY', cast=str)
-SOCIAL_AUTH_TWITTER_SECRET = config('SOCIAL_AUTH_TWITTER_SECRET', cast=str)
+SOCIAL_AUTH_TWITTER_KEY = config(
+    'SOCIAL_AUTH_TWITTER_KEY',
+    default='',
+    cast=str)
+SOCIAL_AUTH_TWITTER_SECRET = config(
+    'SOCIAL_AUTH_TWITTER_SECRET',
+    default='',
+    cast=str)
 
 USER_FIELDS = ('email',)
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
@@ -258,23 +278,26 @@ THUMBNAIL_PROCESSORS = (
     'image_cropping.thumbnail_processors.crop_corners',
 ) + thumbnail_settings.THUMBNAIL_PROCESSORS
 
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
-EMAIL_HOST = config('EMAIL_HOST', cast=str)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str)
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str)
-EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST = config('EMAIL_HOST', default='', cast=str)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='', cast=str)
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='', cast=str)
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 
 MAX_DOC_UPLOAD_SIZE = 5 * 1024 * 1024  # 5MB
 MAX_IMAGE_UPLOAD_SIZE = 2 * 1024 * 1024  # 2MB
 
 # django-haystack: http://django-haystack.readthedocs.org/
-"""HAYSTACK_CONNECTIONS = {
+"""
+hs_eng = 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine'
+HAYSTACK_CONNECTIONS = {
     'default': {
-        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'ENGINE': hs_eng,
         'URL': 'http://127.0.0.1:9200/',
         'INDEX_NAME': 'haystack',
     },
-}"""
+}
+"""
 
 """HAYSTACK_CONNECTIONS = {
     'default': {
@@ -293,5 +316,5 @@ MAX_IMAGE_UPLOAD_SIZE = 2 * 1024 * 1024  # 2MB
 }
 """
 
-#HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
-#ELASTICSEARCH_DEFAULT_ANALYZER = "snowball"
+# HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+# ELASTICSEARCH_DEFAULT_ANALYZER = "snowball"

@@ -1,5 +1,5 @@
 ***********************************************
-CMJ - Câmara Municipal de Jataí - Goías
+SAAP - Sistema de Apoio à Atividade Parlamentar
 ***********************************************
 
 
@@ -8,7 +8,8 @@ Instalação do Ambiente de Desenvolvimento
 
 * Procedimento testado nos seguintes SO's:
 
-  * `Ubuntu 16.04 64bits <https://github.com/cmjatai/cmj/blob/master/README.rst>`_;
+  * `Ubuntu 16.04 64bits <README.rst>`_;
+  * `Debian Jessie 64bits <README.rst>`_;
 
         * edite e incremente outros, ou ainda, crie outros readme's dentro do projeto para outros SO's e adicione o link aqui.
 
@@ -17,15 +18,14 @@ Instalar as seguintes dependências do sistema::
 
 * ::
 
-    sudo apt-get install git nginx python3-dev libpq-dev graphviz-dev graphviz \
-    pkg-config postgresql postgresql-contrib pgadmin3 python-psycopg2 \
-    software-properties-common build-essential libxml2-dev libjpeg-dev \
-    libssl-dev libffi-dev libxslt1-dev python3-setuptools curl
+    sudo apt-get install git python3-dev libpq-dev graphviz-dev graphviz \
+    pkg-config software-properties-common build-essential libxml2-dev \
+    libjpeg-dev libssl-dev libffi-dev libxslt1-dev python3-setuptools curl
 
     sudo easy_install3 pip lxml
 
     sudo -i
-    curl -sL https://deb.nodesource.com/setup_5.x | bash -
+    curl -sL https://deb.nodesource.com/setup_6.x | bash -
     exit
     sudo apt-get install nodejs
 
@@ -53,125 +53,95 @@ Instalar o virtualenv usando python 3 para o projeto.
 Clonar o projeto do github, ou fazer um fork e depois clonar
 ------------------------------------------------------------
 
-* Para apenas clonar do repositório da Câmara de Jataí::
+* Para apenas clonar do repositório::
 
     cd ~/Envs
-    git clone git://github.com/cmjatai/cmj
+    git clone git://github.com/interlegis/saap
 
 * Para fazer um fork e depois clonar, siga as instruções em https://help.github.com/articles/fork-a-repo que basicamente são:
 
   * Criar uma conta no github - é gratuíto.
-  * Acessar https://github.com/cmjatai/cmj e clicar em **Fork**.
+  * Acessar https://github.com/interlegis/saap e clicar em **Fork**.
 
   Será criado um domínio pelo qual será possível **clonar, corrigir, customizar, melhorar, contribuir, etc**::
 
       cd ~/Envs
-      git clone git://github.com/[SEU NOME]/cmj
+      git clone git://github.com/[SEU NOME]/saap
 
 * As configurações e instruções de uso para o git estão espalhadas pela internet e possui muito coisa bacana. As tarefas básicas de git e suas interações com github são tranquilas de se aprender.
 
 
-Criar o ambiente virtual de desenvolvimento para o CMJ
+Criar o ambiente virtual de desenvolvimento para o SAAP
 -------------------------------------------------------
 * ::
 
-    mkvirtualenv cmj -a $HOME/Envs/cmj -p /usr/bin/python3
+    mkvirtualenv saap -a $HOME/Envs/saap -p /usr/bin/python3
 
 Instalação e configuração das dependências do projeto
 -----------------------------------------------------
 
 * **Acesse o terminal e entre no virtualenv**::
 
-    workon cmj
+    workon saap
 
 * **Instalar dependências ``python``**::
 
     pip install -r requirements/dev-requirements.txt
 
-* **Configurar Postgresql**:
-
-  * Acessar Postrgresql para criar o banco ``cmj`` com a role ``cmj``::
-
-      sudo su - postgres
-
-      CREATE ROLE cmj LOGIN
-        ENCRYPTED PASSWORD 'cmj'
-        NOSUPERUSER INHERIT CREATEDB NOCREATEROLE NOREPLICATION;
-
-      ALTER ROLE cmj VALID UNTIL 'infinity';
-
-      CREATE DATABASE cmj
-        WITH OWNER = cmj
-             ENCODING = 'UTF8'
-             TABLESPACE = pg_default
-             LC_COLLATE = 'pt_BR.UTF-8'
-             LC_CTYPE = 'pt_BR.UTF-8'
-             CONNECTION LIMIT = -1;
-
-      \q
-
-  * Se você possui uma cópia da base de dados do CMJ, essa é a hora para restaurá-la.
-  * Obs: no ambiente de desenvolvimento, a role deve ter permissão para criar outro banco. Isso é usado pelos testes automatizados.
-  * (caso você já possua uma instalação do postrgresql anterior ao processo de instalação do ambiente de desenvolvimento do SAPL em sua máquina e sábia como fazer, esteja livre para proceder como desejar, porém, ao configurar o arquivo ``.env`` no próximo passo, as mesmas definições deverão ser usadas)
-
 * **Configurar arquivo ``.env``**:
+
+    * Uma configuração mínima para funcional seria::
+
+        SECRET_KEY=MUDE-PARA-RESULTADO-GENERATE-SECRET-KEY
+        DEBUG=True
 
   * Criação da `SECRET_KEY <https://docs.djangoproject.com/es/1.9/ref/settings/#std:setting-SECRET_KEY>`_:
 
-    É necessário criar um projeto fake para extrair uma chave SECRET_KEY::
-
-        mkdir ~/Envs/temp
-        cd ~/Envs/temp
+    Rodar o comando::
 
         python manage.py generate_secret_key
 
-    Copie chave que aparecerá, volte para a pasta do projeto CMJ e apague sua pasta temporária::
+  * Copie a chave que aparecerá, edite o arquivo ``.env`` e altere o valor do parâmetro SECRET_KEY.
 
-        cd ~/Envs/cmj
-        rm -R ~/Envs/temp
+  * Um arquivo de configuração ``.env`` completo deve ter os seguintes parâmetros::
 
-  * Criar o arquivo ``.env`` dentro da pasta ~/Envs/cmj/cmj/.env::
+      DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/NAME
+      SECRET_KEY=Gere alguma chave e coloque aqui
+      DEBUG=[True/False]
+      EMAIL_USE_TLS=[True/False]
+      EMAIL_PORT=[Insira este parâmetro]
+      EMAIL_HOST=[Insira este parâmetro]
+      EMAIL_HOST_USER=[Insira este parâmetro]
+      EMAIL_HOST_PASSWORD=[Insira este parâmetro]
+      SOCIAL_AUTH_FACEBOOK_KEY=[Insira este parâmetro]
+      SOCIAL_AUTH_FACEBOOK_SECRET=[Insira este parâmetro]
+      SOCIAL_AUTH_GOOGLE_OAUTH2_KEY=[Insira este parâmetro]
+      SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=[Insira este parâmetro]
+      SOCIAL_AUTH_TWITTER_KEY=[Insira este parâmetro]
+      SOCIAL_AUTH_TWITTER_SECRET=[Insira este parâmetro]
+      INITIAL_VALUE_FORMS_UF=[Insira este parâmetro]
+      INITIAL_VALUE_FORMS_MUNICIPIO=[Insira este parâmetro]
+      INITIAL_VALUE_FORMS_CEP=[Insira este parâmetro]
 
-      DATABASE_URL = postgresql://USER:PASSWORD@HOST:PORT/NAME
-      SECRET_KEY = Gere alguma chave e coloque aqui
-      DEBUG = [True/False]
-      EMAIL_USE_TLS = [True/False]
-      EMAIL_PORT = [Insira este parâmetro]
-      EMAIL_HOST = [Insira este parâmetro]
-      EMAIL_HOST_USER = [Insira este parâmetro]
-      EMAIL_HOST_PASSWORD = [Insira este parâmetro]
-      SOCIAL_AUTH_FACEBOOK_KEY = [Insira este parâmetro]
-      SOCIAL_AUTH_FACEBOOK_SECRET = [Insira este parâmetro]
-      SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = [Insira este parâmetro]
-      SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = [Insira este parâmetro]
-      SOCIAL_AUTH_TWITTER_KEY = [Insira este parâmetro]
-      SOCIAL_AUTH_TWITTER_SECRET = [Insira este parâmetro]
-      INITIAL_VALUE_FORMS_UF = [Insira este parâmetro]
-      INITIAL_VALUE_FORMS_MUNICIPIO = [Insira este parâmetro]
-      INITIAL_VALUE_FORMS_CEP = [Insira este parâmetro]
+    * Um exemplo de configuração mínima para um ambiente de produção::
 
-    * Uma configuração mínima para atender os procedimentos acima seria::
-
-        DATABASE_URL = postgresql://cmj:cmj@localhost:5432/cmj
-        SECRET_KEY = 'Substitua esta linha pela copiada acima'
-        DEBUG = True
-        EMAIL_USE_TLS = True
-        EMAIL_PORT = 587
-        EMAIL_HOST =
-        EMAIL_HOST_USER =
-        EMAIL_HOST_PASSWORD =
-        SOCIAL_AUTH_FACEBOOK_KEY =
-        SOCIAL_AUTH_FACEBOOK_SECRET =
-        SOCIAL_AUTH_GOOGLE_OAUTH2_KEY =
-        SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET =
-        SOCIAL_AUTH_TWITTER_KEY =
-        SOCIAL_AUTH_TWITTER_SECRET =
-        INITIAL_VALUE_FORMS_UF = 'GO'
-        INITIAL_VALUE_FORMS_MUNICIPIO = 'Jataí'
-        INITIAL_VALUE_FORMS_CEP = '75800-000'
-
-
-
+        DATABASE_URL=postgresql://saap:saap@localhost:5432/saap
+        SECRET_KEY='Substitua esta linha pela copiada acima'
+        DEBUG=True
+        EMAIL_USE_TLS=True
+        EMAIL_PORT=587
+        EMAIL_HOST=
+        EMAIL_HOST_USER=
+        EMAIL_HOST_PASSWORD=
+        SOCIAL_AUTH_FACEBOOK_KEY=
+        SOCIAL_AUTH_FACEBOOK_SECRET=
+        SOCIAL_AUTH_GOOGLE_OAUTH2_KEY=
+        SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=
+        SOCIAL_AUTH_TWITTER_KEY=
+        SOCIAL_AUTH_TWITTER_SECRET=
+        INITIAL_VALUE_FORMS_UF='DF'
+        INITIAL_VALUE_FORMS_MUNICIPIO='Brasília'
+        INITIAL_VALUE_FORMS_CEP='71608-000'
 
 * Instalar as dependências do ``bower``::
 
@@ -189,7 +159,7 @@ Instalação e configuração das dependências do projeto
 
    ./manage.py runserver
 
-* Acesse o CMJ em::
+* Acesse o SAAP em::
 
    http://localhost:8000/
 
@@ -197,7 +167,7 @@ Instruções para Tradução
 ========================
 
 Nós utilizamos o `Transifex <https://www.transifex.com>`_  para gerenciar as traduções do projeto.
-Se você deseja contribuir, por favor crie uma conta no site e peça para se juntar a nós em `Transifex SAPL Page <https://www.transifex.com/projects/p/cmj>`_.
+Se você deseja contribuir, por favor crie uma conta no site e peça para se juntar a nós em `Transifex SAAP Page <https://www.transifex.com/projects/p/saap>`_.
 Assim que for aceito, você já pode começar a traduzir.
 
 Para integrar as últimas traduções ao projeto atual, siga estes passos:
@@ -247,7 +217,7 @@ Boas Práticas
 
 Atenção:
 
-    O usuário do banco de dados ``cmj`` deve ter a permissão ``create database`` no postgres para que os testes tenham sucesso
+    O usuário do banco de dados ``saap`` deve ter a permissão ``create database`` no postgres para que os testes tenham sucesso
 
 * Se você não faz parte da equipe principal, faça o fork deste repositório e envie pull requests.
   Todos são bem-vindos para contribuir. Por favor, faça uma pull request separada para cada correção ou criação de novas funcionalidades.
@@ -279,7 +249,7 @@ Testes
 Issues
 ------
 
-* Abra todas as questões sobre o desenvolvimento atual no `Github Issue Tracker <https://github.com/cmjatai/cmj/issues>`_.
+* Abra todas as questões sobre o desenvolvimento atual no `Github Issue Tracker <https://github.com/interlegis/saap/issues>`_.
 
 * Você pode escrever suas ``issues`` em Português ou Inglês (ao menos por enquanto).
 
@@ -287,6 +257,6 @@ Issues
 Referência
 ----------
 
-* Este arquivo, bem como as configurações iniciais do ambiente foram copiados e extendidos a partir do `Projeto SAPL do Interlegis <https://github.com/interlegis/sapl>`_. A partir disso, o SAPL foi introduzido neste novo projeto através dos requirements. Desta forma, este projeto segue com suas especificidades que utilizarão características parciais ou completas do SAPL.
+* Este arquivo, bem como as configurações iniciais do ambiente foram copiados e extendidos a partir do  `Projeto CMJ da Câmara Municpal de Jataí <https://github.com/cmjatai/cmj>`_. Que por sua vez extendeu o `Projeto SAPL do Interlegis <https://github.com/interlegis/sapl>`_. Nesse repositório foram criadas modificações para tornar esse projeto independente do SAPL.
 
 * O Sistema de autenticação foi copiado e extendido do `Projeto Wikilegis <https://github.com/labhackercd/wikilegis>`_.

@@ -1,5 +1,4 @@
 .DS_Store
-.wttd
 .python-version
 *.sqlite3
 staticfiles
