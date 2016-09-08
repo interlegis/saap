@@ -25,7 +25,7 @@ Instalar as seguintes dependências do sistema::
     sudo easy_install3 pip lxml
 
     sudo -i
-    curl -sL https://deb.nodesource.com/setup_666666bash -
+    curl -sL https://deb.nodesource.com/setup_6.x | bash -
     exit
     sudo apt-get install nodejs
 

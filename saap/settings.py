@@ -139,7 +139,7 @@ AUTH_USER_MODEL = 'core.User'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-default_dburl = 'sqlite:///{}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
+default_dburl = 'sqlite:///{}'.format(os.path.join(PROJECT_DIR, 'db.sqlite3'))
 DATABASES = {
     'default': config(
         'DATABASE_URL',
