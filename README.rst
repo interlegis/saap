@@ -1,5 +1,5 @@
 ***********************************************
-SAAP - Sistema de Apoio à Atividae Parlamentar
+SAAP - Sistema de Apoio à Atividade Parlamentar
 ***********************************************
 
 
@@ -90,7 +90,7 @@ Instalação e configuração das dependências do projeto
 
 * **Configurar arquivo ``.env``**:
 
-    * Uma configuração mínima para atender os procedimentos acima seria::
+    * Uma configuração mínima para funcional seria::
 
         SECRET_KEY=MUDE-PARA-RESULTADO-GENERATE-SECRET-KEY
         DEBUG=True
