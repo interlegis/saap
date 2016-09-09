@@ -1,32 +1,23 @@
 from _functools import reduce
 from datetime import date, timedelta
 import datetime
-import decimal
 import operator
 
-from crispy_forms.bootstrap import InlineRadios, FieldWithButtons, StrictButton
+from crispy_forms.bootstrap import FieldWithButtons, StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Field, Row, Layout, Fieldset, Div, Button,\
-    Submit, BaseInput
-from crispy_forms.templatetags.crispy_forms_field import css_class
-from crispy_forms.utils import get_template_pack
+from crispy_forms.layout import Field, Layout, Fieldset, Div, BaseInput
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
-from django.db.models.expressions import Func
-from django.forms import widgets
 from django.forms.models import ModelForm, ModelMultipleChoiceField
-from django.http.request import QueryDict
 from django.utils.translation import ugettext_lazy as _
-from django_filters.filters import CharFilter, ChoiceFilter, NumberFilter,\
-    MethodFilter, DateFromToRangeFilter, ModelChoiceFilter, RangeFilter,\
+from django_filters.filters import ChoiceFilter, NumberFilter,\
+    MethodFilter, ModelChoiceFilter, RangeFilter,\
     MultipleChoiceFilter, ModelMultipleChoiceFilter
-from django_filters.filterset import FilterSet, STRICTNESS
-from saap.crispy_layout_mixin import to_column, SaplFormLayout, to_fieldsets,\
-    form_actions, to_row
+from django_filters.filterset import FilterSet
+from saap.crispy_layout_mixin import SaplFormLayout, to_row
 from saap.core.models import Municipio
 
 from saap import settings
@@ -338,9 +329,10 @@ class EnderecoForm(ModelForm):
         super(EnderecoForm, self).__init__(*args, **kwargs)
 
         self.fields['uf'].initial = settings.INITIAL_VALUE_FORMS_UF
-        self.fields[
-            'municipio'].initial = Municipio.objects.get(
-            pk=settings.INITIAL_VALUE_FORMS_MUNICIPIO)
+        self.fields['municipio'].initial = Municipio.objects.get(
+            nome=settings.INITIAL_VALUE_FORMS_MUNICIPIO,
+            uf=settings.INITIAL_VALUE_FORMS_UF
+        )
 
         self.fields['cep'].widget.attrs['class'] = 'cep'
         self.fields['endereco'].widget.attrs['autocomplete'] = 'off'
@@ -771,7 +763,9 @@ class ImpressoEnderecamentoContatoFilterSet(FilterSet):
         return queryset
 
     def filter_data_nascimento(self, queryset, value):
-        #_where = "date_part('year', age(timestamp '%s', data_nascimento)) != date_part('year', age(timestamp '%s', data_nascimento))"
+        # _where = ("date_part('year', age(timestamp '%s', "
+        #     "data_nascimento)) != date_part('year', "
+        #     "age(timestamp '%s', data_nascimento))"
         # return queryset.extra(where=_where, params=value)
 
         if not value[0] or not value[1]:
@@ -1056,13 +1050,13 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
             workspace=workspace)
 
         self.form.fields['importancia'].widget = forms.CheckboxSelectMultiple()
-        #self.form.fields['importancia'].inline_class = True
+        # self.form.fields['importancia'].inline_class = True
 
         self.form.fields[
             'classificacoes'].widget = forms.CheckboxSelectMultiple()
 
         self.form.fields['status'].widget = forms.CheckboxSelectMultiple()
-        #self.form.fields['status'].inline_class = True
+        # self.form.fields['status'].inline_class = True
         self.form.fields['status'].choices = list(
             self.form.fields['status'].choices)
         del self.form.fields['status'].choices[0]
