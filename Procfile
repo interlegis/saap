@@ -1,1 +1,1 @@
-web: ./gunicorn_start.sh
+web: gunicorn saap.wsgi --log-file -
