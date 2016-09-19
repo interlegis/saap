@@ -97,7 +97,7 @@ Instalação e configuração das dependências do projeto
 
   * Criação da `SECRET_KEY <https://docs.djangoproject.com/es/1.9/ref/settings/#std:setting-SECRET_KEY>`_:
 
-    Rodar o comando::
+    Rodar o comando abaixo, um detalhe importante, esse comando só funciona com o django extensions, mas ele já está presente no arquivo requirements/requirements.txt desse projeto::
 
         python manage.py generate_secret_key
 
