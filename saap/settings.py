@@ -248,7 +248,16 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap3'
 CRISPY_FAIL_SILENTLY = not DEBUG
 
+HEROKU = bool(os.environ.get('DATABASE_URL'))
+
 BOWER_COMPONENTS_ROOT = PROJECT_DIR.child("bower")
+
+# where to find your local bower
+BOWER_PATH = '/usr/bin/bower'
+
+if HEROKU:
+    BOWER_PATH = '/app/node_modules/bower/bin/bower'
+
 BOWER_INSTALLED_APPS = (
     'bootstrap-sass#3.3.6',
     'components-font-awesome#4.6.3',
