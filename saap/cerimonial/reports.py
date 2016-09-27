@@ -1,7 +1,4 @@
-
-from _io import BytesIO
-from datetime import date, datetime
-from math import ceil, floor
+from math import floor
 
 from braces.views import PermissionRequiredMixin
 from compressor.utils.decorators import cached_property
@@ -14,26 +11,23 @@ from django.template.defaultfilters import lower
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 from django_filters.views import FilterView
-from pip._vendor.requests.certs import where
-from reportlab.graphics.charts.textlabels import Label
-from reportlab.graphics.shapes import Drawing
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle,\
     StyleSheet1, _baseFontNameB
-from reportlab.lib.units import cm, inch
+from reportlab.lib.units import cm
 from reportlab.pdfgen import canvas
 from reportlab.platypus.doctemplate import SimpleDocTemplate
 from reportlab.platypus.frames import Frame
 from reportlab.platypus.para import Paragraph
-from reportlab.platypus.tables import Table, TableStyle, LongTable
-from saap.crud.base import make_pagination
+from reportlab.platypus.tables import TableStyle, LongTable
 
 from saap.cerimonial.forms import ImpressoEnderecamentoContatoFilterSet,\
-    ContatoAgrupadoPorProcessoFilterSet
+    ContatoAgrupadoPorProcessoFilterSet, ContatoAgrupadoPorGrupoFilterSet
 from saap.cerimonial.models import Contato, Processo
 from saap.core.models import AreaTrabalho
+from saap.crud.base import make_pagination
 
 
 class ImpressoEnderecamentoContatoView(PermissionRequiredMixin, FilterView):
@@ -296,15 +290,21 @@ class ImpressoEnderecamentoContatoView(PermissionRequiredMixin, FilterView):
         p.drawText(textobject)
 
 
-class RelatorioContatoAgrupadoPorProcessoView(
-        PermissionRequiredMixin, FilterView):
-    permission_required = 'cerimonial.print_rel_contato_agrupado_por_processo'
-    filterset_class = ContatoAgrupadoPorProcessoFilterSet
-    model = Processo
-    template_name = "cerimonial/filter_contato_agrupado_por_processo.html"
-    container_field = 'workspace__operadores'
+class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
+    permission_required = 'deve_ser_definida_na_heranca'
+    filterset_class = None
+    model = None
+    template_name = 'deve_ser_definido_na_heranca'
+    container_field = 'workspace_definido_na_heranca'
 
     paginate_by = 30
+    
+    def __init__(self):
+        super().__init__()
+        self.MAX_TITULO = 80
+        self.ctx_title = 'Título do contexto do Relatório'
+        self.relat_title = 'Título do Relatório'
+        self.nome_objeto = 'Nome do Objeto'
 
     @cached_property
     def is_contained(self):
@@ -335,8 +335,10 @@ class RelatorioContatoAgrupadoPorProcessoView(
 
         if len(request.GET) and not len(self.filterset.form.errors)\
                 and not self.object_list.exists():
-            messages.error(request, _('Não existe Processo com as '
-                                      'condições definidas na busca!'))
+            messages.error(request, _(
+                'Não existe {} com as '
+                'condições definidas na busca!'.format(self.nome_objeto)
+            ))
 
         return self.render_to_response(context)
 
@@ -360,12 +362,10 @@ class RelatorioContatoAgrupadoPorProcessoView(
 
     def get_context_data(self, **kwargs):
         count = self.object_list.count()
-        context = super(RelatorioContatoAgrupadoPorProcessoView,
-                        self).get_context_data(**kwargs)
+        context = super(RelatorioAgrupado, self).get_context_data(**kwargs)
         context['count'] = count
 
-        context['title'] = _(
-            'Relatório de Contatos Com Agrupamento Por Processos')
+        context['title'] = _(self.ctx_title)
         paginator = context['paginator']
         page_obj = context['page_obj']
 
@@ -381,15 +381,9 @@ class RelatorioContatoAgrupadoPorProcessoView(
 
     def build_pdf(self, response):
 
-        cleaned_data = self.filterset.form.cleaned_data
-
-        agrupamento = cleaned_data['agrupamento']
-
         elements = []
 
-        #print('data ini', datetime.now())
         data = self.get_data()
-        #print('data fim', datetime.now())
 
         style = TableStyle([
             ('FONTSIZE', (0, 0), (-1, -1), 8),
@@ -403,7 +397,6 @@ class RelatorioContatoAgrupadoPorProcessoView(
         ])
         style.add('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
 
-        #print('enumerate ini', datetime.now())
         for i, value in enumerate(data):
             if len(value) <= 1:
                 style.add('SPAN', (0, i), (-1, i))
@@ -416,11 +409,6 @@ class RelatorioContatoAgrupadoPorProcessoView(
             if len(value) == 1:
                 style.add('LINEABOVE', (0, i), (-1, i), 0.1, colors.black)
 
-        #print('enumerate fim', datetime.now())
-        # if not agrupamento or agrupamento == 'sem_agrupamento':
-        #    style.add('ALIGN', (0, 0), (0, -1), 'CENTER')
-
-        #print('table ini', datetime.now())
         rowHeights = 20
         t = LongTable(data, rowHeights=rowHeights, splitByRow=True)
         t.setStyle(style)
@@ -447,9 +435,7 @@ class RelatorioContatoAgrupadoPorProcessoView(
                     break
 
         elements.append(t)
-        #print('table fim', datetime.now())
 
-        #print('build ini', datetime.now())
         doc = SimpleDocTemplate(
             response,
             pagesize=landscape(A4),
@@ -458,69 +444,99 @@ class RelatorioContatoAgrupadoPorProcessoView(
             topMargin=1.1 * cm,
             bottomMargin=0.8 * cm)
         doc.build(elements)
-        #print('build fim', datetime.now())
 
     def get_data(self):
-        """data ini 2016-08-29 09:45:43.018039
-        data fim 2016-08-29 09:47:16.667659
-        enumerate ini 2016-08-29 09:47:16.667745
-        enumerate fim 2016-08-29 09:47:16.671923
-        table ini 2016-08-29 09:47:16.671954
-        table fim 2016-08-29 09:47:17.233298
-        doc ini 2016-08-29 09:47:17.233338
-        doc fim 2016-08-29 10:13:36.675347"""
-        # 211 páginas
-        # 6723
-
-        MAX_TITULO = 80
-
-        s = getSampleStyleSheet()
-        h3 = s["Heading3"]
-        h3.fontName = _baseFontNameB
-        h3.alignment = TA_CENTER
-
-        h4 = s["Heading4"]
-        h4.fontName = _baseFontNameB
-
-        h5 = s["Heading5"]
-        h5.fontName = _baseFontNameB
-        h5.alignment = TA_CENTER
-
-        s = s["BodyText"]
-        s.wordWrap = None  # 'LTR'
-        s.spaceBefore = 0
-        s.fontSize = 8
-        s.leading = 8
-
-        s_min = getSampleStyleSheet()
-        s_min = s_min["BodyText"]
-        s_min.wordWrap = None  # 'LTR'
-        s_min.spaceBefore = 0
-        s_min.fontSize = 6
-        s_min.leading = 8
-
-        s_center = getSampleStyleSheet()
-        s_center = s_center["BodyText"]
-        s_center.wordWrap = None  # 'LTR'
-        s_center.spaceBefore = 0
-        s_center.alignment = TA_CENTER
-        s_center.fontSize = 8
-        s_center.leading = 8
-
-        s_right = getSampleStyleSheet()
-        s_right = s_right["BodyText"]
-        s_right.wordWrap = None  # 'LTR'
-        s_right.spaceBefore = 0
-        s_right.alignment = TA_RIGHT
-        s_right.fontSize = 8
-        s_right.leading = 8
+        self.set_headings()
+        self.set_styles()
 
         cleaned_data = self.filterset.form.cleaned_data
 
         agrupamento = cleaned_data['agrupamento']
-
         agrupamento = '' if agrupamento == 'sem_agrupamento' else agrupamento
 
+        data = []
+        self.set_cabec(self.h5, agrupamento)
+
+        self.set_object_list(agrupamento)
+        where = self.object_list.query.where
+
+        for p in self.object_list.all():
+            item = []
+
+            self.set_label_agrupamento(agrupamento, p)
+
+            if not data:
+                self.add_relat_title(data)
+
+            if not p or isinstance(p, str):
+                self.add_group_title(data, p)
+                contatos_query = self.build_query(agrupamento, p, where)
+            else:
+                if len(p.titulo) < self.MAX_TITULO:
+                    paragrafo = str(p.titulo)
+                    estilo = self.h_style
+                else:
+                    paragrafo = (
+                        p.titulo[:self.MAX_TITULO] +
+                        force_text(_(' (Continua...)'))
+                    )
+                    estilo = self.s_min
+
+                item = [
+                    Paragraph(p.data.strftime('%d/%m/%Y'), self.s_center),
+                    Paragraph(paragrafo, estilo)
+                ]
+
+                contatos_query = p.contatos.all()
+
+            self.set_body_data(agrupamento, where, contatos_query, data, item)
+
+        return data
+
+    def set_headings(self):
+        self.h_style = getSampleStyleSheet()
+        self.h3 = self.h_style["Heading3"]
+        self.h3.fontName = _baseFontNameB
+        self.h3.alignment = TA_CENTER
+
+        self.h4 = self.h_style["Heading4"]
+        self.h4.fontName = _baseFontNameB
+
+        self.h5 = self.h_style["Heading5"]
+        self.h5.fontName = _baseFontNameB
+        self.h5.alignment = TA_CENTER
+
+        self.h_style = self.h_style["BodyText"]
+        self.h_style.wordWrap = None  # 'LTR'
+        self.h_style.spaceBefore = 0
+        self.h_style.fontSize = 8
+        self.h_style.leading = 8
+
+    def set_styles(self):
+        self.s_min = getSampleStyleSheet()
+        self.s_min = self.s_min["BodyText"]
+        self.s_min.wordWrap = None  # 'LTR'
+        self.s_min.spaceBefore = 0
+        self.s_min.fontSize = 6
+        self.s_min.leading = 8
+
+        self.s_center = getSampleStyleSheet()
+        self.s_center = self.s_center["BodyText"]
+        self.s_center.wordWrap = None  # 'LTR'
+        self.s_center.spaceBefore = 0
+        self.s_center.alignment = TA_CENTER
+        self.s_center.fontSize = 8
+        self.s_center.leading = 8
+
+        self.s_right = getSampleStyleSheet()
+        self.s_right = self.s_right["BodyText"]
+        self.s_right.wordWrap = None  # 'LTR'
+        self.s_right.spaceBefore = 0
+        self.s_right.alignment = TA_RIGHT
+        self.s_right.fontSize = 8
+        self.s_right.leading = 8
+
+    def set_object_list(self, agrupamento):
         if not agrupamento:
             self.object_list = self.object_list.order_by(
                 'data', 'titulo', 'contatos__nome')
@@ -529,200 +545,216 @@ class RelatorioContatoAgrupadoPorProcessoView(
                 agrupamento).distinct(agrupamento).values_list(
                 agrupamento, flat=True)
 
-        data = []
-        cabec = []
-        cabec.append(Paragraph(_('Data'), h5))
+    def set_cabec(self, h5, agrupamento):
+        cabec = [Paragraph(_('Data'), h5)]
         if agrupamento != 'titulo':
             cabec.append(Paragraph(_('Título'), h5))
         cabec.append(Paragraph(_('Nome'), h5))
         cabec.append(Paragraph(_('Endereço'), h5))
         cabec.append(Paragraph(_('Telefone'), h5))
+        self.cabec = cabec
 
-        where = self.object_list.query.where
+    def set_label_agrupamento(self, agrupamento, processo):
+        label_agrupamento = ''
+        if not processo or isinstance(processo, str):
+            label_agrupamento = dict(
+                self.filterset_class.AGRUPAMENTO_CHOICE)
+            label_agrupamento = force_text(
+                label_agrupamento[agrupamento])
+        self.label_agrupamento = label_agrupamento
 
-        for p in self.object_list.all():
+    def add_relat_title(self, data):
+        tit_relatorio = _(self.relat_title)
+        tit_relatorio = force_text(tit_relatorio) + ' '
+        if self.label_agrupamento:
+             tit_relatorio += force_text(_('Agrupados'))
+        else:
+            tit_relatorio += force_text(_('Sem Agrupamento'))
+        tit_relatorio +=  ' ' + self.label_agrupamento
 
-            contatos_query = []
-            item = []
+        data.append([Paragraph(tit_relatorio, self.h3)])
 
-            label_agrupamento = ''
-            if not p or isinstance(p, str):
-                label_agrupamento = dict(
-                    ContatoAgrupadoPorProcessoFilterSet.AGRUPAMENTO_CHOICE)
-                label_agrupamento = force_text(
-                    label_agrupamento[agrupamento])
+        if not self.label_agrupamento:
+            data.append(self.cabec)
 
-            if not data:
-                tit_relatorio = _('Relatório de Contatos e Processos')
-                tit_relatorio = force_text(tit_relatorio) + ' ' + ((
-                    force_text(_('Agrupados')) + ' ' +
-                    label_agrupamento) if label_agrupamento else (
-                    force_text(_('Sem Agrupamento')) +
-                    ' ' + label_agrupamento))
+    def add_group_title(self, data, processo):
+        data.append([])
+        lbl_group = self.label_agrupamento
+        if processo:
+            paragrafo =  lbl_group + ' - ' + str(processo)
+        else:
+            paragrafo = (
+                force_text(_('Sem Agrupamento')) + ' ' + lbl_group
+            )
+        data.append([Paragraph(paragrafo, self.h4)])
 
-                data.append([Paragraph(tit_relatorio, h3)])
+        data.append(self.cabec)
 
-                if not label_agrupamento:
-                    data.append(cabec)
+    def build_query(self, agrupamento, processo, where):
+        p_filter = (('processo_set__' + agrupamento, processo),)
+        if not processo:
+            p_filter = (
+                (p_filter[0][0] + '__isnull', True),
+                (p_filter[0][0] + '__exact', '')
+            )
 
-            if not p or isinstance(p, str):
-                data.append([])
+        q = Q()
+        for filtro in p_filter:
+            filtro_dict = {filtro[0]: filtro[1]}
+            q = q | Q(**filtro_dict)
 
-                data.append([Paragraph((
-                    label_agrupamento + ' - ' + str(p)) if p
-                    else (force_text(_('Sem Agrupamento')) +
-                          ' ' + label_agrupamento), h4)])
+        contatos_query = Contato.objects.all()
+        contatos_query.query.where = where.clone()
+        contatos_query = contatos_query.filter(q)
 
-                data.append(cabec)
+        params = {self.container_field: self.request.user.pk}
+        contatos_query = contatos_query.filter(**params)
 
-                p_filter = (('processo_set__' + agrupamento, p),)
-                if not p:
-                    p_filter = (
-                        (p_filter[0][0] + '__isnull', True),
-                        (p_filter[0][0] + '__exact', '')
-                    )
+        contatos_query = contatos_query.order_by(
+            'processo_set__' + agrupamento,
+            'processo_set__data',
+            'nome',
+            'endereco_set__bairro__nome',
+            'endereco_set__endereco').distinct(
+            'processo_set__' + agrupamento,
+            'processo_set__data',
+            'nome')
+        return contatos_query
 
-                q = Q()
-                for filtro in p_filter:
-                    filtro_dict = {filtro[0]: filtro[1]}
-                    q = q | Q(**filtro_dict)
+    def set_body_data(self, agrupamento, where, contatos_query, data, item):
+        contatos = []
+        enderecos = []
+        telefones = []
+        for contato in contatos_query:
 
-                contatos_query = Contato.objects.all()
-                contatos_query.query.where = where.clone()
-                contatos_query = contatos_query.filter(q)
+            if agrupamento:
+                contatos = []
+                enderecos = []
+                telefones = []
+                item = []
 
-                params = {self.container_field: self.request.user.pk}
-                contatos_query = contatos_query.filter(**params)
+            if contatos:
+                contatos.append(Paragraph('--------------', self.s_center))
+                enderecos.append(Paragraph('--------------', self.s_center))
+                telefones.append(Paragraph('--------------', self.s_center))
 
-                contatos_query = contatos_query.order_by(
-                    'processo_set__' + agrupamento,
-                    'processo_set__data',
-                    'nome',
-                    'endereco_set__bairro__nome',
-                    'endereco_set__endereco').distinct(
-                    'processo_set__' + agrupamento,
-                    'processo_set__data',
-                    'nome')
+            contatos.append(Paragraph(str(contato.nome), self.h_style))
 
-            else:
-                item = [
-                    Paragraph(p.data.strftime('%d/%m/%Y'), s_center),
-                    Paragraph(
-                        str(p.titulo) if len(p.titulo) < MAX_TITULO
-                        else p.titulo[:MAX_TITULO] +
-                        force_text(_(' (Continua...)')), s if len(p.titulo) < MAX_TITULO else s_min)]
+            endpref = contato.endereco_set.filter(
+                preferencial=True).first()
+            endereco = ''
+            if endpref:
+                endereco = endpref.endereco + \
+                           (' - ' + endpref.numero
+                            if endpref.numero else '') + \
+                           (' - ' + endpref.complemento
+                            if endpref.complemento else '')
 
-                contatos_query = p.contatos.all()
+                endereco = '%s - %s - %s - %s' % (
+                    endereco,
+                    endpref.bairro if endpref.bairro else '',
+                    endpref.municipio.nome
+                    if endpref.municipio else '',
+                    endpref.uf)
 
-            contatos = []
-            enderecos = []
-            telefones = []
-            for contato in contatos_query:
+            enderecos.append(Paragraph(endereco, self.h_style))
 
-                if agrupamento:
-                    contatos = []
-                    enderecos = []
-                    telefones = []
-                    item = []
+            tels = '\n'.join(map(
+                lambda x: str(x), list(contato.telefone_set.all())
+            )) if contato.telefone_set.exists() else ''
 
-                if contatos:
-                    contatos.append(Paragraph('--------------', s_center))
-                    enderecos.append(Paragraph('--------------', s_center))
-                    telefones.append(Paragraph('--------------', s_center))
+            telefones.append((Paragraph(tels, self.s_center)))
 
-                contatos.append(Paragraph(str(contato.nome), s))
+            if agrupamento:
+                params = {'contatos': contato,
+                          self.container_field: self.request.user.pk}
+                processos = Processo.objects.all()
+                processos.query.where = where.clone()
+                processos = processos.filter(**params)
 
-                endpref = contato.endereco_set.filter(
-                    preferencial=True).first()
-                endereco = ''
-                if endpref:
-                    endereco = endpref.endereco +\
-                        (' - ' + endpref.numero
-                         if endpref.numero else '') +\
-                        (' - ' + endpref.complemento
-                         if endpref.complemento else '')
+                ps = None
+                data_abertura = []
+                titulo = []
+                for ps in processos:
 
-                    endereco = '%s - %s - %s - %s' % (
-                        endereco,
-                        endpref.bairro if endpref.bairro else '',
-                        endpref.municipio.nome
-                        if endpref.municipio else '',
-                        endpref.uf)
-
-                enderecos.append(Paragraph(endereco, s))
-
-                tels = '\n'.join(map(
-                    lambda x: str(x), list(contato.telefone_set.all())
-                )) if contato.telefone_set.exists() else ''
-
-                telefones.append((Paragraph(tels, s_center)))
-
-                if agrupamento:
-                    params = {'contatos': contato,
-                              self.container_field: self.request.user.pk}
-                    processos = Processo.objects.all()
-                    processos.query.where = where.clone()
-                    processos = processos.filter(**params)
-
-                    ps = None
-                    data_abertura = []
-                    titulo = []
-                    for ps in processos:
-
-                        if data_abertura:
-                            data_abertura.append(
-                                Paragraph('--------------', s_center))
-                            if agrupamento != 'titulo':
-                                titulo.append(
-                                    Paragraph('--------------', s_center))
-
+                    if data_abertura:
                         data_abertura.append(
-                            Paragraph(
-                                ps.data.strftime('%d/%m/%Y'), s_center))
-
+                            Paragraph('--------------', self.s_center))
                         if agrupamento != 'titulo':
                             titulo.append(
-                                Paragraph(
-                                    str(ps.titulo)
-                                    if len(ps.titulo) < MAX_TITULO
-                                    else ps.titulo[:MAX_TITULO] +
-                                    force_text(_(' (Continua...)')),
-                                    s if len(ps.titulo) < MAX_TITULO
-                                    else s_min))
-                    if not ps:
-                        data_abertura.append(Paragraph('-----', s_center))
-                        if agrupamento != 'titulo':
-                            titulo.append(Paragraph('-----', s_center))
+                                Paragraph('--------------', self.s_center))
 
-                    if len(data_abertura) == 1:
-                        item += data_abertura
-                        if agrupamento != 'titulo':
-                            item += titulo
-                    else:
-                        item.append(data_abertura)
-                        if agrupamento != 'titulo':
-                            item.append(titulo)
+                    data_abertura.append(
+                        Paragraph(
+                            ps.data.strftime('%d/%m/%Y'), self.s_center))
 
-                    item.append(contatos[0])
-                    item.append(enderecos[0])
-                    item.append(telefones[0])
+                    if agrupamento != 'titulo':
+                        if len(ps.titulo) < self.MAX_TITULO:
+                            paragrafo = str(ps.titulo)
+                            estilo = self.h_style
+                        else:
+                            paragrafo = (
+                                ps.titulo[:self.MAX_TITULO] +
+                                force_text(_(' (Continua...)'))
+                            )
+                            estilo = self.s_min
+                        titulo.append(Paragraph(paragrafo, estilo))
 
-                    data.append(item)
+                if not ps:
+                    data_abertura.append(Paragraph('-----', self.s_center))
+                    if agrupamento != 'titulo':
+                        titulo.append(Paragraph('-----', self.s_center))
 
-                    """if len(data) > 2000:
-                        return data"""
-
-            if not agrupamento:
-                if len(contatos) == 0:
-                    item.append('-----')
+                if len(data_abertura) == 1:
+                    item += data_abertura
+                    if agrupamento != 'titulo':
+                        item += titulo
                 else:
-                    item.append(contatos)
-                    item.append(enderecos)
-                    item.append(telefones)
+                    item.append(data_abertura)
+                    if agrupamento != 'titulo':
+                        item.append(titulo)
+
+                item.append(contatos[0])
+                item.append(enderecos[0])
+                item.append(telefones[0])
 
                 data.append(item)
 
-                """if len(data) > 2000:
-                    return data"""
+        if not agrupamento:
+            if len(contatos) == 0:
+                item.append('-----')
+            else:
+                item.append(contatos)
+                item.append(enderecos)
+                item.append(telefones)
 
-        return data
+            data.append(item)
+
+
+class RelatorioContatoAgrupadoPorProcessoView(RelatorioAgrupado):
+    permission_required = 'cerimonial.print_rel_contato_agrupado_por_processo'
+    filterset_class = ContatoAgrupadoPorProcessoFilterSet
+    model = Processo
+    template_name = "cerimonial/filter_contato_agrupado_por_processo.html"
+    container_field = 'workspace__operadores'
+
+    def __init__(self):
+        super().__init__()
+        self.ctx_title = 'Relatório de Contatos Com Agrupamento Por Processos'
+        self.relat_title = 'Relatório de Contatos e Processos'
+        self.nome_objeto = 'Processo'
+
+
+class RelatorioContatoAgrupadoPorGrupoView(RelatorioAgrupado):
+    permission_required = 'cerimonial.print_rel_contato_agrupado_por_grupo'
+    filterset_class = ContatoAgrupadoPorGrupoFilterSet
+    model = Contato
+    template_name = 'cerimonial/filter_contato_agrupado_por_grupo.html'
+    container_field = 'workspace__operadores'
+
+    def __init__(self):
+        super().__init__()
+        self.ctx_title = 'Relatório de Contatos Com Agrupamento Por Grupos'
+        self.relat_title = 'Relatório de Contatos e Grupos'
+        self.nome_objeto = 'Contato'
+
