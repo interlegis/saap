@@ -25,8 +25,8 @@ from reportlab.platypus.tables import TableStyle, LongTable
 
 from saap.cerimonial.forms import ImpressoEnderecamentoContatoFilterSet,\
     ContatoAgrupadoPorProcessoFilterSet, ContatoAgrupadoPorGrupoFilterSet
-from saap.cerimonial.models import Contato, Processo
-from saap.core.models import AreaTrabalho
+from saap.cerimonial.models import Contato, Processo, GrupoDeContatos, Telefone
+from saap.core.models import AreaTrabalho, Municipio
 from saap.crud.base import make_pagination
 
 
@@ -383,8 +383,6 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
 
         elements = []
 
-        data = self.get_data()
-
         style = TableStyle([
             ('FONTSIZE', (0, 0), (-1, -1), 8),
             ('LEADING', (0, 0), (-1, -1), 7),
@@ -396,6 +394,8 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
             ('RIGHTPADDING', (0, 0), (-1, -1), 3),
         ])
         style.add('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+
+        data = self.get_data()
 
         for i, value in enumerate(data):
             if len(value) <= 1:
@@ -453,24 +453,25 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
 
         agrupamento = cleaned_data['agrupamento']
         agrupamento = '' if agrupamento == 'sem_agrupamento' else agrupamento
+        self.agrupamento = agrupamento
 
         data = []
-        self.set_cabec(self.h5, agrupamento)
+        self.set_cabec(self.h5)
 
-        self.set_object_list(agrupamento)
+        self.set_object_list()
         where = self.object_list.query.where
 
         for p in self.object_list.all():
             item = []
 
-            self.set_label_agrupamento(agrupamento, p)
+            self.set_label_agrupamento(p)
 
             if not data:
                 self.add_relat_title(data)
 
             if not p or isinstance(p, str):
                 self.add_group_title(data, p)
-                contatos_query = self.build_query(agrupamento, p, where)
+                contatos_query = self.build_query(p, where)
             else:
                 if len(p.titulo) < self.MAX_TITULO:
                     paragrafo = str(p.titulo)
@@ -489,7 +490,7 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
 
                 contatos_query = p.contatos.all()
 
-            self.set_body_data(agrupamento, where, contatos_query, data, item)
+            self.set_body_data(where, contatos_query, data, item)
 
         return data
 
@@ -536,31 +537,31 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
         self.s_right.fontSize = 8
         self.s_right.leading = 8
 
-    def set_object_list(self, agrupamento):
-        if not agrupamento:
+    def set_object_list(self):
+        if not self.agrupamento:
             self.object_list = self.object_list.order_by(
                 'data', 'titulo', 'contatos__nome')
         else:
             self.object_list = self.object_list.order_by(
-                agrupamento).distinct(agrupamento).values_list(
-                agrupamento, flat=True)
+                self.agrupamento).distinct(self.agrupamento).values_list(
+                self.agrupamento, flat=True)
 
-    def set_cabec(self, h5, agrupamento):
+    def set_cabec(self, h5):
         cabec = [Paragraph(_('Data'), h5)]
-        if agrupamento != 'titulo':
+        if self.agrupamento != 'titulo':
             cabec.append(Paragraph(_('Título'), h5))
         cabec.append(Paragraph(_('Nome'), h5))
         cabec.append(Paragraph(_('Endereço'), h5))
         cabec.append(Paragraph(_('Telefone'), h5))
         self.cabec = cabec
 
-    def set_label_agrupamento(self, agrupamento, processo):
+    def set_label_agrupamento(self, processo):
         label_agrupamento = ''
         if not processo or isinstance(processo, str):
             label_agrupamento = dict(
                 self.filterset_class.AGRUPAMENTO_CHOICE)
             label_agrupamento = force_text(
-                label_agrupamento[agrupamento])
+                label_agrupamento[self.agrupamento])
         self.label_agrupamento = label_agrupamento
 
     def add_relat_title(self, data):
@@ -577,21 +578,22 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
         if not self.label_agrupamento:
             data.append(self.cabec)
 
-    def add_group_title(self, data, processo):
-        data.append([])
+    def add_group_title(self, corpo_relatorio, registro_principal):
+        import pdb; pdb.set_trace()
+        corpo_relatorio.append([])
         lbl_group = self.label_agrupamento
-        if processo:
-            paragrafo =  lbl_group + ' - ' + str(processo)
+        if registro_principal:
+            paragrafo =  lbl_group + ' - ' + str(registro_principal)
         else:
             paragrafo = (
                 force_text(_('Sem Agrupamento')) + ' ' + lbl_group
             )
-        data.append([Paragraph(paragrafo, self.h4)])
+        corpo_relatorio.append([Paragraph(paragrafo, self.h4)])
 
-        data.append(self.cabec)
+        corpo_relatorio.append(self.cabec)
 
-    def build_query(self, agrupamento, processo, where):
-        p_filter = (('processo_set__' + agrupamento, processo),)
+    def build_query(self, processo, where):
+        p_filter = (('processo_set__' + self.agrupamento, processo),)
         if not processo:
             p_filter = (
                 (p_filter[0][0] + '__isnull', True),
@@ -611,23 +613,23 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
         contatos_query = contatos_query.filter(**params)
 
         contatos_query = contatos_query.order_by(
-            'processo_set__' + agrupamento,
+            'processo_set__' + self.agrupamento,
             'processo_set__data',
             'nome',
             'endereco_set__bairro__nome',
             'endereco_set__endereco').distinct(
-            'processo_set__' + agrupamento,
+            'processo_set__' + self.agrupamento,
             'processo_set__data',
             'nome')
         return contatos_query
 
-    def set_body_data(self, agrupamento, where, contatos_query, data, item):
+    def set_body_data(self, where, contatos_query, data, item):
         contatos = []
         enderecos = []
         telefones = []
         for contato in contatos_query:
 
-            if agrupamento:
+            if self.agrupamento:
                 contatos = []
                 enderecos = []
                 telefones = []
@@ -665,7 +667,7 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
 
             telefones.append((Paragraph(tels, self.s_center)))
 
-            if agrupamento:
+            if self.agrupamento:
                 params = {'contatos': contato,
                           self.container_field: self.request.user.pk}
                 processos = Processo.objects.all()
@@ -680,7 +682,7 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
                     if data_abertura:
                         data_abertura.append(
                             Paragraph('--------------', self.s_center))
-                        if agrupamento != 'titulo':
+                        if self.agrupamento != 'titulo':
                             titulo.append(
                                 Paragraph('--------------', self.s_center))
 
@@ -688,7 +690,7 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
                         Paragraph(
                             ps.data.strftime('%d/%m/%Y'), self.s_center))
 
-                    if agrupamento != 'titulo':
+                    if self.agrupamento != 'titulo':
                         if len(ps.titulo) < self.MAX_TITULO:
                             paragrafo = str(ps.titulo)
                             estilo = self.h_style
@@ -702,16 +704,16 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
 
                 if not ps:
                     data_abertura.append(Paragraph('-----', self.s_center))
-                    if agrupamento != 'titulo':
+                    if self.agrupamento != 'titulo':
                         titulo.append(Paragraph('-----', self.s_center))
 
                 if len(data_abertura) == 1:
                     item += data_abertura
-                    if agrupamento != 'titulo':
+                    if self.agrupamento != 'titulo':
                         item += titulo
                 else:
                     item.append(data_abertura)
-                    if agrupamento != 'titulo':
+                    if self.agrupamento != 'titulo':
                         item.append(titulo)
 
                 item.append(contatos[0])
@@ -720,7 +722,7 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
 
                 data.append(item)
 
-        if not agrupamento:
+        if not self.agrupamento:
             if len(contatos) == 0:
                 item.append('-----')
             else:
@@ -758,3 +760,146 @@ class RelatorioContatoAgrupadoPorGrupoView(RelatorioAgrupado):
         self.relat_title = 'Relatório de Contatos e Grupos'
         self.nome_objeto = 'Contato'
 
+    def build_pdf(self, response):
+        CONTATO = 0
+        TELEFONES = 1
+
+        CIDADE = 0
+        ENDERECO = 1
+        BAIRRO = 2
+        NUMERO = 3
+        GRUPO = 4
+        ID = 5
+        NOME = 6
+
+        self.set_headings()
+        self.set_styles()
+        self.set_cabec(self.h5)
+        estilo = self.h_style
+
+        corpo_relatorio = []
+        self.add_relat_title(corpo_relatorio)
+
+        registros = self.get_data()
+        for dados in registros:
+            endereco = ','.join(dados[CONTATO][ENDERECO:NUMERO])
+            telefones = '\n'.join(
+                ['{}: {}'.format(x[1], x[0]) for x in dados[TELEFONES]]
+            )
+            item = [
+                Paragraph(dados[CONTATO][CIDADE], estilo),
+                Paragraph(dados[CONTATO][GRUPO], estilo),
+                Paragraph(dados[CONTATO][NOME], estilo),
+                Paragraph(endereco, estilo),
+                Paragraph(telefones, estilo),
+            ]
+            corpo_relatorio.append(item)
+
+        style = TableStyle([
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('LEADING', (0, 0), (-1, -1), 7),
+            ('GRID', (0, 0), (-1, -1), 0.1, colors.black),
+            ('INNERGRID', (0, 0), (-1, -1), 0.1, colors.black),
+            ('TOPPADDING', (0, 0), (-1, -1), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+        ])
+        style.add('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+
+        for i, value in enumerate(corpo_relatorio):
+            if len(value) <= 1:
+                style.add('SPAN', (0, i), (-1, i))
+
+            if len(value) == 0:
+                style.add('INNERGRID', (0, i), (-1, i), 0, colors.black),
+                style.add('GRID', (0, i), (-1, i), -1, colors.white)
+                style.add('LINEABOVE', (0, i), (-1, i), 0.1, colors.black)
+
+            if len(value) == 1:
+                style.add('LINEABOVE', (0, i), (-1, i), 0.1, colors.black)
+
+        rowHeights = 20
+        t = LongTable(corpo_relatorio, rowHeights=rowHeights, splitByRow=True)
+        t.setStyle(style)
+        if len(t._argW) == 5:
+            t._argW[0] = 1.8 * cm
+            t._argW[1] = 6 * cm
+            t._argW[2] = 6.5 * cm
+            t._argW[3] = 9.5 * cm
+            t._argW[4] = 2.4 * cm
+        elif len(t._argW) == 4:
+            t._argW[0] = 2 * cm
+            t._argW[1] = 10 * cm
+            t._argW[2] = 11.5 * cm
+            t._argW[3] = 3 * cm
+
+        for i, value in enumerate(corpo_relatorio):
+            if len(value) == 0:
+                t._argH[i] = 7
+                continue
+            for cell in value:
+                if isinstance(cell, list):
+                    t._argH[i] = (rowHeights) * (
+                        len(cell) - (0 if len(cell) > 1 else 0))
+                    break
+
+        elements = [t]
+
+        doc = SimpleDocTemplate(
+            response,
+            pagesize=landscape(A4),
+            rightMargin=1.25 * cm,
+            leftMargin=1.25 * cm,
+            topMargin=1.1 * cm,
+            bottomMargin=0.8 * cm)
+        doc.build(elements)
+
+    def get_data(self):
+        cleaned_data = self.filterset.form.cleaned_data
+
+        contatos = []
+        consulta_agregada = self.object_list.order_by(
+            'endereco_set__municipio__nome',
+            'grupodecontatos_set__nome',
+            'nome'
+        )
+        consulta_agregada = consulta_agregada.values_list(
+            'endereco_set__municipio__nome',
+            'endereco_set__endereco',
+            'endereco_set__bairro__nome',
+            'endereco_set__numero',
+            'grupodecontatos_set__nome',
+            'id',
+            'nome',
+        )
+        for contato in consulta_agregada.all():
+            telefones = self.get_telefones(contato[-2])
+            contatos.append((contato, (telefones),))
+
+        return contatos
+
+    def get_telefones(self, contato_id):
+        return [
+            (
+                telefone.telefone,
+                telefone.tipo.descricao,
+             ) for telefone in Telefone.objects.filter(contato__id=contato_id).all()
+        ]
+
+    def set_cabec(self, h5):
+        cabec = [Paragraph(_('Cidade'), h5)]
+        cabec.append(Paragraph(_('Grupo'), h5))
+        cabec.append(Paragraph(_('Nome'), h5))
+        cabec.append(Paragraph(_('Endereço'), h5))
+        cabec.append(Paragraph(_('Telefone'), h5))
+        self.cabec = cabec
+
+    def add_relat_title(self, corpo_relatorio):
+        tit_relatorio = _(self.relat_title)
+        tit_relatorio = force_text(tit_relatorio) + ' '
+        tit_relatorio += force_text(_('Agrupados'))
+
+        corpo_relatorio.append([Paragraph(tit_relatorio, self.h3)])
+
+        corpo_relatorio.append(self.cabec)
