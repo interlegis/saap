@@ -762,7 +762,7 @@ class RelatorioContatoAgrupadoPorGrupoView(RelatorioAgrupado):
 
     def build_pdf(self, response):
         CONTATO = 0
-        TELEFONES = 1
+        TELEFONES_PREFERENCIAL = 1
 
         CIDADE = 0
         ENDERECO = 1
@@ -783,15 +783,13 @@ class RelatorioContatoAgrupadoPorGrupoView(RelatorioAgrupado):
         registros = self.get_data()
         for dados in registros:
             endereco = ','.join(dados[CONTATO][ENDERECO:NUMERO])
-            telefones = '\n'.join(
-                ['{}: {}'.format(x[1], x[0]) for x in dados[TELEFONES]]
-            )
+
             item = [
                 Paragraph(dados[CONTATO][CIDADE], estilo),
                 Paragraph(dados[CONTATO][GRUPO], estilo),
                 Paragraph(dados[CONTATO][NOME], estilo),
                 Paragraph(endereco, estilo),
-                Paragraph(telefones, estilo),
+                Paragraph(dados[TELEFONES_PREFERENCIAL], estilo),
             ]
             corpo_relatorio.append(item)
 
@@ -856,8 +854,6 @@ class RelatorioContatoAgrupadoPorGrupoView(RelatorioAgrupado):
         doc.build(elements)
 
     def get_data(self):
-        cleaned_data = self.filterset.form.cleaned_data
-
         contatos = []
         consulta_agregada = self.object_list.order_by(
             'endereco_set__municipio__nome',
@@ -874,18 +870,15 @@ class RelatorioContatoAgrupadoPorGrupoView(RelatorioAgrupado):
             'nome',
         )
         for contato in consulta_agregada.all():
-            telefones = self.get_telefones(contato[-2])
-            contatos.append((contato, (telefones),))
+            telefones = self.get_telefone_preferencial(contato[-2])
+            numero_fone = telefones[0].telefone if telefones else ''
+            contatos.append((contato, numero_fone,))
 
         return contatos
 
-    def get_telefones(self, contato_id):
-        return [
-            (
-                telefone.telefone,
-                telefone.tipo.descricao,
-             ) for telefone in Telefone.objects.filter(contato__id=contato_id).all()
-        ]
+    def get_telefone_preferencial(self, contato_id):
+        return Telefone.objects.filter(
+            contato__id=contato_id, preferencial=True)
 
     def set_cabec(self, h5):
         cabec = [Paragraph(_('Cidade'), h5)]

@@ -2,10 +2,10 @@ import pytest
 from django.core.urlresolvers import reverse
 from model_mommy import mommy
 
-from sapl.crud.base import (CrispyLayoutFormMixin, CrudListView, from_to,
+from saap.crud.base import (CrispyLayoutFormMixin, CrudListView, from_to,
                             get_field_display, make_pagination)
-from sapl.crud.tests.stub_app.models import Continent, Country
-from sapl.crud.tests.stub_app.views import CountryCrud
+from saap.crud.tests.stub_app.models import Continent, Country
+from saap.crud.tests.stub_app.views import CountryCrud
 
 pytestmark = pytest.mark.django_db
 
