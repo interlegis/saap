@@ -318,6 +318,8 @@ class Contato(SaapSearchMixin, SaapAuditoriaModelMixin):
              _('Pode Imprimir Impressos de Endereçamento')),
             ('print_rel_contato_agrupado_por_processo',
              _('Pode Imprimir Relatório de Contatos Agrupados por Processo')),
+            ('print_rel_contato_agrupado_por_grupo',
+             _('Pode Imprimir Relatório de Contatos Agrupados por Grupo')),
         )
         unique_together = (
             ('nome', 'data_nascimento', 'workspace', 'perfil_user'),)
