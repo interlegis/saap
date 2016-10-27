@@ -766,6 +766,13 @@ class Processo(SaapSearchMixin, SaapAuditoriaModelMixin):
         verbose_name=_('Protocolo da Prefeitura')
     )
 
+    beneficiario = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name=_('Beneficiário')
+    )
+
     instituicao = models.CharField(
         max_length=100,
         blank=True,

@@ -92,6 +92,10 @@ class ProcessoModelTest(TestCase):
         field = Processo._meta.get_field('contatos')
         self.assertTrue(field.blank)
 
+    def test_beneficiario_blank(self):
+        field = Processo._meta.get_field('beneficiario')
+        self.assertTrue(field.blank)
+
     def test_status_blank_and_null(self):
         field = Processo._meta.get_field('status')
         self.assertTrue(field.blank)
