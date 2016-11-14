@@ -1,10 +1,7 @@
-
 from django.core.exceptions import PermissionDenied
 from django.db.models.aggregates import Max
-from django.http.response import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.edit import FormView
-from saap.crispy_layout_mixin import CrispyLayoutFormMixin
 
 from saap.cerimonial.forms import LocalTrabalhoForm, EnderecoForm,\
     TipoAutoridadeForm, LocalTrabalhoPerfilForm,\
@@ -22,10 +19,10 @@ from saap.cerimonial.models import TipoTelefone, TipoEndereco,\
 from saap.cerimonial.rules import rules_patterns
 from saap.core.forms import ListWithSearchForm
 from saap.core.models import AreaTrabalho
+from saap.crispy_layout_mixin import CrispyLayoutFormMixin
 from saap.globalrules import globalrules
 from saap.globalrules.crud_custom import DetailMasterCrud,\
     MasterDetailCrudPermission, PerfilAbstractCrud, PerfilDetailCrudPermission
-
 
 globalrules.rules.config_groups(rules_patterns)
 

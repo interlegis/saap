@@ -1,17 +1,14 @@
-
 from compressor.utils.decorators import cached_property
-from django.contrib.auth.models import Group
 from django.db import models
 from django.db.models.deletion import SET_NULL, PROTECT, CASCADE
 from django.utils.translation import ugettext_lazy as _
-from saap.core.models import Parlamentar, Municipio, Partido
-from saap.utils import UF
 
-from saap.core.models import SaapModelMixin, Trecho, Distrito, RegiaoMunicipal,\
+from saap.core.models import Municipio, Partido
+from saap.core.models import Trecho, Distrito, RegiaoMunicipal,\
     SaapAuditoriaModelMixin, SaapSearchMixin, AreaTrabalho, Bairro
+from saap.utils import UF
 from saap.utils import YES_NO_CHOICES, NONE_YES_NO_CHOICES,\
     get_settings_auth_user_model
-
 
 FEMININO = 'F'
 MASCULINO = 'M'
@@ -747,6 +744,65 @@ class Processo(SaapSearchMixin, SaapAuditoriaModelMixin):
     titulo = models.CharField(max_length=9999, verbose_name=_('Título'))
 
     data = models.DateField(verbose_name=_('Data de Abertura'))
+
+    protocolo = models.CharField(
+        max_length=8,
+        blank=True,
+        null=True,
+        verbose_name=_('Protocolo do Gabinete')
+    )
+
+    proto_cam = models.CharField(
+        max_length=14,
+        blank=True,
+        null=True,
+        verbose_name=_('Protocolo da Câmara')
+    )
+
+    proto_pref = models.CharField(
+        max_length=12,
+        blank=True,
+        null=True,
+        verbose_name=_('Protocolo da Prefeitura')
+    )
+
+    beneficiario = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name=_('Beneficiário')
+    )
+
+    instituicao = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name=_('Instituição')
+    )
+
+    orgao = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name=_('Órgão responsável')
+    )
+
+    rua = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name=_('Rua da solicitação')
+    )
+
+    bairro = models.ForeignKey(Bairro,
+                               blank=True, null=True,
+                               verbose_name=_('Bairro da solicitação'),
+                               related_name='bairro_set',
+                               on_delete=SET_NULL)
+
+    urgente = models.BooleanField(default=False, verbose_name=_('Rápido'))
+
+    data_solucao = models.DateField(blank=True, null=True, verbose_name=_('Data da solução'))
 
     descricao = models.TextField(
         blank=True, default='',

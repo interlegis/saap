@@ -155,6 +155,15 @@ Processo:
   - data:2 titulo importancia:4
   - topicos:4 assuntos status:2 classificacoes:2
   - descricao
+  - protocolo
+  - proto_cam
+  - proto_pref
+  - instituicao
+  - orgao
+  - rua
+  - bairro
+  - urgente
+  - data_solucao
   - observacoes
   - solucao
   - contatos
@@ -163,6 +172,15 @@ ProcessoLayoutForForm:
   - data:2 titulo importancia:4
   - topicos:4 assuntos status:2 classificacoes:2
   - descricao
+  - protocolo
+  - proto_cam
+  - proto_pref
+  - instituicao
+  - orgao
+  - rua
+  - bairro
+  - urgente
+  - data_solucao
   - observacoes
   - solucao
 GrupoDeContatosLayoutForForm:

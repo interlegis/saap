@@ -15,7 +15,7 @@ from django.forms.models import ModelForm, ModelMultipleChoiceField
 from django.utils.translation import ugettext_lazy as _
 from django_filters.filters import ChoiceFilter, NumberFilter,\
     MethodFilter, ModelChoiceFilter, RangeFilter,\
-    MultipleChoiceFilter, ModelMultipleChoiceFilter
+    MultipleChoiceFilter, ModelMultipleChoiceFilter, BooleanFilter
 from django_filters.filterset import FilterSet
 from saap.crispy_layout_mixin import SaplFormLayout, to_row
 from saap.core.models import Municipio
@@ -27,7 +27,7 @@ from saap.cerimonial.models import LocalTrabalho, Endereco,\
     GrupoDeContatos, TopicoProcesso
 from saap.core.forms import ListWithSearchForm
 from saap.core.models import Trecho, ImpressoEnderecamento
-from saap.utils import normalize, YES_NO_CHOICES
+from saap.utils import normalize, YES_NO_CHOICES, NONE_YES_NO_CHOICES
 
 
 class ListTextWidget(forms.TextInput):
@@ -393,6 +393,17 @@ class ProcessoForm(ModelForm):
                   'importancia',
                   'status',
                   'descricao',
+                  'data',
+                  'protocolo',
+                  'proto_cam',
+                  'proto_pref',
+                  'instituicao',
+                  'orgao',
+                  'rua',
+                  'bairro',
+                  'urgente',
+                  'data_solucao',
+                  'importancia',
                   'classificacoes',
                   'observacoes',
                   'solucao',
@@ -1153,6 +1164,11 @@ class ContatoAgrupadoPorGrupoFilterSet(FilterSet):
         required=False,
         queryset=GrupoDeContatos.objects.all())
 
+    ativo = BooleanFilter()
+    # contato_ativo = MethodChoiceFilter(
+    #     choices=NONE_YES_NO_CHOICES,
+    #     initial=None)
+
     def filter_municipio(self, queryset, value):
         queryset = queryset.filter(endereco_set__municipio=value)
         return queryset
@@ -1162,6 +1178,18 @@ class ContatoAgrupadoPorGrupoFilterSet(FilterSet):
             queryset = queryset.filter(grupodecontatos_set__in=value)
 
         return queryset.order_by('grupodecontatos_set__nome', 'nome')
+
+    def filter_ativo(self, queryset, value):
+        if value is not None:
+            queryset = queryset.filter(ativo=value)
+
+        return queryset
+
+    # def filter_contato_ativo(self, queryset, value):
+    #     if value is not None:
+    #         queryset = queryset.filter(ativo=value)
+    #
+    #     return queryset
 
     class Meta:
         model = Contato
@@ -1178,6 +1206,7 @@ class ContatoAgrupadoPorGrupoFilterSet(FilterSet):
         c1_row1 = to_row([
             ('municipio', 7),
             ('grupo', 7),
+            ('ativo', 7),
         ])
 
         col1 = Fieldset(

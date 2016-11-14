@@ -25,8 +25,8 @@ from reportlab.platypus.tables import TableStyle, LongTable
 
 from saap.cerimonial.forms import ImpressoEnderecamentoContatoFilterSet,\
     ContatoAgrupadoPorProcessoFilterSet, ContatoAgrupadoPorGrupoFilterSet
-from saap.cerimonial.models import Contato, Processo, GrupoDeContatos, Telefone
-from saap.core.models import AreaTrabalho, Municipio
+from saap.cerimonial.models import Contato, Processo, Telefone
+from saap.core.models import AreaTrabalho
 from saap.crud.base import make_pagination
 
 
