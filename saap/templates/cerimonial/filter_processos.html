@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load i18n common_tags crispy_forms_tags%}
+
+{% block base_content %}
+  <div class="context-actions clearfix">
+      {% if filter.form %}
+        {% crispy filter.form %}
+      {% endif %}
+  </div>
+  {% block extra_content %} {% endblock %}
+  <div class="container-table">
+    <div class="result-count">{% blocktrans with verbose_name_plural=view.verbose_name_plural %}Total de {{ verbose_name_plural }} selecionados: <strong>{{count}}</strong>{% endblocktrans %}</div>
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Título <br> Contatos interessados</th>
+          <th>Data de abertura <br> Data de solução</th>
+          <th>Classificação <br> Status</th>
+          <th>Tópicos <br> Assuntos</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for obj in page_obj %}
+      <tr>
+          <td>
+              <strong>{{ obj.titulo|safe }}</strong>
+              <br><br>
+              {% for contato in obj.contatos.all %}
+                  {{contato.nome}}<br>
+              {% endfor %}
+          </td>
+          <td>
+              <b>{{ obj.data_abertura }} </b>
+              <br><br>
+              {% if obj.data_solucao != None %}
+                  {{ obj.data_solucao }} 
+              {% else %}
+                  -
+              {% endif %}
+          </td>
+          <td>
+              <strong>{{ obj.classificacao|safe }}</strong>
+              <br><br>
+              {{ obj.status}}
+          </td>
+
+          <td>
+              {% for topico in obj.topicos.all %}
+                  {% if forloop.first %}
+                    <ul>
+                  {% endif %}
+                    <li>{{topico.descricao|safe}}</li>
+                  {% if forloop.last %}
+                    </ul>
+                  {% endif %}
+              {% endfor %}
+              {% for assunto in obj.assuntos.all %}
+                  {% if forloop.first %}
+                    <ul>
+                  {% endif %}
+                    <li>{{assunto.descricao|safe}}</li>
+                  {% if forloop.last %}
+                    </ul>
+                  {% endif %}
+              {% endfor %}
+          </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    </table>
+  </div>
+  {% include "paginacao.html" %}
+{% endblock %}

@@ -9,26 +9,46 @@
   </div>
   {% block extra_content %} {% endblock %}
   <div class="container-table">
-    <div class="result-count">{% blocktrans with verbose_name_plural=view.verbose_name_plural %}Total de {{ verbose_name_plural }} Selecionados: <strong>{{count}}</strong>{% endblocktrans %}</div>
+    <div class="result-count">{% blocktrans with verbose_name_plural=view.verbose_name_plural %}Total de {{ verbose_name_plural }} selecionados: <strong>{{count}}</strong>{% endblocktrans %}</div>
     <table class="table table-striped table-hover">
       <thead>
         <tr>
           <th>Nome</th>
-          <th>Data de Nascimento</th>
+          <th>Endereço</th>
+          <th>Município</th>
+          <th>Data de nascimento</th>
+          <th>Grupo</th>
         </tr>
       </thead>
       <tbody>
       {% for obj in page_obj %}
         <tr>
+          {% if obj.endereco == '' %}
+              <td style='color: red;'> {{ obj.nome|safe }}</td>
+          {% else %}
+              <td> {{ obj.nome|safe }}</td>
+          {% endif %}
           <td>
-              {{ obj.nome|safe }}
+              {{ obj.endereco|safe }}
           </td>
           <td>
-              {{ obj.data_nascimento }}<small><small> - {{obj.data_nascimento|age }}</small></small>
+              {{ obj.municipio|safe }}
+          </td>
+          <td>
+              {% if obj.data_nascimento != None %}
+                  {{ obj.data_nascimento }}<small><small> - {{obj.data_nascimento|age }}</small></small>
+              {% endif %}
+          </td>
+          <td>
+              <ul>
+              {% for grupo in obj.grupo %}
+                  <li>{{ grupo.nome|safe }}</li>
+              {% endfor %}
+              </ul>
           </td>
         </tr>
       {% endfor %}
-    </tbody>
+      </tbody>
     </table>
   </div>
   {% include "paginacao.html" %}

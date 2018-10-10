@@ -1,34 +1,34 @@
 {% load i18n %}
 TipoTelefone:
-  {% trans 'Tipo de Telefone' %}:
+  {% trans 'Tipo de telefone' %}:
   - descricao
 TipoEndereco:
-  {% trans 'Tipo de Endereço' %}:
+  {% trans 'Tipo de endereço' %}:
   - descricao
 TipoEmail:
-  {% trans 'Tipo de Email' %}:
+  {% trans 'Tipo de email' %}:
   - descricao
 Parentesco:
   {% trans 'Parentesco' %}:
   - descricao
 EstadoCivil:
-  {% trans 'Estado Civil' %}:
+  {% trans 'Estado civil' %}:
   - descricao
 TipoAutoridade:
-  {% trans 'Tipo de Autoridade' %}:
+  {% trans 'Tipo de autoridade' %}:
   - descricao
   - pronomes
 TipoLocalTrabalho:
-  {% trans 'Tipo do Local de Trabalho' %}:
+  {% trans 'Tipo do local de trabalho' %}:
   - descricao
 NivelInstrucao:
-  {% trans 'Nivel de Instrução' %}:
+  {% trans 'Nivel de instrução' %}:
   - descricao
 OperadoraTelefonia:
-  {% trans 'Operadora de Telefonia' %}:
+  {% trans 'Operadora de telefonia' %}:
   - descricao
 PronomeTratamento:
-  {% trans 'Dados Básicos' %}:
+  {% trans 'Dados básicos' %}:
   - nome_por_extenso
   {% trans 'Abreviaturas' %}:
   - abreviatura_singular_m abreviatura_plural_m abreviatura_singular_f abreviatura_plural_f
@@ -42,147 +42,155 @@ PronomeTratamento:
     - enderecamento_singular_m enderecamento_plural_m
     - enderecamento_singular_f enderecamento_plural_f
 Contato:
-  {% trans 'Dados Básicos' %}:
-  - nome:6 nome_social:3 apelido
-  - data_nascimento estado_civil sexo identidade_genero
-  - nivel_instrucao:4 naturalidade tem_filhos quantos_filhos  
-  {% trans 'Grupos' %}:
-  - grupodecontatos_set
+  {% trans 'Dados básicos' %}:
+  - nome data_nascimento:2 ativo:2
+  - estado naturalidade
+  - sexo:3 identidade_genero:3 nome_social apelido
+  - estado_civil tem_filhos:3 quantos_filhos:3
   {% trans 'Pais' %}:
   - nome_pai nome_mae
   {% trans 'Documentos' %}:
   - numero_sus cpf titulo_eleitor
-  - rg rg_orgao_expedidor rg_data_expedicao ativo
-  {% trans 'Profissão/Tratamento' %}:
-  - cargo profissao tipo_autoridade
+  - rg rg_orgao_expedidor rg_data_expedicao
+  {% trans 'Ensino/Profissão/Tratamento' %}:
+  - nivel_instrucao profissao
+  - cargo tipo_autoridade
   - pronome_tratamento
+  {% trans 'Grupos' %}:
+  - grupodecontatos_set
   {% trans 'Observações' %}:
   - observacoes
 Telefone:
   {% trans 'Telefone' %}:
-  - telefone:5 tipo:3 operadora:4
-  - proprio:3 de_quem_e preferencial
+  - telefone tipo:2 operadora:3 whatsapp:2
+  - principal:3 permite_contato:3 proprio:2 de_quem_e
 Email:
   {% trans 'Email' %}:
-  - email:6 tipo preferencial permissao
+  - email tipo:2 principal:3 permite_contato:3
 Dependente:
-  {% trans 'Dados Básicos' %}:
-  - parentesco:2 nome:5 nome_social:3 apelido:2
-  - data_nascimento sexo identidade_genero nivel_instrucao
+  {% trans 'Dados básicos' %}:
+  - parentesco:2 nome data_nascimento:2
+  - nome_social:3 apelido:2 sexo identidade_genero
+  - nivel_instrucao:4
 LocalTrabalho:
-  {% trans 'Dados Básicos' %}:
-  - nome:6 nome_social:4 preferencial
+  {% trans 'Dados básicos' %}:
+  - nome nome_social principal:3
   - data_inicio:2 data_fim:2 cargo:5 tipo
   {% trans 'Endereço' %}:
-  - endereco:6 numero complemento cep
-  - bairro distrito
-  - regiao_municipal municipio:4 uf:3
+  - endereco:6 numero complemento
+  - cep estado municipio
+  - bairro distrito regiao_municipal
 LocalTrabalhoLayoutForForm:
-  {% trans 'Dados Básicos' %}:
-  - nome:6 nome_social:4 preferencial
+  {% trans 'Dados básicos' %}:
+  - nome nome_social principal:3
   - data_inicio:2 data_fim:2 cargo:5 tipo
   {% trans 'Endereço' %}:
   - trecho
-  - endereco:6 numero complemento cep
-  - bairro distrito
-  - regiao_municipal municipio:4 uf:3
+  - endereco numero:2 complemento:3
+  - cep estado municipio
+  - bairro distrito regiao_municipal
 Endereco:
   {% trans 'Endereço' %}:
-  - tipo:4 preferencial
-  - endereco:5 numero complemento:3 cep
+  - tipo:4 principal:3 permite_contato:3
+  - endereco numero:2 complemento:3
+  - cep estado municipio
   - bairro distrito regiao_municipal
-  - ponto_referencia municipio:3 uf:2
+  - ponto_referencia
   - observacoes
 EnderecoLayoutForForm:
   {% trans 'Endereço' %}:
-  - tipo:4 preferencial
-  - endereco:5 numero complemento:3 cep
+  - tipo:4 principal:3 permite_contato:3
+  - endereco numero:2 complemento:3
+  - cep estado municipio
   - bairro distrito regiao_municipal
-  - ponto_referencia municipio:3 uf:2
+  - ponto_referencia
   - observacoes
   - trecho
 FiliacaoPartidaria:
-  {% trans 'Filiação Partidária' %}:
-  - partido:6 data data_desfiliacao
+  {% trans 'Filiação partidária' %}:
+  - partido data_filiacao:2 data_desfiliacao:2
 Perfil:
-  {% trans 'Dados Básicos' %}:
-  - nome:5 nome_social:3 apelido
-  - data_nascimento estado_civil sexo identidade_genero
-  - nivel_instrucao:4 naturalidade tem_filhos quantos_filhos
-  {% trans 'Profissão/Tratamento' %}:
-  - profissao cargo
-  - pronome_tratamento
+  {% trans 'Dados básicos' %}:
+  - nome data_nascimento:2
+  - estado naturalidade
+  - sexo:3 identidade_genero:3 nome_social apelido
+  - estado_civil tem_filhos:3 quantos_filhos:3
+  {% trans 'Pais' %}:
+  - nome_pai nome_mae
+  {% trans 'Documentos' %}:
+  - numero_sus cpf titulo_eleitor
+  - rg rg_orgao_expedidor rg_data_expedicao
+  {% trans 'Ensino/Profissão/Tratamento' %}:
+  - nivel_instrucao profissao
+  - cargo tipo_autoridade
+  #- pronome_tratamento
 TelefonePerfil:
   {% trans 'Telefone' %}:
-  - telefone:5 tipo:3 operadora:4
-  - proprio:3 de_quem_e preferencial permissao
+  - telefone tipo:2 operadora:3 whatsapp:2
+  - principal:3 permite_contato:3 proprio:3 de_quem_e
 EmailPerfil:
   {% trans 'Email' %}:
-  - email:4 tipo:4 preferencial permissao
+  - email:4 tipo:4 principal:2 permite_contato:2
 DependentePerfil:
-  {% trans 'Dados Básicos' %}:
+  {% trans 'Dados básicos' %}:
   - parentesco:2 nome:5 nome_social:3 apelido:2
   - data_nascimento sexo identidade_genero nivel_instrucao
 LocalTrabalhoPerfil:
-  {% trans 'Dados Básicos' %}:
-  - nome:6 nome_social:4 preferencial
+  {% trans 'Dados básicos' %}:
+  - nome nome_social principal:3
   - data_inicio:2 data_fim:2 cargo tipo
   {% trans 'Endereço' %}:
   - trecho
-  - endereco:6 numero complemento cep
-  - bairro distrito
-  - regiao_municipal municipio:4 uf:3
+  - endereco:6 numero complemento
+  - cep estado municipio
+  - bairro distrito regiao_municipal
 EnderecoPerfil:
   {% trans 'Endereço' %}:
-  - endereco:6 numero complemento cep
-  - tipo bairro distrito
-  - regiao_municipal municipio:4 uf:3
+  - endereco:6 numero complemento tipo
+  - cep estado municipio
+  - bairro distrito regiao_municipal
   - trecho
 StatusProcesso:
-  {% trans 'Status de Processo' %}:
+  {% trans 'Status de processo' %}:
   - descricao
 ClassificacaoProcesso:
-  {% trans 'Classificação de Processo' %}:
+  {% trans 'Classificação de processo' %}:
   - descricao
 TopicoProcesso:
-  {% trans 'Tópico de Processo' %}:
+  {% trans 'Tópico de processo' %}:
   - descricao
 AssuntoProcesso:
-  {% trans 'Assunto de Processo' %}:
+  {% trans 'Assunto de processo' %}:
   - descricao
 Processo:
-  {% trans 'Dados Básicos' %}:
-  - data:2 titulo importancia:4
-  - topicos:4 assuntos status:2 classificacoes:2
-  - descricao
-  - protocolo
-  - proto_cam
-  - proto_pref
-  - instituicao
-  - orgao
-  - rua
-  - bairro
-  - urgente
-  - data_solucao
-  - observacoes
-  - solucao
+  {% trans 'Dados básicos' %}:
+  - titulo data_abertura:2
+  - topicos assuntos
+  - importancia urgente:2 num_controle
+  - status classificacoes
+  - historico observacoes:4
+  - rua bairro:4
+  - instituicao orgao
+  - materia_cam:3 oficio_cam:3 proto_pref:3 proto_orgao:3
+  - data_envio:2 data_protocolo:2 data_retorno:2 oficio_pref:3 oficio_orgao:3
+  - link_cam
+  - link_pref_orgao
+  - data_solucao:2 solucao
   - contatos
 ProcessoLayoutForForm:
-  {% trans 'Dados Básicos' %}:
-  - data:2 titulo importancia:4
-  - topicos:4 assuntos status:2 classificacoes:2
-  - descricao
-  - protocolo
-  - proto_cam
-  - proto_pref
-  - instituicao
-  - orgao
-  - rua
-  - bairro
-  - urgente
-  - data_solucao
-  - observacoes
-  - solucao
+  {% trans 'Dados básicos' %}:
+  - titulo data_abertura:2
+  - topicos assuntos
+  - importancia urgente:2 num_controle
+  - status classificacoes
+  - historico observacoes:4
+  - rua bairro:4
+  - instituicao orgao
+  - materia_cam:3 oficio_cam:3 proto_pref:3 proto_orgao:3
+  - data_envio:2 data_protocolo:2 data_retorno:2 oficio_pref:3 oficio_orgao:3
+  - link_cam
+  - link_pref_orgao
+  - data_solucao:2 solucao
 GrupoDeContatosLayoutForForm:
-  {% trans 'Dados Básicos' %}:
+  {% trans 'Dados básicos' %}:
   - nome

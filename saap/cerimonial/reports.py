@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.forms.utils import ErrorList
 from django.http.response import HttpResponse
 from django.template.defaultfilters import lower
+from django.template import Context, loader
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 from django_filters.views import FilterView
@@ -22,13 +23,16 @@ from reportlab.platypus.doctemplate import SimpleDocTemplate
 from reportlab.platypus.frames import Frame
 from reportlab.platypus.para import Paragraph
 from reportlab.platypus.tables import TableStyle, LongTable
+from reportlab.lib.units import mm
 
 from saap.cerimonial.forms import ImpressoEnderecamentoContatoFilterSet,\
     ContatoAgrupadoPorProcessoFilterSet, ContatoAgrupadoPorGrupoFilterSet
-from saap.cerimonial.models import Contato, Processo, Telefone
+from saap.cerimonial.models import Contato, Processo, Telefone, Email, GrupoDeContatos, Endereco
 from saap.core.models import AreaTrabalho
 from saap.crud.base import make_pagination
 
+
+import time, datetime
 
 class ImpressoEnderecamentoContatoView(PermissionRequiredMixin, FilterView):
     permission_required = 'cerimonial.print_impressoenderecamento'
@@ -36,8 +40,6 @@ class ImpressoEnderecamentoContatoView(PermissionRequiredMixin, FilterView):
     model = Contato
     template_name = "cerimonial/filter_impressoenderecamento_contato.html"
     container_field = 'workspace__operadores'
-    """list_field_names = ['nome', 'data_nascimento']
-    """
 
     paginate_by = 30
 
@@ -58,24 +60,31 @@ class ImpressoEnderecamentoContatoView(PermissionRequiredMixin, FilterView):
         self.filterset = self.get_filterset(filterset_class)
         self.object_list = self.filterset.qs
 
+        if len(request.GET) and not len(self.filterset.form.errors)\
+                and not self.object_list.exists():
+            messages.error(request, _('Não existe contato com as '
+                                      'condições definidas na busca!'))
+
         if 'print' in request.GET and self.object_list.exists():
             if self.filterset.form.cleaned_data['impresso']:
-                response = HttpResponse(content_type='application/pdf')
-                response['Content-Disposition'] = \
-                    'inline; filename="impresso_enderecamento.pdf"'
-                self.build_pdf(response)
-                return response
+                total_erros = self.validate_data()
+                if(total_erros > 0):
+                    messages.error(request, _('Existem %s contatos na busca que não tem endereço marcado para Contato.\
+                             Revise-os na lista abaixo, antes de gerar o impresso.' % (total_erros)))
+                else:
+                    filename = str(self.filterset.form.cleaned_data['impresso']) + "_"\
+                         + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
+                    response = HttpResponse(content_type='application/pdf')
+                    content = 'inline; filename="%s.pdf"' % filename
+                    response['Content-Disposition'] = content
+                    self.build_pdf(response)
+                    return response
             else:
                 self.filterset.form._errors['impresso'] = ErrorList([_(
                     'Selecione o tipo de impresso a ser usado!')])
 
         context = self.get_context_data(filter=self.filterset,
                                         object_list=self.object_list)
-
-        if len(request.GET) and not len(self.filterset.form.errors)\
-                and not self.object_list.exists():
-            messages.error(request, _('Não existe Contatos com as '
-                                      'condições definidas na busca!'))
 
         return self.render_to_response(context)
 
@@ -115,6 +124,18 @@ class ImpressoEnderecamentoContatoView(PermissionRequiredMixin, FilterView):
             del qr['page']
         context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
 
+        for contato in context['page_obj']:            
+            endpref = contato.endereco_set.filter(permite_contato=True).first()
+            
+            if endpref:
+                contato.endereco = endpref.endereco if endpref.endereco else ''
+                contato.municipio = '%s/%s' % (endpref.municipio.nome, endpref.estado.sigla)
+            else:
+                contato.endereco = ''
+                contato.municipio = ''
+
+            contato.grupo = contato.grupodecontatos_set.all()
+
         return context
 
     def build_pdf(self, response):
@@ -124,8 +145,6 @@ class ImpressoEnderecamentoContatoView(PermissionRequiredMixin, FilterView):
         impresso = cleaned_data['impresso']
 
         fs = int(impresso.fontsize)
-        if cleaned_data['fontsize']:
-            fs = int(cleaned_data['fontsize'])
 
         stylesheet = StyleSheet1()
         stylesheet.add(ParagraphStyle(name='pronome_style',
@@ -158,6 +177,8 @@ class ImpressoEnderecamentoContatoView(PermissionRequiredMixin, FilterView):
         cr = int(col * row)
 
         p = canvas.Canvas(response, pagesize=pagesize)
+
+        p.setTitle(str(self.filterset.form.cleaned_data['impresso']))
 
         if impresso.rotate:
             p.translate(pagesize[1], 0)
@@ -248,22 +269,31 @@ class ImpressoEnderecamentoContatoView(PermissionRequiredMixin, FilterView):
             story.append(
                 Paragraph(contato.cargo, stylesheet['endereco_style']))
 
-        endpref = contato.endereco_set.filter(
-            preferencial=True).first()
-        if endpref:
-            endereco = endpref.endereco +\
-                (' - ' + endpref.numero if endpref.numero else '') +\
-                (' - ' + endpref.complemento if endpref.complemento else '')
+        endpref = contato.endereco_set.filter(permite_contato=True).first()
 
-            story.append(Paragraph(endereco, stylesheet['endereco_style']))
+        endereco = endpref.endereco
 
-            b_m_uf = '%s - %s - %s' % (
-                endpref.bairro,
-                endpref.municipio.nome if endpref.municipio else '',
-                endpref.uf)
+        if(endpref.numero == None):
+            endereco += ", S/N"
+        else: 
+            if(endpref.numero > 0):
+                endereco += ", " + str(endpref.numero)
+            else:
+                endereco += ", S/N"
+                
+        if(endpref.complemento != '' and endpref.complemento != None):
+           endereco += " - " + endpref.complemento
 
-            story.append(Paragraph(b_m_uf, stylesheet['endereco_style']))
-            story.append(Paragraph(endpref.cep, stylesheet['endereco_style']))
+        municipio_uf = '%s/%s' % (endpref.municipio.nome, endpref.estado.sigla)
+
+        cep = 'CEP %s' % endpref.cep
+
+        bairro = endpref.bairro.nome if endpref.bairro else ''
+
+        story.append(Paragraph(endereco, stylesheet['endereco_style']))
+        story.append(Paragraph(bairro, stylesheet['endereco_style']))
+        story.append(Paragraph(municipio_uf, stylesheet['endereco_style']))
+        story.append(Paragraph(cep, stylesheet['endereco_style']))
 
         return story
 
@@ -289,6 +319,27 @@ class ImpressoEnderecamentoContatoView(PermissionRequiredMixin, FilterView):
 
         p.drawText(textobject)
 
+    def validate_data(self):
+        contatos = []
+        consulta_agregada = self.object_list.order_by('nome',)
+        consulta_agregada = consulta_agregada.values_list(
+            'id',
+        )
+
+        total_erros = 0
+
+        for contato in consulta_agregada.all():
+            query = (Q(permite_contato=True))
+            query.add(Q(contato__id=contato[0]), Q.AND)
+
+            endereco = Endereco.objects.filter(query).count()
+
+            if(endereco == 0):
+                total_erros = total_erros + 1
+
+        return total_erros
+
+
 
 class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
     permission_required = 'deve_ser_definida_na_heranca'
@@ -302,9 +353,10 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
     def __init__(self):
         super().__init__()
         self.MAX_TITULO = 80
-        self.ctx_title = 'Título do contexto do Relatório'
-        self.relat_title = 'Título do Relatório'
+        self.ctx_title = 'Título do relatório'
+        self.relat_title = 'Título do relatório'
         self.nome_objeto = 'Nome do Objeto'
+        self.filename = 'Relatorio'
 
     @cached_property
     def is_contained(self):
@@ -321,12 +373,15 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
     def get(self, request, *args, **kwargs):
         filterset_class = self.get_filterset_class()
         self.filterset = self.get_filterset(filterset_class)
+
         self.object_list = self.filterset.qs
 
         if 'print' in request.GET and self.object_list.exists():
+
+            filename = str(self.filename) + "_" + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
             response = HttpResponse(content_type='application/pdf')
-            response['Content-Disposition'] = \
-                'inline; filename="relatorio.pdf"'
+            content = 'attachment; filename="%s.pdf"' % filename
+            response['Content-Disposition'] = content
             self.build_pdf(response)
             return response
 
@@ -439,6 +494,7 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
         doc = SimpleDocTemplate(
             response,
             pagesize=landscape(A4),
+            title=self.relat_title,
             rightMargin=1.25 * cm,
             leftMargin=1.25 * cm,
             topMargin=1.1 * cm,
@@ -484,7 +540,7 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
                     estilo = self.s_min
 
                 item = [
-                    Paragraph(p.data.strftime('%d/%m/%Y'), self.s_center),
+                    Paragraph(p.data_abertura.strftime('%d/%m/%Y'), self.s_center),
                     Paragraph(paragrafo, estilo)
                 ]
 
@@ -540,7 +596,7 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
     def set_object_list(self):
         if not self.agrupamento:
             self.object_list = self.object_list.order_by(
-                'data', 'titulo', 'contatos__nome')
+                'data_abertura', 'titulo', 'contatos__nome')
         else:
             self.object_list = self.object_list.order_by(
                 self.agrupamento).distinct(self.agrupamento).values_list(
@@ -568,9 +624,9 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
         tit_relatorio = _(self.relat_title)
         tit_relatorio = force_text(tit_relatorio) + ' '
         if self.label_agrupamento:
-             tit_relatorio += force_text(_('Agrupados'))
+             tit_relatorio += force_text(_('(com agrupamento)'))
         else:
-            tit_relatorio += force_text(_('Sem Agrupamento'))
+            tit_relatorio += force_text(_('(sem agrupamento)'))
         tit_relatorio +=  ' ' + self.label_agrupamento
 
         data.append([Paragraph(tit_relatorio, self.h3)])
@@ -586,7 +642,7 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
             paragrafo =  lbl_group + ' - ' + str(registro_principal)
         else:
             paragrafo = (
-                force_text(_('Sem Agrupamento')) + ' ' + lbl_group
+                force_text(_('Sem agrupamento')) + ' ' + lbl_group
             )
         corpo_relatorio.append([Paragraph(paragrafo, self.h4)])
 
@@ -614,12 +670,12 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
 
         contatos_query = contatos_query.order_by(
             'processo_set__' + self.agrupamento,
-            'processo_set__data',
+            'processo_set__data_abertura',
             'nome',
             'endereco_set__bairro__nome',
             'endereco_set__endereco').distinct(
             'processo_set__' + self.agrupamento,
-            'processo_set__data',
+            'processo_set__data_abertura',
             'nome')
         return contatos_query
 
@@ -642,8 +698,7 @@ class RelatorioAgrupado(PermissionRequiredMixin, FilterView):
 
             contatos.append(Paragraph(str(contato.nome), self.h_style))
 
-            endpref = contato.endereco_set.filter(
-                preferencial=True).first()
+            endpref = contato.endereco_set.filter(principal=True).first()
             endereco = ''
             if endpref:
                 endereco = endpref.endereco + \
@@ -742,9 +797,10 @@ class RelatorioContatoAgrupadoPorProcessoView(RelatorioAgrupado):
 
     def __init__(self):
         super().__init__()
-        self.ctx_title = 'Relatório de Contatos Com Agrupamento Por Processos'
-        self.relat_title = 'Relatório de Contatos e Processos'
+        self.ctx_title = 'Relatório de Processos'
+        self.relat_title = 'Relatório de Processos'
         self.nome_objeto = 'Processo'
+        self.filename = 'Relatorio_Processos'
 
 
 class RelatorioContatoAgrupadoPorGrupoView(RelatorioAgrupado):
@@ -756,50 +812,282 @@ class RelatorioContatoAgrupadoPorGrupoView(RelatorioAgrupado):
 
     def __init__(self):
         super().__init__()
-        self.ctx_title = 'Relatório de Contatos Com Agrupamento Por Grupos'
-        self.relat_title = 'Relatório de Contatos e Grupos'
+        self.ctx_title = 'Relatório de Contatos'
+        self.relat_title = 'Relatório de Contatos'
         self.nome_objeto = 'Contato'
+        self.filename = 'Relatorio_Contatos'
+
+    def get(self, request, *args, **kwargs):
+        filterset_class = self.get_filterset_class()
+        self.filterset = self.get_filterset(filterset_class)
+        self.object_list = self.filterset.qs
+
+        if len(request.GET) and not len(self.filterset.form.errors)\
+                and not self.object_list.exists():
+            messages.error(request, _('Não existe contato com as '
+                                      'condições definidas na busca!'))
+        
+        if 'print' in request.GET and self.object_list.exists():
+            if self.filterset.form.cleaned_data['formato'] == 'PDF':
+                filename = str(self.filterset.form.cleaned_data['formato']) + "_Contatos_"\
+                     + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
+                response = HttpResponse(content_type='application/pdf')
+                content = 'inline; filename="%s.pdf"' % filename
+                #content = 'attachment; filename="%s.pdf"' % filename
+                response['Content-Disposition'] = content
+                self.build_pdf(response)
+                return response
+            elif self.filterset.form.cleaned_data['formato'] == 'TXT':
+                total_erros = self.validate_data()
+                if(total_erros > 0):
+                    messages.error(request, _('Existem %s contatos na busca que não tem e-mail marcado para Contato.\
+                             Revise-os na lista abaixo, antes de gerar a mala direta.' % (total_erros)))
+                else:
+                    filename = str(self.filterset.form.cleaned_data['formato']) + "_Contatos_"\
+                         + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
+
+                    response = HttpResponse(content_type='text/plain')
+                    content = 'inline; filename="%s.txt"' % filename
+                    #content = 'attachment; filename="%s.txt"' % filename
+                    response['Content-Disposition'] = content
+                    self.build_txt(response)
+                    return response
+
+        context = self.get_context_data(filter=self.filterset,
+                                        object_list=self.object_list)
+        
+        return self.render_to_response(context)
+
+    def get_filterset(self, filterset_class):
+        kwargs = self.get_filterset_kwargs(filterset_class)
+        try:
+            kwargs['workspace'] = AreaTrabalho.objects.filter(
+                operadores=self.request.user.pk)[0]
+        except:
+            raise PermissionDenied(_('Sem permissão de acesso!'))
+
+        return filterset_class(**kwargs)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        kwargs = {}
+        if self.container_field:
+            kwargs[self.container_field] = self.request.user.pk
+
+        return qs.filter(**kwargs)
+
+    def get_context_data(self, **kwargs):
+        count = self.object_list.count()
+        context = super(RelatorioContatoAgrupadoPorGrupoView,
+                        self).get_context_data(**kwargs)
+        context['count'] = count
+
+        context['title'] = _('Relatório de Contatos')
+        paginator = context['paginator']
+        page_obj = context['page_obj']
+
+        context['page_range'] = make_pagination(
+            page_obj.number, paginator.num_pages)
+
+        qr = self.request.GET.copy()
+        if 'page' in qr:
+            del qr['page']
+        context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
+
+        for contato in context['page_obj']:            
+            endpref = contato.endereco_set.filter(principal=True).first()
+            grupo = contato.grupodecontatos_set.all()
+            
+            if endpref:
+                contato.bairro = endpref.bairro.nome if endpref.bairro else ''
+                contato.municipio = '%s/%s' % (endpref.municipio, endpref.estado.sigla) if endpref.municipio else ''
+            else:
+                contato.bairro = ''
+                contato.municipio = ''
+
+            contato.grupo = grupo
+           
+            telefone = contato.telefone_set.filter(principal=True).first()
+            contato.telefone = telefone.telefone if telefone else ''
+            
+            email = contato.email_set.filter(permite_contato=True).first()
+            contato.email = email.email if email else ''
+
+        return context
+
+    def build_txt(self, response):
+        CONTATO = 0
+        EMAILS = 3
+
+        NOME = 1
+
+        registros = self.get_data()
+
+        csv_data = []
+
+        for dados in registros:
+            sem_email = False
+            if(dados[EMAILS] != None):
+                for email in dados[EMAILS]:
+                    if email.permite_contato == True:
+                        csv_data.append([dados[CONTATO][NOME], email])
+                        sem_email = True
+
+        t = loader.get_template('cerimonial/contato_email.txt')
+        response.write(t.render({'data': csv_data}))
+        return response
 
     def build_pdf(self, response):
         CONTATO = 0
-        TELEFONES_PREFERENCIAL = 1
+        ENDERECOS = 1
+        TELEFONES = 2
+        EMAILS = 3
+        GRUPOS = 4
 
-        CIDADE = 0
-        ENDERECO = 1
-        BAIRRO = 2
-        NUMERO = 3
-        GRUPO = 4
-        ID = 5
-        NOME = 6
+        ID = 0
+        NOME = 1
+        NASCIMENTO = 2
 
         self.set_headings()
         self.set_styles()
         self.set_cabec(self.h5)
-        estilo = self.h_style
+
+        if self.filterset.form.cleaned_data['orientacao'] == 'P':
+            estilo = ParagraphStyle(
+                name='Normal',
+                fontSize=8,
+            )   
+        elif self.filterset.form.cleaned_data['orientacao'] == 'R':
+            estilo = ParagraphStyle(
+                name='Normal',
+                fontSize=7,
+            )   
 
         corpo_relatorio = []
         self.add_relat_title(corpo_relatorio)
 
+        tipo_dado_contato = self.filterset.form.cleaned_data['tipo_dado_contato']
+
         registros = self.get_data()
         for dados in registros:
-            endereco = ','.join(dados[CONTATO][ENDERECO:NUMERO])
+
+            enderecos = ''      
+            municipios = ''
+
+            if(dados[ENDERECOS] != None):
+
+                for endereco in dados[ENDERECOS]:
+
+                    if(endereco.endereco != '' and endereco.endereco != None):
+                        
+                        if ((tipo_dado_contato == 'P' and endereco.principal == True) or
+                            (tipo_dado_contato == 'C' and endereco.permite_contato == True) or
+                            (tipo_dado_contato == 'A')):
+
+                            if(endereco.principal == True and endereco.permite_contato == False):
+                                enderecos += "<b>Principal:</b> <br/>"
+                            elif(endereco.principal == False and endereco.permite_contato == True):
+                                enderecos += "<b>Para contato:</b> <br/>"
+                            else:
+                                enderecos += "<b>Ambos:</b> <br/>"
+
+                            enderecos += endereco.endereco
+    
+                            if(endereco.numero == None):
+                                enderecos += ", S/N"
+                            else: 
+                                if(endereco.numero > 0):
+                                    enderecos += ", " + str(endereco.numero)
+                                else:
+                                    enderecos += ", S/N"
+                
+                            if(endereco.complemento != '' and endereco.complemento != None):
+                                enderecos += " - " + endereco.complemento
+
+                            if(endereco.bairro != '' and endereco.bairro != None):
+                                enderecos += "<br/>" + endereco.bairro.nome
+  
+                            enderecos += "<br/>"
+
+                            if(endereco.principal == True and endereco.permite_contato == False):
+                                municipios += "<b>Principal:</b> <br/>"
+                            elif(endereco.principal == False and endereco.permite_contato == True):
+                                municipios += "<b>Para contato:</b> <br/>"
+                            else:
+                                municipios += "<b>Ambos:</b> <br/>"
+
+                            if(endereco.municipio != '' and endereco.municipio != None):
+                                municipios += '%s/%s' % (endereco.municipio.nome, endereco.estado.sigla)
+     
+                            if(endereco.cep != '' and endereco.cep != None):
+                                municipios += "<br/>CEP " + endereco.cep
+
+                            municipios += "<br/>"
+
+            nascimento = ''
+
+            if(dados[CONTATO][NASCIMENTO] != '' and dados[CONTATO][NASCIMENTO] != None):
+                nascimento = dados[CONTATO][NASCIMENTO].strftime('%d/%m/%Y')
+
+            telefones = ''
+
+            if(dados[TELEFONES] != None):
+                for telefone in dados[TELEFONES]:
+                    if ((tipo_dado_contato == 'P' and telefone.principal == True) or
+                            (tipo_dado_contato == 'C' and telefone.permite_contato == True) or
+                            (tipo_dado_contato == 'A')):
+ 
+                        if(telefone.principal == True and telefone.permite_contato == False):
+                            telefones += "<b>Principal:</b> <br/>"
+                        elif(telefone.principal == False and telefone.permite_contato == True):
+                            telefones += "<b>Para contato:</b> <br/>"
+                        else:
+                            telefones += "<b>Ambos:</b> <br/>"
+
+                        telefones += telefone.telefone + "<br/>"
+             
+            emails = ''
+
+            if(dados[EMAILS] != None):
+                for email in dados[EMAILS]:
+                     if ((tipo_dado_contato == 'P' and email.principal == True) or
+                            (tipo_dado_contato == 'C' and email.permite_contato == True) or
+                            (tipo_dado_contato == 'A')):
+                       
+                        if(email.principal == True and email.permite_contato == False):
+                            emails += "<b>Principal:</b> <br/>"
+                        elif(email.principal == False and email.permite_contato == True):
+                            emails += "<b>Para contato:</b> <br/>"
+                        else:
+                            emails += "<b>Ambos:</b> <br/>"
+
+                        emails += email.email + "<br/>"
+
+            grupos = ''
+
+            if(dados[GRUPOS] != None):
+                for grupo in dados[GRUPOS]:
+                    grupos += grupo.nome + "<br/>"
+
 
             item = [
-                Paragraph(dados[CONTATO][CIDADE], estilo),
-                Paragraph(dados[CONTATO][GRUPO], estilo),
                 Paragraph(dados[CONTATO][NOME], estilo),
-                Paragraph(endereco, estilo),
-                Paragraph(dados[TELEFONES_PREFERENCIAL], estilo),
+                Paragraph(nascimento, estilo),
+                Paragraph(enderecos, estilo),
+                Paragraph(municipios, estilo),
+                Paragraph(telefones, estilo),
+                Paragraph(emails, estilo),
+                Paragraph(grupos, estilo),
             ]
             corpo_relatorio.append(item)
 
         style = TableStyle([
-            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('FONTSIZE', (0, 0), (-1, -1), 6),
             ('LEADING', (0, 0), (-1, -1), 7),
             ('GRID', (0, 0), (-1, -1), 0.1, colors.black),
             ('INNERGRID', (0, 0), (-1, -1), 0.1, colors.black),
-            ('TOPPADDING', (0, 0), (-1, -1), 0),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
             ('LEFTPADDING', (0, 0), (-1, -1), 3),
             ('RIGHTPADDING', (0, 0), (-1, -1), 3),
         ])
@@ -817,20 +1105,37 @@ class RelatorioContatoAgrupadoPorGrupoView(RelatorioAgrupado):
             if len(value) == 1:
                 style.add('LINEABOVE', (0, i), (-1, i), 0.1, colors.black)
 
-        rowHeights = 20
-        t = LongTable(corpo_relatorio, rowHeights=rowHeights, splitByRow=True)
+        if self.filterset.form.cleaned_data['orientacao'] == 'P':
+            if tipo_dado_contato == 'A':
+                rowHeights = 80
+            else:
+                rowHeights = 40
+        elif self.filterset.form.cleaned_data['orientacao'] == 'R':
+            if tipo_dado_contato == 'A':
+                rowHeights = 100
+            else:
+                rowHeights = 50
+
+        t = LongTable(corpo_relatorio, rowHeights=None, splitByRow=True)
+        #t = LongTable(corpo_relatorio, rowHeights=rowHeights, splitByRow=True)
         t.setStyle(style)
-        if len(t._argW) == 5:
-            t._argW[0] = 1.8 * cm
-            t._argW[1] = 6 * cm
-            t._argW[2] = 6.5 * cm
-            t._argW[3] = 9.5 * cm
-            t._argW[4] = 2.4 * cm
-        elif len(t._argW) == 4:
-            t._argW[0] = 2 * cm
-            t._argW[1] = 10 * cm
-            t._argW[2] = 11.5 * cm
+       
+        if self.filterset.form.cleaned_data['orientacao'] == 'P':
+            t._argW[0] = 5 * cm
+            t._argW[1] = 2.5 * cm
+            t._argW[2] = 5 * cm
+            t._argW[3] = 3.5 * cm
+            t._argW[4] = 3 * cm
+            t._argW[5] = 5 * cm
+            t._argW[6] = 3 * cm
+        elif self.filterset.form.cleaned_data['orientacao'] == 'R':
+            t._argW[0] = 3.3 * cm
+            t._argW[1] = 2 * cm
+            t._argW[2] = 3.3 * cm
             t._argW[3] = 3 * cm
+            t._argW[4] = 2.3 * cm
+            t._argW[5] = 3.3 * cm
+            t._argW[6] = 2 * cm
 
         for i, value in enumerate(corpo_relatorio):
             if len(value) == 0:
@@ -838,61 +1143,108 @@ class RelatorioContatoAgrupadoPorGrupoView(RelatorioAgrupado):
                 continue
             for cell in value:
                 if isinstance(cell, list):
-                    t._argH[i] = (rowHeights) * (
+                    t._argH[i] = (height) * (
                         len(cell) - (0 if len(cell) > 1 else 0))
                     break
 
         elements = [t]
 
+        if self.filterset.form.cleaned_data['orientacao'] == 'P':
+            orientacao = landscape(A4)
+        elif self.filterset.form.cleaned_data['orientacao'] == 'R':
+            orientacao = A4
+
         doc = SimpleDocTemplate(
             response,
-            pagesize=landscape(A4),
+            title=self.relat_title,
+            pagesize=orientacao,
             rightMargin=1.25 * cm,
             leftMargin=1.25 * cm,
             topMargin=1.1 * cm,
             bottomMargin=0.8 * cm)
-        doc.build(elements)
+        
+        doc.build(elements, canvasmaker=NumberedCanvas)
 
     def get_data(self):
         contatos = []
-        consulta_agregada = self.object_list.order_by(
-            'endereco_set__municipio__nome',
-            'grupodecontatos_set__nome',
-            'nome'
-        )
+        consulta_agregada = self.object_list.order_by('nome',)
         consulta_agregada = consulta_agregada.values_list(
-            'endereco_set__municipio__nome',
-            'endereco_set__endereco',
-            'endereco_set__bairro__nome',
-            'endereco_set__numero',
-            'grupodecontatos_set__nome',
             'id',
             'nome',
+            'data_nascimento',
         )
+
         for contato in consulta_agregada.all():
-            telefones = self.get_telefone_preferencial(contato[-2])
-            numero_fone = telefones[0].telefone if telefones else ''
-            contatos.append((contato, numero_fone,))
+            query = (Q(principal=True))
+            query.add(Q(permite_contato=True), Q.OR)
+            query.add(Q(contato__id=contato[0]), Q.AND)
+
+            endereco = Endereco.objects.filter(query)
+            telefone = Telefone.objects.filter(query)
+            email = Email.objects.filter(query)
+            grupos = GrupoDeContatos.objects.filter(contatos__id=contato[0])[:2]
+
+            contatos.append((contato, endereco, telefone, email, grupos))
 
         return contatos
 
-    def get_telefone_preferencial(self, contato_id):
-        return Telefone.objects.filter(
-            contato__id=contato_id, preferencial=True)
+    def validate_data(self):
+        contatos = []
+        consulta_agregada = self.object_list.order_by('nome',)
+        consulta_agregada = consulta_agregada.values_list(
+            'id',
+        )
+
+        total_erros = 0
+
+        for contato in consulta_agregada.all():
+            query = (Q(permite_contato=True))
+            query.add(Q(contato__id=contato[0]), Q.AND)
+
+            email = Email.objects.filter(query).count()
+
+            if(email == 0):
+                total_erros = total_erros + 1
+
+        return total_erros
 
     def set_cabec(self, h5):
-        cabec = [Paragraph(_('Cidade'), h5)]
-        cabec.append(Paragraph(_('Grupo'), h5))
-        cabec.append(Paragraph(_('Nome'), h5))
-        cabec.append(Paragraph(_('Endereço'), h5))
+        cabec = [Paragraph(_('Nome'), h5)]
+        cabec.append(Paragraph(_('Nascimento'), h5))
+        cabec.append(Paragraph(_('Endereço / Bairro'), h5))
+        cabec.append(Paragraph(_('Cidade / CEP'), h5))
         cabec.append(Paragraph(_('Telefone'), h5))
+        cabec.append(Paragraph(_('E-mail'), h5))
+        cabec.append(Paragraph(_('Grupos'), h5))
         self.cabec = cabec
 
     def add_relat_title(self, corpo_relatorio):
         tit_relatorio = _(self.relat_title)
         tit_relatorio = force_text(tit_relatorio) + ' '
-        tit_relatorio += force_text(_('Agrupados'))
 
         corpo_relatorio.append([Paragraph(tit_relatorio, self.h3)])
 
         corpo_relatorio.append(self.cabec)
+
+class NumberedCanvas(canvas.Canvas):
+    def __init__(self, *args, **kwargs):
+        canvas.Canvas.__init__(self, *args, **kwargs)
+        self._saved_page_states = []
+
+    def showPage(self):
+        self._saved_page_states.append(dict(self.__dict__))
+        self._startPage()
+
+    def save(self):
+        """add page info to each page (page x of y)"""
+        num_pages = len(self._saved_page_states)
+        for state in self._saved_page_states:
+            self.__dict__.update(state)
+            self.draw_page_number(num_pages)
+            canvas.Canvas.showPage(self)
+        canvas.Canvas.save(self)
+
+    def draw_page_number(self, page_count):
+        self.setFont("Helvetica", 7)
+        self.drawRightString(25*mm, 10*mm,
+            "Página %d de %d" % (self._pageNumber, page_count))

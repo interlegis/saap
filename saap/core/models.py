@@ -12,6 +12,8 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from image_cropping import ImageCropField, ImageRatioField
 
+from smart_selects.db_fields import ChainedForeignKey
+
 from saap.core.rules import SEARCH_TRECHO
 from saap.globalrules.globalrules import rules, GROUP_SOCIAL_USERS
 from saap.utils import get_settings_auth_user_model, normalize
@@ -51,6 +53,10 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, email, password, **extra_fields):
         return self._create_user(email, password, True, True, **extra_fields)
+
+    class Meta:
+        verbose_name = _('Usuário')
+        verbose_name_plural = _('Usuários')
 
 
 def sizeof_fmt(num, suffix='B'):
@@ -107,6 +113,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta(AbstractBaseUser.Meta):
         abstract = False
         permissions = MENU_PERMS_FOR_USERS
+        ordering = ['first_name']
 
     def __str__(self):
         return self.get_display_name()
@@ -161,7 +168,9 @@ class SaapSearchMixin(models.Model):
                         pass
                 else:
                     _self = self
+                    print (str(fields))
                     for field in fields:
+                        #print (field)
                         _self = getattr(_self, field)
                     search += str(_self) + ' '
             self.search = search
@@ -246,35 +255,56 @@ class SaapAuditoriaModelMixin(SaapModelMixin):
         abstract = True
 
 
-# - - - - - - - - - - - - - - #
-# Modelos importados do SAPL. #
-# - - - - - - - - - - - - - - #
-class Municipio(models.Model):  # Localidade
-    # TODO filter on migration leaving only cities
+class Estado(models.Model):
 
     REGIAO_CHOICES = (
         ('CO', 'Centro-Oeste'),
         ('NE', 'Nordeste'),
         ('NO', 'Norte'),
-        ('SE', 'Sudeste'),  # TODO convert on migrate SD => SE
+        ('SE', 'Sudeste'),
         ('SL', 'Sul'),
         ('EX', 'Exterior'),
     )
 
-    nome = models.CharField(max_length=50, blank=True)
-    uf = models.CharField(
-        max_length=2, blank=True, choices=UF)
+    nome = models.CharField(max_length=50, blank=True,
+        verbose_name =_('Nome'))
+    
+    sigla = models.CharField(
+        max_length=2, blank=False,
+        verbose_name =_('Sigla'))
+   
     regiao = models.CharField(
-        max_length=2, blank=True, choices=REGIAO_CHOICES)
+        max_length=2, blank=False, choices=REGIAO_CHOICES,
+        verbose_name =_('Região geográfica'))
+
+    class Meta:
+        verbose_name = _('Estado')
+        verbose_name_plural = _('Estados')
+        ordering = ['nome']
+
+    def __str__(self):
+        return _('%(nome)s') % {
+            'nome': self.nome
+        }
+
+class Municipio(models.Model):
+
+    nome = models.CharField(max_length=50, blank=True,
+        verbose_name =_('Nome'))
+    
+    estado = models.ForeignKey(
+        Estado,
+        blank=False, null=False, default=4891,
+        related_name='municipios_set',
+        verbose_name=_('Estado'))
 
     class Meta:
         verbose_name = _('Município')
         verbose_name_plural = _('Municípios')
+        ordering = ['nome']
 
     def __str__(self):
-        return _('%(nome)s - %(uf)s (%(regiao)s)') % {
-            'nome': self.nome, 'uf': self.uf, 'regiao': self.regiao
-        }
+        return self.nome
 
 
 def get_foto_media_path(instance, subpath, filename):
@@ -287,11 +317,12 @@ def foto_upload_path(instance, filename):
 
 class NivelInstrucao(models.Model):
     descricao = models.CharField(
-        max_length=50, verbose_name=_('Nível de Instrução'))
+        max_length=50, verbose_name=_('Nível de instrução'))
 
     class Meta:
-        verbose_name = _('Nível Instrução')
-        verbose_name_plural = _('Níveis Instrução')
+        verbose_name = _('Nível de instrução')
+        verbose_name_plural = _('Níveis de instrução')
+        ordering = ['descricao']
 
     def __str__(self):
         return self.descricao
@@ -299,11 +330,11 @@ class NivelInstrucao(models.Model):
 
 class SituacaoMilitar(models.Model):
     descricao = models.CharField(
-        max_length=50, verbose_name=_('Situação Militar'))
+        max_length=50, verbose_name=_('Situação militar'))
 
     class Meta:
-        verbose_name = _('Tipo Situação Militar')
-        verbose_name_plural = _('Tipos Situações Militares')
+        verbose_name = _('Tipo de situação militar')
+        verbose_name_plural = _('Tipos de situações militares')
 
     def __str__(self):
         return self.descricao
@@ -315,35 +346,42 @@ class Parlamentar(models.Model):
     SEXO_CHOICE = ((FEMININO, _('Feminino')),
                    (MASCULINO, _('Masculino')))
 
+    nome_completo = models.CharField(
+        max_length=50, verbose_name=_('Nome completo'))
+    nome_parlamentar = models.CharField(
+        max_length=50,
+        verbose_name=_('Nome do parlamentar'))
+    ativo = models.BooleanField(verbose_name=_('Ativo na Casa?'))
+    sexo = models.CharField(
+        max_length=1, verbose_name=_('Sexo'), choices=SEXO_CHOICE)
+    data_nascimento = models.DateField(
+        blank=True, null=True, verbose_name=_('Data de nascimento'))
+    profissao = models.CharField(
+        max_length=50, blank=True, verbose_name=_('Profissão'))
+    email = models.EmailField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('E-mail'))
     nivel_instrucao = models.ForeignKey(
         NivelInstrucao,
         blank=True,
         null=True,
-        verbose_name=_('Nível Instrução'))
+        verbose_name=_('Nível de instrução'))
     situacao_militar = models.ForeignKey(
         SituacaoMilitar,
         blank=True,
         null=True,
-        verbose_name=_('Situação Militar'))
-    nome_completo = models.CharField(
-        max_length=50, verbose_name=_('Nome Completo'))
-    nome_parlamentar = models.CharField(
-        max_length=50,
-        verbose_name=_('Nome Parlamentar'))
-    sexo = models.CharField(
-        max_length=1, verbose_name=_('Sexo'), choices=SEXO_CHOICE)
-    data_nascimento = models.DateField(
-        blank=True, null=True, verbose_name=_('Data Nascimento'))
+        verbose_name=_('Situação militar'))    
     cpf = models.CharField(
-        max_length=14, blank=True, verbose_name=_('C.P.F'))
+        max_length=14, blank=True, verbose_name=_('CPF'))
     rg = models.CharField(
-        max_length=15, blank=True, verbose_name=_('R.G.'))
+        max_length=15, blank=True, verbose_name=_('RG'))
     titulo_eleitor = models.CharField(
         max_length=15,
         blank=True,
-        verbose_name=_('Título de Eleitor'))
+        verbose_name=_('Título de eleitor'))
     numero_gab_parlamentar = models.CharField(
-        max_length=10, blank=True, verbose_name=_('Nº Gabinete'))
+        max_length=10, blank=True, verbose_name=_('Nº do gabinete'))
     telefone = models.CharField(
         max_length=50, blank=True, verbose_name=_('Telefone'))
     fax = models.CharField(
@@ -351,7 +389,7 @@ class Parlamentar(models.Model):
     endereco_residencia = models.CharField(
         max_length=100,
         blank=True,
-        verbose_name=_('Endereço Residencial'))
+        verbose_name=_('Endereço residencial'))
     municipio_residencia = models.ForeignKey(
         Municipio, blank=True, null=True, verbose_name=_('Município'))
     cep_residencia = models.CharField(
@@ -359,24 +397,17 @@ class Parlamentar(models.Model):
     telefone_residencia = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name=_('Telefone Residencial'))
+        verbose_name=_('Telefone residencial'))
     fax_residencia = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name=_('Fax Residencial'))
+        verbose_name=_('Fax residencial'))
     endereco_web = models.URLField(
         max_length=100, blank=True, verbose_name=_('HomePage'))
-    profissao = models.CharField(
-        max_length=50, blank=True, verbose_name=_('Profissão'))
-    email = models.EmailField(
-        max_length=100,
-        blank=True,
-        verbose_name=_('E-mail'))
     locais_atuacao = models.CharField(
         max_length=100,
         blank=True,
-        verbose_name=_('Locais de Atuação'))
-    ativo = models.BooleanField(verbose_name=_('Ativo na Casa?'))
+        verbose_name=_('Locais de atuação'))
     biografia = models.TextField(
         blank=True, verbose_name=_('Biografia'))
     # XXX Esse atribuito foi colocado aqui para não atrapalhar a migração
@@ -400,13 +431,14 @@ class Partido(models.Model):
     sigla = models.CharField(max_length=9, verbose_name=_('Sigla'))
     nome = models.CharField(max_length=50, verbose_name=_('Nome'))
     data_criacao = models.DateField(
-        blank=True, null=True, verbose_name=_('Data Criação'))
+        blank=True, null=True, verbose_name=_('Data de criação'))
     data_extincao = models.DateField(
-        blank=True, null=True, verbose_name=_('Data Extinção'))
+        blank=True, null=True, verbose_name=_('Data de extinção'))
 
     class Meta:
         verbose_name = _('Partido')
         verbose_name_plural = _('Partidos')
+        ordering = ['sigla']
 
     def __str__(self):
         return _('%(sigla)s - %(nome)s') % {
@@ -439,8 +471,9 @@ class AreaTrabalho(SaapAuditoriaModelMixin):
         related_name='areatrabalho_set')
 
     class Meta:
-        verbose_name = _('Área de Trabalho')
-        verbose_name_plural = _('Áreas de Trabalho')
+        verbose_name = _('Área de trabalho')
+        verbose_name_plural = _('Áreas de trabalho')
+        ordering = ['descricao']
 
     def __str__(self):
         return self.nome
@@ -457,12 +490,12 @@ class OperadorAreaTrabalho(SaapAuditoriaModelMixin):
     areatrabalho = models.ForeignKey(
         AreaTrabalho,
         related_name='operadorareatrabalho_set',
-        verbose_name=_('Área de Trabalho'),
+        verbose_name=_('Área de trabalho'),
         on_delete=CASCADE)
 
     grupos_associados = models.ManyToManyField(
         Group,
-        verbose_name=_('Grupos Associados'),
+        verbose_name=_('Grupos associados'),
         related_name='operadorareatrabalho_set')
 
     @property
@@ -474,6 +507,7 @@ class OperadorAreaTrabalho(SaapAuditoriaModelMixin):
     class Meta:
         verbose_name = _('Operador')
         verbose_name_plural = _('Operadores')
+        ordering = ['user']
 
     def __str__(self):
         return self.user.get_display_name()
@@ -484,7 +518,7 @@ class Cep(models.Model):
 
     class Meta:
         verbose_name = _('CEP')
-        verbose_name_plural = _("CEP's")
+        verbose_name_plural = _("CEPs")
         ordering = ('numero'),
 
     def __str__(self):
@@ -494,20 +528,42 @@ class Cep(models.Model):
 class RegiaoMunicipal(models.Model):
 
     TIPO_CHOICES = [
-        ('AU', _('Área Urbana')),
-        ('AR', _('Área Rural')),
-        ('UA', _('Área Única'))]
+        ('AU', _('Área urbana')),
+        ('AR', _('Área rural')),
+        ('UA', _('Área única'))]
 
     nome = models.CharField(
-        max_length=254, verbose_name=_('Região Municipal'))
+        max_length=254, verbose_name=_('Região municipal'))
+    
+    #municipio = models.ForeignKey(
+    #    Municipio,
+    #    blank=False, null=False, default=4891,
+    #    related_name='regioes_municipais_set',
+    #    verbose_name=_('Município'))
+
+    estado = models.ForeignKey(
+        Estado,
+        blank=False, null=False, default=21,
+        verbose_name=_('Estado'))
+
+    municipio = ChainedForeignKey(
+        Municipio,
+        chained_field="estado",
+        chained_model_field="estado",
+        default=4891,
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        verbose_name=_('Município'))
+
     tipo = models.CharField(
         max_length=2,
         default='AU',
-        choices=TIPO_CHOICES, verbose_name='Tipo da Região')
+        choices=TIPO_CHOICES, verbose_name='Tipo da região')
 
     class Meta:
-        verbose_name = _('Região Municipal')
-        verbose_name_plural = _('Regiões Municipais')
+        verbose_name = _('Região municipal')
+        verbose_name_plural = _('Regiões municipais')
         unique_together = (
             ('nome', 'tipo'),)
 
@@ -519,8 +575,29 @@ class RegiaoMunicipal(models.Model):
 class Distrito(models.Model):
     nome = models.CharField(
         max_length=254,
-        verbose_name=_('Nome do Distrito'),
+        verbose_name=_('Nome do distrito'),
         unique=True)
+
+    estado = models.ForeignKey(
+        Estado,
+        blank=False, null=False, default=21,
+        verbose_name=_('Estado'))
+
+    municipio = ChainedForeignKey(
+        Municipio,
+        chained_field="estado",
+        chained_model_field="estado",
+        default=4891,
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        verbose_name=_('Município'))
+
+    #municipio = models.ForeignKey(
+    #    Municipio,
+    #    blank=False, null=False, default=4891,
+    #    related_name='distritos_set',
+    #    verbose_name=_('Município'))
 
     class Meta:
         verbose_name = _('Distrito')
@@ -531,19 +608,34 @@ class Distrito(models.Model):
 
 
 class Bairro(models.Model):
+
     nome = models.CharField(
         max_length=254,
-        verbose_name=_('Bairro'),
-        unique=True)
+        verbose_name=_('Nome'))
 
-    codigo = models.PositiveIntegerField(
-        default=0,
-        verbose_name='Código',
-        help_text=_('Código do Bairro no Cadastro Oficial do Município'))
+    estado = models.ForeignKey(
+        Estado,
+        blank=False, null=False, default=21,
+        verbose_name=_('Estado'))
+
+    municipio = ChainedForeignKey(
+        Municipio,
+        chained_field="estado",
+        chained_model_field="estado",
+        default=4891,
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        verbose_name=_('Município'))
+
+    #codigo = models.PositiveIntegerField(
+    #    default=0,
+    #    verbose_name='Código',
+    #    help_text=_('Código do bairro no Cadastro Oficial do município'))
 
     outros_nomes = models.TextField(
         blank=True,
-        verbose_name=_('Outros Nomes'),
+        verbose_name=_('Outros nomes'),
         help_text=_('Ocorrências similares'))
 
     class Meta:
@@ -558,12 +650,12 @@ class Bairro(models.Model):
 class TipoLogradouro(models.Model):
     nome = models.CharField(
         max_length=254,
-        verbose_name=_('Tipo de Logradouro'),
+        verbose_name=_('Tipo de logradouro'),
         unique=True)
 
     class Meta:
-        verbose_name = _('Tipo de Logradouro')
-        verbose_name_plural = _("Tipos de Logradouros")
+        verbose_name = _('Tipo de logradouro')
+        verbose_name_plural = _("Tipos de logradouros")
         ordering = ('nome',)
 
     def __str__(self):
@@ -596,7 +688,7 @@ class Trecho(SaapSearchMixin, SaapModelMixin):
         TipoLogradouro,
         blank=True, null=True, default=None,
         related_name='trechos_set',
-        verbose_name=_('Tipo de Logradouro'))
+        verbose_name=_('Tipo de logradouro'))
 
     bairro = models.ForeignKey(
         Bairro,
@@ -614,7 +706,7 @@ class Trecho(SaapSearchMixin, SaapModelMixin):
         RegiaoMunicipal,
         blank=True, null=True, default=None,
         related_name='trechos_set',
-        verbose_name=_('Região Municipal'))
+        verbose_name=_('Região municipal'))
 
     municipio = models.ForeignKey(
         Municipio,
@@ -622,20 +714,20 @@ class Trecho(SaapSearchMixin, SaapModelMixin):
         verbose_name=_('Município'))
 
     LADO_CHOICES = [
-        ('NA', _('Não Aplicável')),
-        ('AL', _('Ambos os Lados')),
-        ('LE', _('Lado Esquerdo')),
-        ('LD', _('Lado Direito'))]
+        ('NA', _('Não aplicável')),
+        ('AL', _('Ambos os lados')),
+        ('LE', _('Lado esquerdo')),
+        ('LD', _('Lado direito'))]
 
     lado = models.CharField(
         max_length=2,
         default='AL',
-        choices=LADO_CHOICES, verbose_name='Lado do Logradouro')
+        choices=LADO_CHOICES, verbose_name='Lado do logradouro')
 
     numero_inicial = models.PositiveIntegerField(
-        blank=True, null=True, verbose_name='Número Inicial')
+        blank=True, null=True, verbose_name='Número inicial')
     numero_final = models.PositiveIntegerField(
-        blank=True, null=True, verbose_name='Número Final')
+        blank=True, null=True, verbose_name='Número final')
 
     # http://mundogeo.com/blog/2006/03/01/eixo-de-logradouro-conceitos-e-beneficios-parte-1/
     # Pelo que vi, os correios afirmar não haver mais de um cep por trecho,
@@ -644,22 +736,23 @@ class Trecho(SaapSearchMixin, SaapModelMixin):
     cep = models.ManyToManyField(
         Cep,
         related_name='trechos_set',
-        verbose_name=_('Cep'))
+        verbose_name=_('CEP'))
 
     @cached_property
     def fields_search(self):
         return [
-            'tipo__nome',
-            'logradouro__nome',
-            'bairro__nome',
-            'distrito__nome',
-            'regiao_municipal__nome',
-            'municipio__nome',
+            'tipo',
+            'logradouro',
+            'bairro',
+            'distrito',
+            'regiao_municipal',
+            'municipio',
             'cep']
 
+
     class Meta:
-        verbose_name = _('Trecho de Logradouro')
-        verbose_name_plural = _("Trechos de Logradouro")
+        verbose_name = _('Trecho de logradouro')
+        verbose_name_plural = _("Trechos de logradouro")
         ordering = [
             'municipio__nome',
             'regiao_municipal__nome',
@@ -679,7 +772,7 @@ class Trecho(SaapSearchMixin, SaapModelMixin):
                 'numero_final'),)
 
     def __str__(self):
-        uf = str(self.municipio.uf) if self.municipio else ''
+        uf = str(self.municipio.estado.sigla) if self.municipio else ''
         municipio = str(self.municipio.nome) + '-' if self.municipio else ''
         tipo = str(self.tipo) + ' ' if self.tipo else ''
         logradouro = str(self.logradouro) + ' - ' if self.logradouro else ''
@@ -700,34 +793,34 @@ class ImpressoEnderecamento(models.Model):
     nome = models.CharField(max_length=254, verbose_name='Nome do Impresso')
 
     TIPO_CHOICES = [
-        ('ET', _('Folha de Etiquetas')),
+        ('ET', _('Folha de etiquetas')),
         ('EV', _('Envelopes'))]
 
     tipo = models.CharField(
         max_length=2,
         default='ET',
-        choices=TIPO_CHOICES, verbose_name='Tipo do Impresso')
+        choices=TIPO_CHOICES, verbose_name='Tipo do impresso')
 
     largura_pagina = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        verbose_name=_('Largura da Página'),
+        verbose_name=_('Largura da página'),
         help_text=_('Em centímetros'))
     altura_pagina = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        verbose_name=_('Altura da Página'),
+        verbose_name=_('Altura da página'),
         help_text=_('Em centímetros'))
 
     margem_esquerda = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        verbose_name=_('Margem Esquerda'),
+        verbose_name=_('Margem esquerda'),
         help_text=_('Em centímetros'))
     margem_superior = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        verbose_name=_('Margem Superior'),
+        verbose_name=_('Margem superior'),
         help_text=_('Em centímetros'))
 
     colunasfolha = models.PositiveSmallIntegerField(
@@ -738,48 +831,48 @@ class ImpressoEnderecamento(models.Model):
     larguraetiqueta = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        verbose_name=_('Largura da Etiqueta'),
+        verbose_name=_('Largura da etiqueta'),
         help_text=_('Em centímetros'))
     alturaetiqueta = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        verbose_name=_('Altura da Etiquta'),
+        verbose_name=_('Altura da etiquta'),
         help_text=_('Em centímetros'))
 
     entre_colunas = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        verbose_name=_('Distância Entre Colunas'),
+        verbose_name=_('Distância entre colunas'),
         help_text=_('Em centímetros'))
     entre_linhas = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        verbose_name=_('Distância Entre Linhas'),
+        verbose_name=_('Distância entre linhas'),
         help_text=_('Em centímetros'))
 
     fontsize = models.DecimalField(
         max_digits=5, decimal_places=2,
-        verbose_name=_('Tamanho da Letra'),
-        help_text=_('Em Pixels'))
+        verbose_name=_('Tamanho da letra'),
+        help_text=_('Em pixels'))
 
     rotate = models.BooleanField(
         default=False,
         choices=YES_NO_CHOICES,
-        verbose_name=_('Rotacionar Texto'))
+        verbose_name=_('Rotacionar rexto'))
 
     class Meta:
-        verbose_name = _('Impresso para Endereçamento')
-        verbose_name_plural = _("Impressos para Endereçamento")
+        verbose_name = _('Impresso para endereçamento')
+        verbose_name_plural = _("Impressos para endereçamento")
 
     def __str__(self):
         return self.nome
 
 class Filiacao(models.Model):
-    data = models.DateField(verbose_name=_('Data Filiação'))
+    data = models.DateField(verbose_name=_('Data de filiação'))
     parlamentar = models.ForeignKey(Parlamentar)
     partido = models.ForeignKey(Partido, verbose_name=_('Partido'))
     data_desfiliacao = models.DateField(
-        blank=True, null=True, verbose_name=_('Data Desfiliação'))
+        blank=True, null=True, verbose_name=_('Data de desfiliação'))
 
     class Meta:
         verbose_name = _('Filiação')

@@ -7,7 +7,7 @@ from saap.cerimonial.forms import LocalTrabalhoForm, EnderecoForm,\
     TipoAutoridadeForm, LocalTrabalhoPerfilForm,\
     ContatoFragmentPronomesForm, ContatoForm, ProcessoForm,\
     ContatoFragmentSearchForm, ProcessoContatoForm, ListWithSearchProcessoForm,\
-    GrupoDeContatosForm
+    GrupoDeContatosForm, TelefoneForm, EmailForm
 from saap.cerimonial.models import TipoTelefone, TipoEndereco,\
     TipoEmail, Parentesco, EstadoCivil, TipoAutoridade, TipoLocalTrabalho,\
     NivelInstrucao, Contato, Telefone, OperadoraTelefonia, Email,\
@@ -156,6 +156,18 @@ class ContatoCrud(DetailMasterCrud):
 
             return response
 
+class PrincipalMixin:
+
+    def post(self, request, *args, **kwargs):
+        response = super(PrincipalMixin, self).post(
+            self, request, *args, **kwargs)
+
+        #if self.object.preferencial:
+        #    query_filter = {self.crud.parent_field: self.object.contato}
+        #    self.crud.model.objects.filter(**query_filter).exclude(
+        #        pk=self.object.pk).update(preferencial=False)
+        return response
+
 
 class FiliacaoPartidariaCrud(MasterDetailCrudPermission):
     model = FiliacaoPartidaria
@@ -168,23 +180,6 @@ class DependenteCrud(MasterDetailCrudPermission):
     parent_field = 'contato'
     container_field = 'contato__workspace__operadores'
 
-    class BaseMixin(MasterDetailCrudPermission.BaseMixin):
-        list_field_names = ['parentesco', 'nome', 'nome_social',
-                            'data_nascimento', 'sexo', 'identidade_genero', ]
-
-
-class PreferencialMixin:
-
-    def post(self, request, *args, **kwargs):
-        response = super(PreferencialMixin, self).post(
-            self, request, *args, **kwargs)
-
-        if self.object.preferencial:
-            query_filter = {self.crud.parent_field: self.object.contato}
-            self.crud.model.objects.filter(**query_filter).exclude(
-                pk=self.object.pk).update(preferencial=False)
-        return response
-
 
 class TelefoneCrud(MasterDetailCrudPermission):
     model = Telefone
@@ -192,14 +187,13 @@ class TelefoneCrud(MasterDetailCrudPermission):
     container_field = 'contato__workspace__operadores'
 
     class BaseMixin(MasterDetailCrudPermission.BaseMixin):
-        list_field_names = [
-            'telefone', 'tipo', 'operadora', 'preferencial']
+        list_field_names = ['telefone', 'tipo', 'principal', 'permite_contato', 'whatsapp', 'operadora']
 
-    class UpdateView(PreferencialMixin, MasterDetailCrudPermission.UpdateView):
-        pass
+    class CreateView(PrincipalMixin, MasterDetailCrudPermission.CreateView):
+        form_class = TelefoneForm
 
-    class CreateView(PreferencialMixin, MasterDetailCrudPermission.CreateView):
-        pass
+    class UpdateView(PrincipalMixin, MasterDetailCrudPermission.UpdateView):
+        form_class = TelefoneForm
 
 
 class EmailCrud(MasterDetailCrudPermission):
@@ -208,14 +202,13 @@ class EmailCrud(MasterDetailCrudPermission):
     container_field = 'contato__workspace__operadores'
 
     class BaseMixin(MasterDetailCrudPermission.BaseMixin):
-        list_field_names = ['email', 'tipo', 'preferencial']
+        list_field_names = ['email', 'tipo', 'principal']
 
-    class CreateView(PreferencialMixin, MasterDetailCrudPermission.CreateView):
-        pass
+    class CreateView(PrincipalMixin, MasterDetailCrudPermission.CreateView):
+        form_class = EmailForm
 
-    class UpdateView(PreferencialMixin, MasterDetailCrudPermission.UpdateView):
-        pass
-
+    class UpdateView(PrincipalMixin, MasterDetailCrudPermission.UpdateView):
+        form_class = EmailForm
 
 class LocalTrabalhoCrud(MasterDetailCrudPermission):
     model = LocalTrabalho
@@ -225,12 +218,12 @@ class LocalTrabalhoCrud(MasterDetailCrudPermission):
     class BaseMixin(MasterDetailCrudPermission.BaseMixin):
         list_field_names = ['nome', 'nome_social', 'tipo', 'data_inicio']
 
-    class CreateView(PreferencialMixin, MasterDetailCrudPermission.CreateView):
+    class CreateView(PrincipalMixin, MasterDetailCrudPermission.CreateView):
         form_class = LocalTrabalhoForm
         layout_key = 'LocalTrabalhoLayoutForForm'
         template_name = 'core/crispy_form_with_trecho_search.html'
 
-    class UpdateView(PreferencialMixin, MasterDetailCrudPermission.UpdateView):
+    class UpdateView(PrincipalMixin, MasterDetailCrudPermission.UpdateView):
         form_class = LocalTrabalhoForm
         layout_key = 'LocalTrabalhoLayoutForForm'
         template_name = 'core/crispy_form_with_trecho_search.html'
@@ -256,21 +249,19 @@ class ContatoFragmentFormPronomesView(FormView):
 
         return FormView.get(self, request, *args, **kwargs)
 
-
 class EnderecoCrud(MasterDetailCrudPermission):
     model = Endereco
     parent_field = 'contato'
     container_field = 'contato__workspace__operadores'
 
     class BaseMixin(MasterDetailCrudPermission.BaseMixin):
-        list_field_names = [('endereco', 'numero'), 'complemento', 'cep',
-                            ('bairro', 'municipio', 'uf'), 'preferencial']
+        list_field_names = [('endereco', 'numero'), 'cep', 'bairro','municipio', 'principal', 'permite_contato']
 
-    class CreateView(PreferencialMixin, MasterDetailCrudPermission.CreateView):
+    class CreateView(PrincipalMixin, MasterDetailCrudPermission.CreateView):
         form_class = EnderecoForm
         layout_key = 'EnderecoLayoutForForm'
 
-    class UpdateView(PreferencialMixin, MasterDetailCrudPermission.UpdateView):
+    class UpdateView(PrincipalMixin, MasterDetailCrudPermission.UpdateView):
         form_class = EnderecoForm
         layout_key = 'EnderecoLayoutForForm'
 
@@ -285,15 +276,13 @@ class EnderecoPerfilCrud(PerfilDetailCrudPermission):
     parent_field = 'contato'
 
     class BaseMixin(PerfilDetailCrudPermission.BaseMixin):
-        list_field_names = [
-            'endereco', 'numero', 'complemento', 'bairro', 'cep']
+        list_field_names = [('endereco', 'numero'), 'cep', 'bairro','municipio', 'principal', 'permite_contato']
 
-    class CreateView(PreferencialMixin, PerfilDetailCrudPermission.CreateView):
-
+    class CreateView(PrincipalMixin, PerfilDetailCrudPermission.CreateView):
         form_class = EnderecoForm
         template_name = 'core/crispy_form_with_trecho_search.html'
 
-    class UpdateView(PreferencialMixin, PerfilDetailCrudPermission.UpdateView):
+    class UpdateView(PrincipalMixin, PerfilDetailCrudPermission.UpdateView):
         form_class = EnderecoForm
         template_name = 'core/crispy_form_with_trecho_search.html'
 
@@ -303,13 +292,12 @@ class TelefonePerfilCrud(PerfilDetailCrudPermission):
     parent_field = 'contato'
 
     class BaseMixin(PerfilDetailCrudPermission.BaseMixin):
-        list_field_names = [
-            'telefone', 'tipo', 'operadora', 'preferencial']
+        list_field_names = ['telefone', 'tipo', 'principal', 'permite_contato', 'whatsapp', 'operadora']
 
-    class UpdateView(PreferencialMixin, PerfilDetailCrudPermission.UpdateView):
+    class UpdateView(PrincipalMixin, PerfilDetailCrudPermission.UpdateView):
         pass
 
-    class CreateView(PreferencialMixin, PerfilDetailCrudPermission.CreateView):
+    class CreateView(PrincipalMixin, PerfilDetailCrudPermission.CreateView):
         pass
 
 
@@ -318,12 +306,12 @@ class EmailPerfilCrud(PerfilDetailCrudPermission):
     parent_field = 'contato'
 
     class BaseMixin(PerfilDetailCrudPermission.BaseMixin):
-        list_field_names = ['email', 'tipo', 'preferencial']
+        list_field_names = ['email', 'tipo', 'principal']
 
-    class UpdateView(PreferencialMixin, PerfilDetailCrudPermission.UpdateView):
+    class UpdateView(PrincipalMixin, PerfilDetailCrudPermission.UpdateView):
         pass
 
-    class CreateView(PreferencialMixin, PerfilDetailCrudPermission.CreateView):
+    class CreateView(PrincipalMixin, PerfilDetailCrudPermission.CreateView):
         pass
 
 
@@ -334,11 +322,11 @@ class LocalTrabalhoPerfilCrud(PerfilDetailCrudPermission):
     class BaseMixin(PerfilDetailCrudPermission.BaseMixin):
         list_field_names = ['nome', 'nome_social', 'tipo', 'data_inicio']
 
-    class CreateView(PreferencialMixin, PerfilDetailCrudPermission.CreateView):
+    class CreateView(PrincipalMixin, PerfilDetailCrudPermission.CreateView):
         form_class = LocalTrabalhoPerfilForm
         template_name = 'cerimonial/crispy_form_with_trecho_search.html'
 
-    class UpdateView(PreferencialMixin, PerfilDetailCrudPermission.UpdateView):
+    class UpdateView(PrincipalMixin, PerfilDetailCrudPermission.UpdateView):
         form_class = LocalTrabalhoPerfilForm
         template_name = 'cerimonial/crispy_form_with_trecho_search.html'
 
@@ -346,10 +334,6 @@ class LocalTrabalhoPerfilCrud(PerfilDetailCrudPermission):
 class DependentePerfilCrud(PerfilDetailCrudPermission):
     model = DependentePerfil
     parent_field = 'contato'
-
-    class BaseMixin(PerfilDetailCrudPermission.BaseMixin):
-        list_field_names = ['parentesco', 'nome', 'nome_social',
-                            'data_nascimento', 'sexo', 'identidade_genero', ]
 
 
 """
@@ -411,14 +395,14 @@ class DependentePerfilCrud(PerfilDetailCrudPermission):
 
             return DetailMasterCrud.DeleteView.post(
                 self, request, *args, **kwargs)
-"""
 
+"""
 
 # ---- Processo Master e Details ----------------------------
 
 class AssuntoProcessoCrud(DetailMasterCrud):
     model = AssuntoProcesso
-    container_field = 'workspace__operadores'
+#    container_field = 'workspace__operadores'
     model_set = 'processo_set'
 
     class BaseMixin(DetailMasterCrud.BaseMixin):
@@ -441,7 +425,7 @@ class ProcessoMasterCrud(DetailMasterCrud):
     container_field = 'workspace__operadores'
 
     class BaseMixin(DetailMasterCrud.BaseMixin):
-        list_field_names = ['data',
+        list_field_names = ['data_abertura',
                             ('titulo', 'contatos'),
                             'assuntos',
                             ('status',
@@ -531,8 +515,9 @@ class ProcessoContatoCrud(MasterDetailCrudPermission):
     container_field = 'contatos__workspace__operadores'
 
     class BaseMixin(MasterDetailCrudPermission.BaseMixin):
-        list_field_names = ['data',
+        list_field_names = ['data_abertura',
                             'titulo',
+                            'num_controle',
                             'assuntos',
                             'status',
                             'classificacoes']

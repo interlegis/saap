@@ -24,7 +24,7 @@ app_name = AppConfig.name
 
 urlpatterns = [
 
-    url(r'^contato/', include(
+    url(r'^contatos/', include(
         ContatoCrud.get_urls() + TelefoneCrud.get_urls() +
         EmailCrud.get_urls() + DependenteCrud.get_urls() +
         LocalTrabalhoCrud.get_urls() + EnderecoCrud.get_urls() +
@@ -45,57 +45,58 @@ urlpatterns = [
         PerfilCrud.get_urls()
     )),
 
-    url(r'^grupo/', include(
+    url(r'^grupos/', include(
         GrupoDeContatosMasterCrud.get_urls()
     )),
 
-    url(r'^processo/', include(
+    url(r'^processos/', include(
         ProcessoMasterCrud.get_urls()
     )),
-    url(r'^assuntoprocesso/', include(
-        AssuntoProcessoCrud.get_urls()
-    )),
+    
 
-
-    url(r'^reports/cerimonial/enderecamentos',
+    url(r'^relatorios/enderecamentos',
         ImpressoEnderecamentoContatoView.as_view(),
         name='print_impressoenderecamento'),
 
-    url(r'^reports/cerimonial/contatos_por_processo',
+    url(r'^relatorios/contatos_por_processo',
         RelatorioContatoAgrupadoPorProcessoView.as_view(),
         name='print_rel_contato_agrupado_por_processo'),
 
-    url(r'^reports/cerimonial/contatos_por_grupo',
+    url(r'^relatorios/contatos',
         RelatorioContatoAgrupadoPorGrupoView.as_view(),
         name='print_rel_contato_agrupado_por_grupo'),
 
-    url(r'^sistema/cerimonial/tipoautoridade/(?P<pk>\d+)/pronomes_form',
+    url(r'^sistema/tipoautoridade/(?P<pk>\d+)/pronomes_form',
         ContatoFragmentFormPronomesView.as_view(), name='list_pronomes'),
 
-    url(r'^sistema/cerimonial/statusprocesso/',
+    url(r'^sistema/assuntoprocesso/',
+        include(AssuntoProcessoCrud.get_urls())),
+
+    url(r'^sistema/statusprocesso/',
         include(StatusProcessoCrud.get_urls())),
-    url(r'^sistema/cerimonial/classificacaoprocesso/',
+    url(r'^sistema/classificacaoprocesso/',
         include(ClassificacaoProcessoCrud.get_urls())),
-    url(r'^sistema/cerimonial/topicoprocesso/',
+    url(r'^sistema/topicoprocesso/',
         include(TopicoProcessoCrud.get_urls())),
-    url(r'^sistema/cerimonial/tipotelefone/',
+    url(r'^sistema/tipotelefone/',
         include(TipoTelefoneCrud.get_urls())),
-    url(r'^sistema/cerimonial/tipoendereco/',
+    url(r'^sistema/tipoendereco/',
         include(TipoEnderecoCrud.get_urls())),
-    url(r'^sistema/cerimonial/tipoemail/',
+    url(r'^sistema/tipoemail/',
         include(TipoEmailCrud.get_urls())),
-    url(r'^sistema/cerimonial/parentesco/',
+    url(r'^sistema/parentesco/',
         include(ParentescoCrud.get_urls())),
-    url(r'^sistema/cerimonial/estadocivil/',
+    url(r'^sistema/estadocivil/',
         include(EstadoCivilCrud.get_urls())),
-    url(r'^sistema/cerimonial/tipoautoridade/',
+    url(r'^sistema/tipoautoridade/',
         include(TipoAutoridadeCrud.get_urls())),
-    url(r'^sistema/cerimonial/tipolocaltrabalho/',
+    url(r'^sistema/tipolocaltrabalho/',
         include(TipoLocalTrabalhoCrud.get_urls())),
-    url(r'^sistema/cerimonial/operadoratelefonia/',
+    url(r'^sistema/operadoratelefonia/',
         include(OperadoraTelefoniaCrud.get_urls())),
-    url(r'^sistema/cerimonial/nivelinstrucao/',
+    url(r'^sistema/nivelinstrucao/',
         include(NivelInstrucaoCrud.get_urls())),
-    url(r'^sistema/cerimonial/pronometratamento/',
+    url(r'^sistema/pronometratamento/',
         include(PronomeTratamentoCrud.get_urls())),
+
 ]

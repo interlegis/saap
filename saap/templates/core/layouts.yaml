@@ -6,15 +6,29 @@ Cep:
 RegiaoMunicipal:
   {% trans 'Região Municipal' %}:
   - tipo nome:8
+  - estado municipio
 
 Distrito:
   {% trans 'Distrito' %}:
   - nome
+  - estado municipio
 
 Bairro:
   {% trans 'Bairro' %}:
-  - codigo:3 nome
+  - nome
+  #- codigo:3
+  - estado municipio
   - outros_nomes
+
+Municipio:
+  {% trans 'Município' %}:
+  - nome
+  - estado
+
+Estado:
+  {% trans 'Estado' %}:
+  - nome
+  - sigla regiao
 
 TipoLogradouro:
   {% trans 'Tipos de Logradouro' %}:
@@ -23,6 +37,12 @@ TipoLogradouro:
 Logradouro:
   {% trans 'Logradouro' %}:
   - nome
+
+Partido:
+  {% trans 'Partido' %}:
+  - sigla
+  - nome
+  - data_criacao data_extincao
 
 Trecho:
   {% trans 'Trecho' %}:

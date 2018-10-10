@@ -11,22 +11,23 @@ menu_impresso_enderecamento = "menu_impresso_enderecamento"
 menu_relatorios = "menu_relatorios"
 
 MENU_PERMS_FOR_USERS = (
-    (menu_dados_auxiliares, _('Mostrar Menu Dados Auxiliares')),
-    (menu_tabelas_auxiliares, _('Mostrar Menu de Tabelas Auxiliares')),
-    (menu_contatos, _('Mostrar Menu de Cadastro de Contatos')),
-    (menu_grupocontatos, _('Mostrar Menu de Cadastro de Grupos de Contatos')),
-    (menu_processos, _('Mostrar Menu de Cadastro de Processos')),
-    (menu_area_trabalho, _('Mostrar Menu de Áreas de Trabalho')),
+    (menu_dados_auxiliares, _('Mostrar menu de Dados auxiliares')),
+    (menu_tabelas_auxiliares, _('Mostrar menu de Tabelas auxiliares')),
+    (menu_contatos, _('Mostrar menu de de Contatos')),
+    (menu_grupocontatos, _('Mostrar menu de Grupos de Contatos')),
+    (menu_processos, _('Mostrar menu de Processos')),
+    (menu_area_trabalho, _('Mostrar menu de &Aacute;reas de trabalho')),
     (menu_impresso_enderecamento,
-     _('Mostrar Menu de Impressos de Endereçamento')),
+     _('Mostrar menu de Impressos de endereçamento')),
     (menu_relatorios,
      _('Mostrar Menu de Relatórios')),
 )
 
 
 search_trecho = 'search_trecho'
+
 SEARCH_TRECHO = (
-    (search_trecho, _('Consultar base de Trechos.')),
+    (search_trecho, _('Consultar base de trechos')),
 )
 
 

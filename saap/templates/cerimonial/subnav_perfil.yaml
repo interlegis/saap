@@ -1,13 +1,13 @@
 {% load i18n %}
-- title: {% trans 'Dados Básicos do Perfil' %}
+- title: {% trans 'Dados básicos' %}
   url: perfil_detail
 - title: {% trans 'Endereços' %}
   url: enderecoperfil_list
 - title: {% trans 'Telefones' %}
   url: telefoneperfil_list
-- title: {% trans "Email's" %}
+- title: {% trans "E-mails" %}
   url: emailperfil_list
-- title: {% trans "Locais de Trabalho" %}
+- title: {% trans "Locais de trabalho" %}
   url: localtrabalhoperfil_list
 - title: {% trans "Dependentes" %}
   url: dependenteperfil_list

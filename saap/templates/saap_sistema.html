@@ -5,7 +5,7 @@
 
   <fieldset>
   <legend><h1>{% trans "Tabelas Auxiliares" %}</h2></legend>
-    <h2>Módulo de Endereços</h2>
+    <h2>Endereços</h2>
     <div class="row">
       <div class="col-md-6"><a href="{% url 'saap.core:trecho_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.core.models.Trecho"%}</a></div>
       <div class="col-md-6"><a href="{% url 'saap.core:cep_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.core.models.Cep"%}</a></div>
@@ -14,8 +14,10 @@
       <div class="col-md-6"><a href="{% url 'saap.core:bairro_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.core.models.Bairro"%}</a></div>
       <div class="col-md-6"><a href="{% url 'saap.core:distrito_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.core.models.Distrito"%}</a></div>
       <div class="col-md-6"><a href="{% url 'saap.core:regiaomunicipal_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.core.models.RegiaoMunicipal"%}</a></div>
+      <div class="col-md-6"><a href="{% url 'saap.core:municipio_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.core.models.Municipio"%}</a></div>
+      <div class="col-md-6"><a href="{% url 'saap.core:estado_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.core.models.Estado"%}</a></div>
     </div>
-    <h2>Módulo Cerimonial / Contatos</h2>
+    <h2>Contatos</h2>
     <div class="row">
       <div class="col-md-6"><a href="{% url 'saap.cerimonial:tipotelefone_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.cerimonial.models.TipoTelefone"%}</a></div>
       <div class="col-md-6"><a href="{% url 'saap.cerimonial:tipoendereco_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.cerimonial.models.TipoEndereco"%}</a></div>
@@ -28,19 +30,15 @@
       <div class="col-md-6"><a href="{% url 'saap.cerimonial:operadoratelefonia_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.cerimonial.models.OperadoraTelefonia"%}</a></div>
       <div class="col-md-6"><a href="{% url 'saap.cerimonial:pronometratamento_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.cerimonial.models.PronomeTratamento"%}</a></div>
     </div>
-    <h2>Módulo Cerimonial / Processos</h2>
+    <h2>Processos</h2>
     <div class="row">
       <div class="col-md-6"><a href="{% url 'saap.cerimonial:statusprocesso_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.cerimonial.models.StatusProcesso"%}</a></div>
       <div class="col-md-6"><a href="{% url 'saap.cerimonial:classificacaoprocesso_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.cerimonial.models.ClassificacaoProcesso"%}</a></div>
       <div class="col-md-6"><a href="{% url 'saap.cerimonial:topicoprocesso_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.cerimonial.models.TopicoProcesso"%}</a></div>
+      <div class="col-md-6"><a href="{% url 'saap.cerimonial:assuntoprocesso_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.cerimonial.models.AssuntoProcesso"%}</a></div>
 
     </div>
 
   </fieldset>
 
-  <br><br><br>
-  <fieldset>
-  <legend><h1>{% trans "Tabelas Auxiliares do SAPL" %}</h2></legend>
-    {{block.super}}
-  </fieldset>
 {% endblock base_content %}

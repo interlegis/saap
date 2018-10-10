@@ -5,4 +5,4 @@ from django.utils.translation import ugettext_lazy as _
 class AppConfig(apps.AppConfig):
     name = 'saap.core'
     label = 'core'
-    verbose_name = _('Ajuste Principais')
+    verbose_name = _('Ajustes principais')

@@ -1,0 +1,60 @@
+saap/cerimonial/forms.py:                  'tipo_autoridade',
+saap/cerimonial/forms.py:        if 'tipo_autoridade' in self.fields:
+saap/cerimonial/forms.py:            self.fields['tipo_autoridade'].widget.attrs.update(
+saap/cerimonial/forms.py:        if 'tipo_autoridade' in self.fields and\
+saap/cerimonial/forms.py:                instance and instance.tipo_autoridade:
+saap/cerimonial/forms.py:            pronomes_choice = instance.tipo_autoridade.pronomes.order_by(
+saap/cerimonial/forms.py:        if 'tipo_autoridade' in self.cleaned_data:
+saap/cerimonial/forms.py:            tipo_autoridade = self.cleaned_data['tipo_autoridade']
+saap/cerimonial/forms.py:            if tipo_autoridade and not pronome:
+saap/cerimonial/forms.py:                  'tipo_autoridade']
+saap/cerimonial/forms.py:            ('tipo_autoridade', 6),
+saap/cerimonial/models.py:    tipo_autoridade = models.ForeignKey(
+saap/templates/cerimonial/layouts.yaml:  - cargo tipo_autoridade
+------------
+saap/cerimonial/forms.py:                  'estado',
+saap/cerimonial/forms.py:                  'estado_civil',
+saap/cerimonial/forms.py:                  'estado',
+saap/cerimonial/forms.py:        if 'estado' in self.fields:
+saap/cerimonial/forms.py:            self.fields['estado'].widget.attrs.update(
+saap/cerimonial/forms.py:        if 'estado' in self.fields and\
+saap/cerimonial/forms.py:                instance and instance.estado:
+saap/cerimonial/forms.py:            municipios_choice = instance.estado.municipios.order_by(
+saap/cerimonial/forms.py:                  'estado_civil',
+saap/cerimonial/forms.py:                  'estado',
+saap/cerimonial/urls.py:    url(r'^sistema/estadocivil/',
+Arquivo binário saap/cerimonial/__pycache__/views.cpython-34.pyc coincide com o padrão
+Arquivo binário saap/cerimonial/__pycache__/models.cpython-34.pyc coincide com o padrão
+Arquivo binário saap/cerimonial/__pycache__/forms.cpython-34.pyc coincide com o padrão
+Arquivo binário saap/cerimonial/__pycache__/urls.cpython-34.pyc coincide com o padrão
+saap/cerimonial/views.py:                            'estado_civil', 'sexo', ]
+saap/cerimonial/models.py:    estado_civil = models.ForeignKey(
+saap/cerimonial/models.py:    estado = models.ForeignKey(
+saap/cerimonial/models.py:    estado = models.ForeignKey(
+saap/cerimonial/models.py:    estado = models.ForeignKey(
+saap/templates/cerimonial/layouts.yaml:  - naturalidade estado
+saap/templates/cerimonial/layouts.yaml:  - estado_civil:2 sexo:2 identidade_genero:3
+saap/templates/cerimonial/layouts.yaml:  - regiao_municipal municipio:4 estado uf:3
+saap/templates/cerimonial/layouts.yaml:  - cep:3 municipio estado uf:4
+saap/templates/cerimonial/layouts.yaml:  - cep:3 municipio estado uf:4
+saap/templates/cerimonial/layouts.yaml:  - cep:3 municipio estado uf:4
+saap/templates/cerimonial/layouts.yaml:  - data_nascimento estado_civil sexo identidade_genero
+saap/templates/cerimonial/layouts.yaml:  - regiao_municipal municipio:4 estado uf:3
+saap/templates/cerimonial/layouts.yaml:  - regiao_municipal municipio:4 estado uf:3
+saap/templates/saap_sistema.html:      <div class="col-md-6"><a href="{% url 'saap.core:estado_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.core.models.Estado"%}</a></div>
+saap/templates/saap_sistema.html:      <div class="col-md-6"><a href="{% url 'saap.cerimonial:estadocivil_list' %}" class="btn btn-link">{% model_verbose_name_plural "saap.cerimonial.models.EstadoCivil"%}</a></div>
+saap/templates/core/layouts.yaml:  - estado
+saap/core/migrations/0011_municipio_estado.py:            name='estado',
+Arquivo binário saap/core/migrations/__pycache__/0012_auto_20180918_1345.cpython-34.pyc coincide com o padrão
+Arquivo binário saap/core/migrations/__pycache__/0011_municipio_estado.cpython-34.pyc coincide com o padrão
+saap/core/migrations/0012_auto_20180918_1345.py:        ('core', '0011_municipio_estado'),
+saap/core/migrations/0012_auto_20180918_1345.py:            name='estado',
+saap/core/urls.py:    url(r'^sistema/core/estado/', include(EstadoCrud.get_urls())),
+saap/core/urls.py:    url(r'^sistema/estados/(?P<pk>\d+)/municipios_form',
+Arquivo binário saap/core/__pycache__/views.cpython-34.pyc coincide com o padrão
+Arquivo binário saap/core/__pycache__/models.cpython-34.pyc coincide com o padrão
+Arquivo binário saap/core/__pycache__/urls.cpython-34.pyc coincide com o padrão
+saap/core/views.py:EstadoCrud = DetailMasterCrud.build(Estado, None, 'estado')
+saap/core/views.py:    estado_id = request.GET.get('estado')
+saap/core/views.py:    municipios = Municipio.objects.filter(estado_id=estado_id).order_by('name')
+saap/core/models.py:    estado = models.ForeignKey(

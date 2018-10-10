@@ -3,7 +3,7 @@ from crispy_forms.bootstrap import FieldWithButtons, StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.forms import UserCreationForm as BaseUserCreationForm, UserChangeForm as BaseUserChangeForm
 from django.forms.models import ModelForm
 from django.utils.translation import ugettext_lazy as _
@@ -11,11 +11,12 @@ from django_filters.filterset import FilterSet
 
 from image_cropping.widgets import ImageCropWidget, CropWidget
 from saap.crispy_layout_mixin import to_row
-import django_filters
+from saap.core.models import * 
+
+#import django_filter
 
 from saap.core.models import Trecho, TipoLogradouro, User, OperadorAreaTrabalho,\
     ImpressoEnderecamento
-
 
 class LoginForm(AuthenticationForm):
 
@@ -34,6 +35,59 @@ class LoginForm(AuthenticationForm):
                 'name': 'password',
                 'placeholder': _('Digite sua Senha')}))
 
+class NewPasswordForm(PasswordChangeForm):
+    
+    old_password = forms.CharField(
+        label="Old password", max_length=30,
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'form-control',
+                'name': 'old_password',
+                'placeholder': _('Digite sua senha antiga')}))
+    
+    new_password1 = forms.CharField(
+        label="New password 1", max_length=30,
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'form-control',
+                'name': 'new_password1',
+                'placeholder': _('Digite sua nova senha')}))
+
+    new_password2 = forms.CharField(
+        label="New password 2", max_length=30,
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'form-control',
+                'name': 'new_password2',
+                'placeholder': _('Repita sua nova senha')}))
+
+class ResetPasswordForm(PasswordResetForm):
+    
+    email = forms.CharField(
+        label="Email", max_length=254,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'name': 'email',
+                'placeholder': _('Digite seu Endereço de email')}))
+
+class PasswordForm(SetPasswordForm):
+    
+    new_password1 = forms.CharField(
+        label="New password 1", max_length=30,
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'form-control',
+                'name': 'new_password1',
+                'placeholder': _('Digite sua nova senha')}))
+
+    new_password2 = forms.CharField(
+        label="New password 2", max_length=30,
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'form-control',
+                'name': 'new_password2',
+                'placeholder': _('Repita sua nova senha')}))
 
 class UserCreationForm(BaseUserCreationForm):
 
@@ -149,3 +203,4 @@ class ListWithSearchForm(forms.Form):
                     _('Filtrar'), css_class='btn-default btn-lg',
                     type='submit'))
         )
+

@@ -6,6 +6,7 @@ from django.forms.utils import ErrorList
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django_filters.views import FilterView
+from django.views.generic.edit import FormView
 from rest_framework import viewsets, mixins
 from rest_framework.authentication import SessionAuthentication,\
     BasicAuthentication
@@ -16,7 +17,7 @@ from saap.core.models import Partido, Filiacao
 from saap.core.forms import OperadorAreaTrabalhoForm, ImpressoEnderecamentoForm,\
     ListWithSearchForm
 from saap.core.models import Cep, TipoLogradouro, Logradouro, RegiaoMunicipal,\
-    Distrito, Bairro, Trecho, AreaTrabalho, OperadorAreaTrabalho,\
+    Distrito, Bairro, Municipio, Estado, Trecho, AreaTrabalho, OperadorAreaTrabalho,\
     ImpressoEnderecamento
 from saap.core.rules import rules_patterns
 from saap.core.serializers import TrechoSearchSerializer, TrechoSerializer
@@ -32,11 +33,11 @@ CepCrud = DetailMasterCrud.build(Cep, None, 'cep')
 RegiaoMunicipalCrud = DetailMasterCrud.build(
     RegiaoMunicipal, None,  'regiao_municipal')
 DistritoCrud = DetailMasterCrud.build(Distrito, None, 'distrito')
+MunicipioCrud = DetailMasterCrud.build(Municipio, None, 'municipio')
+EstadoCrud = DetailMasterCrud.build(Estado, None, 'estado')
 BairroCrud = DetailMasterCrud.build(Bairro, None, 'bairro')
-TipoLogradouroCrud = DetailMasterCrud.build(
-    TipoLogradouro, None, 'tipo_logradouro')
+TipoLogradouroCrud = DetailMasterCrud.build(TipoLogradouro, None, 'tipo_logradouro')
 LogradouroCrud = DetailMasterCrud.build(Logradouro, None, 'logradouro')
-
 
 class TrechoCrud(DetailMasterCrud):
     help_text = 'trecho'
@@ -44,7 +45,7 @@ class TrechoCrud(DetailMasterCrud):
 
     class BaseMixin(DetailMasterCrud.BaseMixin):
         list_field_names = [
-            ('tipo', 'logradouro'), 'bairro', 'municipio', 'cep']
+            ('tipo', 'logradouro'), 'bairro', 'municipio', 'cep', 'lado']
 
     class ListView(DetailMasterCrud.ListView):
         form_search_class = ListWithSearchForm
@@ -60,7 +61,7 @@ class TrechoCrud(DetailMasterCrud):
         def get_context_data(self, **kwargs):
             context = DetailMasterCrud.ListView.get_context_data(
                 self, **kwargs)
-            context['title'] = _("Base de Cep's e Endereços")
+            context['title'] = _("Base de CEPs e Endereços")
             return context
 
     class CreateView(DetailMasterCrud.CreateView):
@@ -87,12 +88,9 @@ class TrechoCrud(DetailMasterCrud):
 
             return response
 
-
-"""
-
 class TrechoSearchView(PermissionRequiredMixin, FilterView):
     template_name = 'search/search.html'
-    filterset_class = TrechoFilterSet
+    #filterset_class = TrechoFilterSet
     permission_required = 'core.search_trecho'
 
     paginate_by = 20
@@ -115,7 +113,7 @@ class TrechoSearchView(PermissionRequiredMixin, FilterView):
             del qr['page']
         context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
 
-        return context"""
+        return context
 
 
 class TrechoJsonSearchView(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -164,7 +162,7 @@ class AreaTrabalhoCrud(DetailMasterCrud):
             return context
 
     class DetailView(DetailMasterCrud.DetailView):
-        list_field_names_set = ['user_name', ]
+        list_field_names_set = ['user_name', 'parlamentar']
 
 
 class OperadorAreaTrabalhoCrud(MasterDetailCrudPermission):
