@@ -103,9 +103,16 @@
                       <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Relatórios" %}<span class="caret"></span></a>
 			<ul class="dropdown-menu menu-right">                        
 			{% if perms.cerimonial.print_impressoenderecamento %}<li><a href="{% url 'saap.cerimonial:print_impressoenderecamento' %}">{% trans "Etiquetas e envelopes" %}</a></li>{% endif %}
-                        {% if perms.cerimonial.print_rel_contato_agrupado_por_grupo %}<li><a href="{% url 'saap.cerimonial:print_rel_contato_agrupado_por_grupo' %}">{% trans "Contatos" %}</a></li>{% endif %}
-                        {% if perms.cerimonial.print_rel_contato_agrupado_por_processo %}<li><a href="{% url 'saap.cerimonial:print_rel_contato_agrupado_por_processo' %}">{% trans "Processos" %}</a></li>{% endif %}
-
+                        {% if perms.cerimonial.print_rel_contatos %}
+                            <li><a href="{% url 'saap.cerimonial:print_rel_contatos' %}">{% trans "Contatos" %}</a></li>
+                        {% endif %}
+                        {% if perms.core.menu_contatos %}
+                            <li><a href="{% url 'saap.cerimonial:print_contato' %}">{% trans "Contato individual" %}</a></li>
+                        {% endif %}
+                        {% if perms.cerimonial.print_rel_processos %}
+                            <li><a href="{% url 'saap.cerimonial:print_rel_processos' %}">{% trans "Processos" %}</a></li>
+                            <li><a href="{% url 'saap.cerimonial:print_processo' %}">{% trans "Processo individual" %}</a></li>
+                        {% endif %}
                       </ul>
                     </li>
                   {% endif %}

@@ -1,8 +1,8 @@
 from django.conf.urls import url, include
 
-from saap.cerimonial.reports import ImpressoEnderecamentoContatoView,\
-    RelatorioContatoAgrupadoPorProcessoView,\
-    RelatorioContatoAgrupadoPorGrupoView
+from saap.cerimonial.reports import ImpressoEnderecamentoView,\
+    RelatorioProcessosView, RelatorioContatosView,\
+    RelatorioContatoIndividualView, RelatorioProcessoIndividualView
 from saap.cerimonial.views import ContatoCrud, TelefoneCrud, EmailCrud,\
     DependenteCrud, LocalTrabalhoCrud, EnderecoCrud, FiliacaoPartidariaCrud,\
     EnderecoPerfilCrud, LocalTrabalhoPerfilCrud, EmailPerfilCrud,\
@@ -51,20 +51,27 @@ urlpatterns = [
 
     url(r'^processos/', include(
         ProcessoMasterCrud.get_urls()
-    )),
-    
+    )), 
 
     url(r'^relatorios/enderecamentos',
-        ImpressoEnderecamentoContatoView.as_view(),
+        ImpressoEnderecamentoView.as_view(),
         name='print_impressoenderecamento'),
 
-    url(r'^relatorios/contatos_por_processo',
-        RelatorioContatoAgrupadoPorProcessoView.as_view(),
-        name='print_rel_contato_agrupado_por_processo'),
+    url(r'^relatorios/processos',
+        RelatorioProcessosView.as_view(),
+        name='print_rel_processos'),
+
+    url(r'^relatorios/individual/processo',
+        RelatorioProcessoIndividualView.as_view(),
+        name='print_processo'),
 
     url(r'^relatorios/contatos',
-        RelatorioContatoAgrupadoPorGrupoView.as_view(),
-        name='print_rel_contato_agrupado_por_grupo'),
+        RelatorioContatosView.as_view(),
+        name='print_rel_contatos'),
+
+    url(r'^relatorios/individual/contato',
+        RelatorioContatoIndividualView.as_view(),
+        name='print_contato'),
 
     url(r'^sistema/tipoautoridade/(?P<pk>\d+)/pronomes_form',
         ContatoFragmentFormPronomesView.as_view(), name='list_pronomes'),

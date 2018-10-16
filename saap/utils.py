@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.validators import EMPTY_VALUES
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from six.moves.html_parser import HTMLParser
 
 from floppyforms import ClearableFileInput
 
@@ -124,37 +125,6 @@ def listify(function):
     def f(*args, **kwargs):
         return list(function(*args, **kwargs))
     return f
-
-UF = [
-    ('AC', 'Acre'),
-    ('AL', 'Alagoas'),
-    ('AP', 'Amapá'),
-    ('AM', 'Amazonas'),
-    ('BA', 'Bahia'),
-    ('CE', 'Ceará'),
-    ('DF', 'Distrito Federal'),
-    ('ES', 'Espírito Santo'),
-    ('GO', 'Goiás'),
-    ('MA', 'Maranhão'),
-    ('MT', 'Mato Grosso'),
-    ('MS', 'Mato Grosso do Sul'),
-    ('MG', 'Minas Gerais'),
-    ('PR', 'Paraná'),
-    ('PB', 'Paraíba'),
-    ('PA', 'Pará'),
-    ('PE', 'Pernambuco'),
-    ('PI', 'Piauí'),
-    ('RJ', 'Rio de Janeiro'),
-    ('RN', 'Rio Grande do Norte'),
-    ('RS', 'Rio Grande do Sul'),
-    ('RO', 'Rondônia'),
-    ('RR', 'Roraima'),
-    ('SC', 'Santa Catarina'),
-    ('SE', 'Sergipe'),
-    ('SP', 'São Paulo'),
-    ('TO', 'Tocantins'),
-    ('EX', 'Exterior'),
-]
 
 RANGE_ANOS = [(year, year) for year in range(date.today().year, 1889, -1)]
 
@@ -359,3 +329,30 @@ def validate_CEP(value):
         raise ValidationError(error_messages['cep_digits'])
 
     return orig_value
+
+def strip_tags(string, allowed_tags=''):
+    if allowed_tags != '':
+    # Get a list of all allowed tag names.
+        allowed_tags_list = re.sub(r'[\\/<> ]+', '', allowed_tags).split(',')
+        allowed_pattern = ''
+        for s in allowed_tags_list:
+            if s == '':
+                continue;
+            # Add all possible patterns for this tag to the regex.
+            if allowed_pattern != '':
+                allowed_pattern += '|'
+            allowed_pattern += '<' + s + ' [^><]*>$|<' + s + '>|'
+        # Get all tags included in the string.
+        all_tags = re.findall(r'<]+>', string, re.I)
+        for tag in all_tags:
+            # If not allowed, replace it.
+            if not re.match(allowed_pattern, tag, re.I):
+                string = string.replace(tag, '')
+    else:
+        # If no allowed tags, remove all.
+        string = re.sub(r'<[^>]*?>', '', string)
+
+    h = HTMLParser()
+    string = h.unescape(string)
+ 
+    return string

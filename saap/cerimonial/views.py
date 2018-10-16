@@ -429,7 +429,7 @@ class ProcessoMasterCrud(DetailMasterCrud):
                             ('titulo', 'contatos'),
                             'assuntos',
                             ('status',
-                             'classificacoes',)
+                             'classificacao',)
                             ]
 
         def get_context_data(self, **kwargs):
@@ -520,7 +520,7 @@ class ProcessoContatoCrud(MasterDetailCrudPermission):
                             'num_controle',
                             'assuntos',
                             'status',
-                            'classificacoes']
+                            'classificacao']
 
         def get_initial(self):
             initial = {}

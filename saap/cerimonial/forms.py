@@ -17,7 +17,7 @@ from django.forms.widgets import SelectDateWidget, DateInput
 from django.forms.models import ModelForm, ModelMultipleChoiceField
 from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
-from django_filters.filters import ChoiceFilter, NumberFilter,\
+from django_filters.filters import ChoiceFilter, NumberFilter, IntegerFilter,\
     MethodFilter, ModelChoiceFilter, RangeFilter,\
     MultipleChoiceFilter, ModelMultipleChoiceFilter, BooleanFilter
 from django_filters.filterset import FilterSet
@@ -583,7 +583,7 @@ class ProcessoForm(ModelForm):
                   'data_protocolo',
                   'data_retorno',
                   'importancia',
-                  'classificacoes',
+                  'classificacao',
                   'observacoes',
                   'solucao',
                   'q',
@@ -663,7 +663,7 @@ class ProcessoContatoForm(ModelForm):
                   'importancia',
                   'status',
                   'historico',
-                  'classificacoes',
+                  'classificacao',
                   'observacoes',
                   'solucao',
                   'link_cam',
@@ -713,8 +713,8 @@ class ProcessoContatoForm(ModelForm):
         self.fields['status'].choices = [
             (ass.pk, ass) for ass in StatusProcesso.objects.order_by('id')]
 
-        #self.fields['classificacoes'].widget = forms.CheckboxSelectMultiple()
-        # self.fields['classificacoes'].inline_class = True
+        #self.fields['classificacao'].widget = forms.CheckboxSelectMultiple()
+        # self.fields['classificacao'].inline_class = True
 
 
 class ContatoFragmentSearchForm(forms.Form):
@@ -773,16 +773,71 @@ class ContatoFragmentSearchForm(forms.Form):
         self.helper.form_tag = False
         self.helper.disable_csrf = True
 
+class GrupoDeContatosForm(ModelForm):
+    q = forms.CharField(
+        required=False,
+        label='Busca por Contatos',
+        widget=forms.TextInput(
+            attrs={'type': 'search'}))
+
+    class Meta:
+        model = GrupoDeContatos
+        fields = ['nome',
+                  'q',
+                  'contatos', ]
+
+    def __init__(self, *args, **kwargs):
+        yaml_layout = kwargs.pop('yaml_layout')
+
+        q_field = Div(
+            FieldWithButtons(
+                Field('q',
+                      placeholder=_('Filtrar Lista'),
+                      autocomplete='off',
+                      type='search',
+                      onkeypress='atualizaContatos(event)'),
+                StrictButton(
+                    _('Filtrar'), css_class='btn-default',
+                    type='button', onclick='atualizaContatos(event)')),
+            Div(css_class='form-group-contato-search')
+        )
+
+        q = [_('Seleção de Contatos'),
+             [(q_field, 5),
+              (Div(Field('contatos'), css_class='form-group-contatos'), 7)]
+             ]
+        yaml_layout.append(q)
+
+        self.helper = FormHelper()
+        self.helper.layout = SaplFormLayout(*yaml_layout)
+
+        super(GrupoDeContatosForm, self).__init__(*args, **kwargs)
+
+        self.fields['q'].help_text = _('Digite parte do nome, nome social ou '
+                                       'apelido do contato que você procura.')
+
+        self.fields['contatos'].widget = forms.CheckboxSelectMultiple()
+
+        self.fields['contatos'].queryset = Contato.objects.all()
+
+        self.fields['contatos'].choices = [
+            (c.pk, c) for c in self.instance.contatos.order_by('nome')]\
+            if self.instance.pk else []
+
+        self.fields['contatos'].help_text = _(
+            'Procure por contatos na caixa de buscas e arraste '
+            'para esta caixa aqueles interessados neste processo.')
+
 
 class RangeWidgetNumber(forms.MultiWidget):
 
     def __init__(self, attrs=None):
         widgets = (forms.NumberInput(
             attrs={'class': 'numberinput',
-                   'placeholder': 'Inicial'}),
+                   'placeholder': 'Mínimo'}),
                    forms.NumberInput(
             attrs={'class': 'numberinput',
-                   'placeholder': 'Final'}))
+                   'placeholder': 'Máximo'}))
         super(RangeWidgetNumber, self).__init__(widgets, attrs)
 
     def decompress(self, value):
@@ -821,22 +876,20 @@ class RangeWidgetOverride(forms.MultiWidget):
 class MethodRangeFilter(MethodFilter, RangeFilter):
     pass
 
-
 class MethodChoiceFilter(MethodFilter, ChoiceFilter):
     pass
-
 
 class MethodMultipleChoiceFilter(MethodFilter, MultipleChoiceFilter):
     pass
 
-
 class MethodNumberFilter(MethodFilter, NumberFilter):
     pass
 
+class MethodIntegerFilter(MethodFilter, IntegerFilter):
+    pass
 
 class MethodModelChoiceFilter(MethodFilter, ModelChoiceFilter):
     pass
-
 
 class MethodModelMultipleChoiceFilter(MethodFilter, ModelMultipleChoiceFilter):
     pass
@@ -854,8 +907,10 @@ class SubmitFilterPrint(BaseInput):
 def filter_impresso(queryset, value):
     return queryset
 
+def filter_pk_selecionados(queryset, value):
+    return queryset
 
-class ImpressoEnderecamentoContatoFilterSet(FilterSet):
+class ImpressoEnderecamentoFilterSet(FilterSet):
 
     filter_overrides = {models.DateField: {
         'filter_class': MethodFilter,
@@ -880,6 +935,8 @@ class ImpressoEnderecamentoContatoFilterSet(FilterSet):
 
     BOTH_CHOICE = [(None, _('Ambos'))] + YES_NO_CHOICES
 
+    pk = MethodIntegerFilter()
+    
     search = MethodFilter()
     
     sexo = ChoiceFilter(choices=SEXO_CHOICE)
@@ -895,7 +952,8 @@ class ImpressoEnderecamentoContatoFilterSet(FilterSet):
     impresso = ModelChoiceFilter(
         required=False,
         queryset=ImpressoEnderecamento.objects.all(),
-        action=filter_impresso)
+        action=filter_impresso,
+        initial=2)
 
     grupo = MethodModelMultipleChoiceFilter(
         required=False,
@@ -960,6 +1018,10 @@ class ImpressoEnderecamentoContatoFilterSet(FilterSet):
         queryset = queryset.filter(
                 endereco_set__municipio=value,
                 endereco_set__principal=True)
+        return queryset
+
+    def filter_pk(self, queryset, value):
+        queryset = queryset.filter(pk=value)
         return queryset
 
     def filter_local_cargo(self, queryset, value):
@@ -1047,7 +1109,7 @@ class ImpressoEnderecamentoContatoFilterSet(FilterSet):
         #     "age(timestamp '%s', data_nascimento))"
         # return queryset.extra(where=_where, params=value)
 
-        if not value[0] or not value[1]:
+        if not value[0] and not value[1]:
             return queryset
 
         now = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
@@ -1091,12 +1153,13 @@ class ImpressoEnderecamentoContatoFilterSet(FilterSet):
 
         workspace = kwargs.pop('workspace')
 
-        super(ImpressoEnderecamentoContatoFilterSet, self).__init__(
+        super(ImpressoEnderecamentoFilterSet, self).__init__(
             data=data,
             queryset=queryset, prefix=prefix, strict=strict, **kwargs)
 
         col1 = to_row([
-            ('search', 12),
+            ('pk', 2),
+            ('search', 10),
             ('sexo', 4),
             ('tem_filhos', 4),
             ('ativo', 4),
@@ -1120,7 +1183,7 @@ class ImpressoEnderecamentoContatoFilterSet(FilterSet):
 
         row = to_row(
             [(Fieldset(
-                _('Seleção de Contatos'),
+                _('Filtro de Contatos'),
                 col1,
                 to_row([(SubmitFilterPrint(
                     'filter',
@@ -1139,6 +1202,8 @@ class ImpressoEnderecamentoContatoFilterSet(FilterSet):
         self.form.helper.layout = Layout(
             row,
         )
+
+        self.form.fields['pk'].label = 'Código'
 
         self.form.fields['search'].label = 'Nome, nome social ou apelido'
         
@@ -1166,31 +1231,7 @@ class ImpressoEnderecamentoContatoFilterSet(FilterSet):
         
         self.form.fields['municipio'].queryset = Municipio.objects.filter(estado=21)
 
-
-class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
-
-    AGRUPADO_POR_NADA = 'sem_agrupamento'
-    AGRUPADO_POR_TITULO = 'titulo'
-    AGRUPADO_POR_IMPORTANCIA = 'importancia'
-    AGRUPADO_POR_TOPICO = 'topicos__descricao'
-    AGRUPADO_POR_ASSUNTO = 'assuntos__descricao'
-    AGRUPADO_POR_STATUS = 'status__descricao'
-    AGRUPADO_POR_CLASSIFICACAO = 'classificacoes__descricao'
-
-    AGRUPAMENTO_CHOICE = (
-        (AGRUPADO_POR_NADA, _('Sem agrupamento')),
-        (AGRUPADO_POR_TITULO, _('Por título')),
-        (AGRUPADO_POR_IMPORTANCIA,
-         _('Por importância')),
-        (AGRUPADO_POR_TOPICO,
-         _('Por tópicos')),
-        (AGRUPADO_POR_ASSUNTO,
-         _('Por assuntos')),
-        (AGRUPADO_POR_STATUS,
-         _('Por status')),
-        (AGRUPADO_POR_CLASSIFICACAO,
-         _('Por classificação')),
-    )
+class ProcessoIndividualFilterSet(FilterSet):
 
     filter_overrides = {models.DateField: {
         'filter_class': MethodFilter,
@@ -1199,12 +1240,16 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
             'widget': RangeWidgetOverride}
     }}
 
+    pk = MethodIntegerFilter()
+
     search = MethodFilter()
 
     search_numeros = MethodFilter()
+    
+    search_contato = MethodFilter()
 
     dias_envio = MethodRangeFilter(
-        label=_('Há quantos dias foi enviado'),
+        label=_('Há quantos dias foi enviado?'),
         widget=RangeWidgetNumber)
 
     dias_retorno = MethodRangeFilter(
@@ -1215,10 +1260,6 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
         label=_('Tempo entre abertura e solução'),
         widget=RangeWidgetNumber)
 
-    agrupamento = MethodMultipleChoiceFilter(
-        required=False,
-        choices=AGRUPAMENTO_CHOICE)
-
     importancia = MethodMultipleChoiceFilter(
         required=False,
         label=_('Importância'),
@@ -1228,7 +1269,7 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
         required=False,
         queryset=StatusProcesso.objects.all())
 
-    classificacoes = MethodModelMultipleChoiceFilter(
+    classificacao = MethodModelMultipleChoiceFilter(
         required=False,
         label=_('Classificações'),
         queryset=ClassificacaoProcesso.objects.all())
@@ -1237,6 +1278,11 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
     
     search_envolvidos = MethodFilter()
 
+    pk_selecionados = MethodFilter(
+        required=False,
+        action=filter_pk_selecionados,
+        )
+
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
         label=_('Bairro de Novo Hamburgo'),
@@ -1244,12 +1290,9 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
 
     urgente = BooleanFilter()
 
-    def filter_agrupamento(self, queryset, value):
-        return queryset
-
-    def filter_classificacoes(self, queryset, value):
+    def filter_classificacao(self, queryset, value):
         if value:
-            queryset = queryset.filter(classificacoes__in=value)
+            queryset = queryset.filter(classificacao__in=value)
 
         return queryset
 
@@ -1271,17 +1314,31 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
 
         return queryset
 
+    def filter_pk(self, queryset, value):
+        queryset = queryset.filter(pk=value)
+        return queryset
+
     def filter_data_abertura(self, queryset, value):
 
-        if not value[0] or not value[1]:
+        if not value[0] and not value[1]:
             return queryset
 
-        inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
-        final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
-        if inicial > final:
-            inicial, final = final, inicial
+        inicial = None
+        final = None
 
-        range_select = Q(data_abertura__range=[inicial, final])
+        if(value[0] != ''):
+            inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        if(value[1] != ''):
+            final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+   
+        if(inicial != None and final != None):
+            if inicial > final:
+                inicial, final = final, inicial
+            range_select = Q(data_abertura__range=[inicial, final])
+        elif(inicial != None):
+            range_select = Q(data_abertura__gte=inicial)
+        elif(final != None):
+            range_select = Q(data_abertura__lte=final)
 
         # Run the query.
         return queryset.filter(range_select)
@@ -1329,61 +1386,100 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
 
     def filter_data_envio(self, queryset, value):
 
-        if not value[0] or not value[1]:
+        if not value[0] and not value[1]:
             return queryset
 
-        inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
-        final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
-        if inicial > final:
-            inicial, final = final, inicial
+        inicial = None
+        final = None
 
-        range_select = Q(data_envio__range=[inicial, final])
+        if(value[0] != ''):
+            inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        if(value[1] != ''):
+            final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+   
+        if(inicial != None and final != None):
+            if inicial > final:
+                inicial, final = final, inicial
+            range_select = Q(data_envio__range=[inicial, final])
+        elif(inicial != None):
+            range_select = Q(data_envio__gte=inicial)
+        elif(final != None):
+            range_select = Q(data_envio__lte=final)
 
         # Run the query.
         return queryset.filter(range_select)
 
     def filter_data_protocolo(self, queryset, value):
 
-        if not value[0] or not value[1]:
+        if not value[0] and not value[1]:
             return queryset
 
-        inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
-        final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
-        if inicial > final:
-            inicial, final = final, inicial
+        inicial = None
+        final = None
 
-        range_select = Q(data_protocolo__range=[inicial, final])
+        if(value[0] != ''):
+            inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        if(value[1] != ''):
+            final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+   
+        if(inicial != None and final != None):
+            if inicial > final:
+                inicial, final = final, inicial
+            range_select = Q(data_protocolo__range=[inicial, final])
+        elif(inicial != None):
+            range_select = Q(data_protocolo__gte=inicial)
+        elif(final != None):
+            range_select = Q(data_protocolo__lte=final)
 
         # Run the query.
         return queryset.filter(range_select)
 
-
     def filter_data_retorno(self, queryset, value):
 
-        if not value[0] or not value[1]:
+        if not value[0] and not value[1]:
             return queryset
 
-        inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
-        final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
-        if inicial > final:
-            inicial, final = final, inicial
+        inicial = None
+        final = None
 
-        range_select = Q(data_retorno__range=[inicial, final])
+        if(value[0] != ''):
+            inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        if(value[1] != ''):
+            final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+   
+        if(inicial != None and final != None):
+            if inicial > final:
+                inicial, final = final, inicial
+            range_select = Q(data_retorno__range=[inicial, final])
+        elif(inicial != None):
+            range_select = Q(data_retorno__gte=inicial)
+        elif(final != None):
+            range_select = Q(data_retorno__lte=final)
 
         # Run the query.
         return queryset.filter(range_select)
 
     def filter_data_solucao(self, queryset, value):
 
-        if not value[0] or not value[1]:
+        if not value[0] and not value[1]:
             return queryset
 
-        inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
-        final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
-        if inicial > final:
-            inicial, final = final, inicial
+        inicial = None
+        final = None
 
-        range_select = Q(data_solucao__range=[inicial, final])
+        if(value[0] != ''):
+            inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        if(value[1] != ''):
+            final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+   
+        if(inicial != None and final != None):
+            if inicial > final:
+                inicial, final = final, inicial
+            range_select = Q(data_solucao__range=[inicial, final])
+        elif(inicial != None):
+            range_select = Q(data_solucao__gte=inicial)
+        elif(final != None):
+            range_select = Q(data_solucao__lte=final)
 
         # Run the query.
         return queryset.filter(range_select)
@@ -1399,6 +1495,24 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
                 if not item:
                     continue
                 q = Q(endereco__icontains=item)
+
+            if q:
+                queryset = queryset.filter(q)
+        return queryset
+
+    def filter_contato(self, queryset, value):
+
+        query = normalize(value)
+
+        query = query.split(' ')
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                q = q & (Q(contato_set__nome__icontains=item) | 
+                         Q(contato_set__nome_social__icontains=item) |
+                         Q(contato_set__apelido__icontains=item))
 
             if q:
                 queryset = queryset.filter(q)
@@ -1429,7 +1543,7 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & (Q(num_materia__icontains=item) | 
+                q = q & (Q(materia_cam__icontains=item) | 
                          Q(oficio_cam__icontains=item) |
                          Q(oficio_pref__icontains=item) |
                          Q(oficio_orgao__icontains=item) |
@@ -1460,6 +1574,7 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
     class Meta:
         model = Processo
         fields = ['search',
+                  'search_contato',
                   'data_abertura',
                   'data_envio',
                   'data_retorno',
@@ -1475,7 +1590,7 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
                   'search_envolvidos',
                   'topicos',
                   'importancia',
-                  'classificacoes',
+                  'classificacao',
                   'assuntos',
                   'urgente',
                   'status', ]
@@ -1485,12 +1600,14 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
 
         workspace = kwargs.pop('workspace')
 
-        super(ContatoAgrupadoPorProcessoFilterSet, self).__init__(
+        super(ProcessoIndividualFilterSet, self).__init__(
             data=data,
             queryset=queryset, prefix=prefix, strict=strict, **kwargs)
 
         c1_row1 = to_row([
-            ('search', 12),
+            ('pk', 2),
+            ('search', 6),
+            ('search_contato', 4),
             ('search_numeros', 4),
             ('data_envio', 4),
             ('data_protocolo', 4),
@@ -1500,7 +1617,466 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
             ('dias_envio', 4),
             ('dias_retorno', 4),
             ('dias_abertura', 4),
-            ('classificacoes', 6),
+            ('classificacao', 6),
+            ('status', 6),
+            ('topicos', 6),
+            ('assuntos', 6),
+            ('bairro', 6),
+            ('importancia', 3),
+            ('urgente', 3),
+            ('search_endereco', 6),
+            ('search_envolvidos', 6),
+        ])
+
+        c2_row1 = to_row([
+            ('pk_selecionados', 12),])
+
+
+        col1 = Fieldset(
+            _('Busca por Processo'),
+            c1_row1,
+            to_row([
+                (SubmitFilterPrint(
+                    'filter',
+                    value=_('Filtrar'),
+                    css_class='btn-default pull-right',
+                    type='submit'), 12)
+            ]))
+
+        col2 = Fieldset(
+            _('Impressão'),
+            c2_row1,
+            to_row([(SubmitFilterPrint(
+                'print',
+                value=_('Imprimir'),
+                css_class='btn-primary pull-right',
+                type='submit'),12)
+        ]))
+
+        rows = to_row([
+            (col1, 9),
+            (col2, 3),
+        ])
+
+        self.form.helper = FormHelper()
+        self.form.helper.form_method = 'GET'
+        self.form.helper.layout = Layout(
+            rows,
+        )
+
+        self.form.fields['pk'].label = _('Código')
+        self.form.fields['pk_selecionados'].label = _('Códigos selecionados')
+        self.form.fields['search'].label = _('Pesquisa por título, histórico, observações ou solução:')
+        self.form.fields['search_contato'].label = _('Contatos interessados:')
+        self.form.fields['search_numeros'].label = _('Matéria, protocolo ou ofício:')
+        self.form.fields['search_endereco'].label = _('Endereço:')
+        self.form.fields['search_envolvidos'].label = _('Órgão ou instituição:')
+       
+class ProcessosFilterSet(FilterSet):
+
+    AGRUPADO_POR_NADA = 'sem_agrupamento'
+#    AGRUPADO_POR_TITULO = 'titulo'
+    AGRUPADO_POR_IMPORTANCIA = 'importancia'
+    AGRUPADO_POR_TOPICO = 'topicos__descricao'
+    AGRUPADO_POR_ASSUNTO = 'assuntos__descricao'
+    AGRUPADO_POR_STATUS = 'status__descricao'
+    AGRUPADO_POR_CLASSIFICACAO = 'classificacao__descricao'
+
+    AGRUPAMENTO_CHOICE = (
+        (AGRUPADO_POR_NADA, _('Sem agrupamento')),
+#        (AGRUPADO_POR_TITULO, _('Por título')),
+        (AGRUPADO_POR_IMPORTANCIA,
+         _('Por importância')),
+        (AGRUPADO_POR_TOPICO,
+         _('Por tópico')),
+        (AGRUPADO_POR_ASSUNTO,
+         _('Por assunto')),
+        (AGRUPADO_POR_STATUS,
+         _('Por status')),
+        (AGRUPADO_POR_CLASSIFICACAO,
+         _('Por classificação')),
+    )
+
+    filter_overrides = {models.DateField: {
+        'filter_class': MethodFilter,
+        'extra': lambda f: {
+            'label': '%s (%s)' % (f.verbose_name, _('período')),
+            'widget': RangeWidgetOverride}
+    }}
+
+    search = MethodFilter()
+
+    search_numeros = MethodFilter()
+    
+    search_contato = MethodFilter()
+
+    dias_envio = MethodRangeFilter(
+        label=_('Há quantos dias foi enviado?'),
+        widget=RangeWidgetNumber)
+
+    dias_retorno = MethodRangeFilter(
+        label=_('Tempo entre envio e retorno'),
+        widget=RangeWidgetNumber)
+
+    dias_abertura = MethodRangeFilter(
+        label=_('Tempo entre abertura e solução'),
+        widget=RangeWidgetNumber)
+
+    agrupamento = MethodChoiceFilter(
+        required=False,
+        choices=AGRUPAMENTO_CHOICE)
+
+    importancia = MethodMultipleChoiceFilter(
+        required=False,
+        label=_('Importância'),
+        choices=IMPORTANCIA_CHOICE)
+
+    status = MethodModelMultipleChoiceFilter(
+        required=False,
+        queryset=StatusProcesso.objects.all())
+
+    classificacao = MethodModelMultipleChoiceFilter(
+        required=False,
+        label=_('Classificações'),
+        queryset=ClassificacaoProcesso.objects.all())
+
+    search_endereco = MethodFilter()
+    
+    search_envolvidos = MethodFilter()
+
+    bairro = MethodModelMultipleChoiceFilter(
+        required=False,
+        label=_('Bairro de Novo Hamburgo'),
+        queryset=Bairro.objects.filter(municipio=4891))
+
+    urgente = BooleanFilter()
+
+    def filter_agrupamento(self, queryset, value):
+        return queryset
+
+    def filter_classificacao(self, queryset, value):
+        if value:
+            queryset = queryset.filter(classificacao__in=value)
+
+        return queryset
+
+    def filter_importancia(self, queryset, value):
+        if value:
+            queryset = queryset.filter(importancia__in=value)
+
+        return queryset
+
+    def filter_status(self, queryset, value):
+        if value:
+            queryset = queryset.filter(status__in=value)
+
+        return queryset
+
+    def filter_bairro(self, queryset, value):
+        if value:
+            queryset = queryset.filter(bairro__in=value)
+
+        return queryset
+
+    def filter_data_abertura(self, queryset, value):
+
+        if not value[0] and not value[1]:
+            return queryset
+
+        inicial = None
+        final = None
+
+        if(value[0] != ''):
+            inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        if(value[1] != ''):
+            final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+   
+        if(inicial != None and final != None):
+            if inicial > final:
+                inicial, final = final, inicial
+            range_select = Q(data_abertura__range=[inicial, final])
+        elif(inicial != None):
+            range_select = Q(data_abertura__gte=inicial)
+        elif(final != None):
+            range_select = Q(data_abertura__lte=final)
+
+        # Run the query.
+        return queryset.filter(range_select)
+
+    def filter_dias_envio(self, queryset, value):
+        di = int(value.start) if value.start is not None else 0
+        df = int(value.stop) if value.stop is not None else 5000
+
+        if di > df:
+            a = di
+            di = df
+            df = a
+
+        # lim inicial-dt.mais antiga
+        li = date.today() - relativedelta(days=df + 1)
+        # lim final - dt. mais nova
+        lf = date.today() - relativedelta(days=di)
+
+        return queryset.filter(data_envio__gt=li,
+                               data_envio__lte=lf)
+
+    def filter_dias_retorno(self, queryset, value):
+        di = int(value.start) if value.start is not None else 0
+        df = int(value.stop) if value.stop is not None else 5000
+
+        if di > df:
+            a = di
+            di = df
+            df = a
+
+        return queryset.extra(where = ["""DATE_PART('day', data_retorno::timestamp - data_envio::timestamp) >= %s AND\
+                                       DATE_PART('day', data_retorno::timestamp - data_envio::timestamp) <= %s""" % (di, df)])
+
+    def filter_dias_abertura(self, queryset, value):
+        di = int(value.start) if value.start is not None else 0
+        df = int(value.stop) if value.stop is not None else 5000
+
+        if di > df:
+            a = di
+            di = df
+            df = a
+
+        return queryset.extra(where = ["""DATE_PART('day', data_solucao::timestamp - data_abertura::timestamp) >= %s AND\
+                                       DATE_PART('day', data_solucao::timestamp - data_abertura::timestamp) <= %s""" % (di, df)])
+
+    def filter_data_envio(self, queryset, value):
+
+        if not value[0] and not value[1]:
+            return queryset
+
+        inicial = None
+        final = None
+
+        if(value[0] != ''):
+            inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        if(value[1] != ''):
+            final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+   
+        if(inicial != None and final != None):
+            if inicial > final:
+                inicial, final = final, inicial
+            range_select = Q(data_envio__range=[inicial, final])
+        elif(inicial != None):
+            range_select = Q(data_envio__gte=inicial)
+        elif(final != None):
+            range_select = Q(data_envio__lte=final)
+
+        # Run the query.
+        return queryset.filter(range_select)
+
+    def filter_data_protocolo(self, queryset, value):
+
+        if not value[0] and not value[1]:
+            return queryset
+
+        inicial = None
+        final = None
+
+        if(value[0] != ''):
+            inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        if(value[1] != ''):
+            final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+   
+        if(inicial != None and final != None):
+            if inicial > final:
+                inicial, final = final, inicial
+            range_select = Q(data_protocolo__range=[inicial, final])
+        elif(inicial != None):
+            range_select = Q(data_protocolo__gte=inicial)
+        elif(final != None):
+            range_select = Q(data_protocolo__lte=final)
+
+        # Run the query.
+        return queryset.filter(range_select)
+
+    def filter_data_retorno(self, queryset, value):
+
+        if not value[0] and not value[1]:
+            return queryset
+
+        inicial = None
+        final = None
+
+        if(value[0] != ''):
+            inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        if(value[1] != ''):
+            final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+   
+        if(inicial != None and final != None):
+            if inicial > final:
+                inicial, final = final, inicial
+            range_select = Q(data_retorno__range=[inicial, final])
+        elif(inicial != None):
+            range_select = Q(data_retorno__gte=inicial)
+        elif(final != None):
+            range_select = Q(data_retorno__lte=final)
+
+        # Run the query.
+        return queryset.filter(range_select)
+
+    def filter_data_solucao(self, queryset, value):
+
+        if not value[0] and not value[1]:
+            return queryset
+
+        inicial = None
+        final = None
+
+        if(value[0] != ''):
+            inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        if(value[1] != ''):
+            final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+   
+        if(inicial != None and final != None):
+            if inicial > final:
+                inicial, final = final, inicial
+            range_select = Q(data_solucao__range=[inicial, final])
+        elif(inicial != None):
+            range_select = Q(data_solucao__gte=inicial)
+        elif(final != None):
+            range_select = Q(data_solucao__lte=final)
+
+        # Run the query.
+        return queryset.filter(range_select)
+
+    def filter_search_endereco(self, queryset, value):
+
+        query = normalize(value)
+
+        query = query.split(' ')
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                q = Q(endereco__icontains=item)
+
+            if q:
+                queryset = queryset.filter(q)
+        return queryset
+
+    def filter_contato(self, queryset, value):
+
+        query = normalize(value)
+
+        query = query.split(' ')
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                q = q & (Q(contato_set__nome__icontains=item) | 
+                         Q(contato_set__nome_social__icontains=item) |
+                         Q(contato_set__apelido__icontains=item))
+
+            if q:
+                queryset = queryset.filter(q)
+        return queryset
+
+    def filter_search(self, queryset, value):
+
+        query = normalize(value)
+
+        query = query.split(' ')
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                q = q & Q(search__icontains=item)
+
+            if q:
+                queryset = queryset.filter(q)
+        return queryset
+
+    def filter_search_numeros(self, queryset, value):
+
+        query = normalize(value)
+
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                q = q & (Q(materia_cam__icontains=item) | 
+                         Q(oficio_cam__icontains=item) |
+                         Q(oficio_pref__icontains=item) |
+                         Q(oficio_orgao__icontains=item) |
+                         Q(proto_pref__icontains=item) |
+                         Q(proto_orgao__icontains=item))
+
+            if q:
+                queryset = queryset.filter(q)
+        return queryset
+
+    def filter_search_envolvidos(self, queryset, value):
+
+        query = normalize(value)
+        query = query.split(' ')
+
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                q = q & (Q(orgao__icontains=item) | 
+                         Q(instituicao__icontains=item))
+
+            if q:
+                queryset = queryset.filter(q)
+        return queryset
+
+    class Meta:
+        model = Processo
+        fields = ['search',
+                  'search_contato',
+                  'data_abertura',
+                  'data_envio',
+                  'data_retorno',
+                  'data_envio',
+                  'data_protocolo',
+                  'data_solucao',
+                  'dias_envio',
+                  'dias_retorno',
+                  'dias_abertura',
+                  'bairro',
+                  'search_numeros',
+                  'search_endereco',
+                  'search_envolvidos',
+                  'topicos',
+                  'importancia',
+                  'classificacao',
+                  'assuntos',
+                  'urgente',
+                  'status', ]
+
+    def __init__(self, data=None,
+                 queryset=None, prefix=None, strict=None, **kwargs):
+
+        workspace = kwargs.pop('workspace')
+
+        super(ProcessosFilterSet, self).__init__(
+            data=data,
+            queryset=queryset, prefix=prefix, strict=strict, **kwargs)
+
+        c1_row1 = to_row([
+            ('search', 8),
+            ('search_contato', 4),
+            ('search_numeros', 4),
+            ('data_envio', 4),
+            ('data_protocolo', 4),
+            ('data_abertura', 4),
+            ('data_retorno', 4),
+            ('data_solucao', 4),
+            ('dias_envio', 4),
+            ('dias_retorno', 4),
+            ('dias_abertura', 4),
+            ('classificacao', 6),
             ('status', 6),
             ('topicos', 6),
             ('assuntos', 6),
@@ -1512,7 +2088,7 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
         ])
 
         col1 = Fieldset(
-            _('Seleção de Processos'),
+            _('Filtro de Processos'),
             c1_row1,
             to_row([
                 (SubmitFilterPrint(
@@ -1545,15 +2121,16 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
         )
 
         self.form.fields['search'].label = _('Pesquisa por título, histórico, observações ou solução:')
+        self.form.fields['search_contato'].label = _('Contatos interessados:')
         self.form.fields['search_numeros'].label = _('Matéria, protocolo ou ofício:')
         self.form.fields['search_endereco'].label = _('Endereço:')
         self.form.fields['search_envolvidos'].label = _('Órgão ou instituição:')
        
-        self.form.fields['agrupamento'].label = _('Agrupar contatos')
+        self.form.fields['agrupamento'].label = _('Agrupamento')
         self.form.fields['agrupamento'].widget = forms.RadioSelect()
 
         #self.form.fields['importancia'].label = _('Importância')
-        #self.form.fields['classificacoes'].label = _('Classificações')
+        #self.form.fields['classificacao'].label = _('Classificações')
 
         #self.form.fields['topicos'].widget = forms.SelectMultiple(
         #    attrs={'size': '7'})
@@ -1569,8 +2146,8 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
         #self.form.fields['status'].widget = forms.CheckboxSelectMultiple()
         #self.form.fields['status'].inline_class = True
 
-        #self.form.fields['classificacoes'].widget = forms.SelectMultiple()
-        #self.form.fields['classificacoes'].inline_class = True
+        #self.form.fields['classificacao'].widget = forms.SelectMultiple()
+        #self.form.fields['classificacao'].inline_class = True
 
         #self.form.fields['status'].choices = list(
         #    self.form.fields['status'].choices)
@@ -1578,84 +2155,7 @@ class ContatoAgrupadoPorProcessoFilterSet(FilterSet):
         #if (len(self.form.fields['status'].choices) > 0):
         #    del self.form.fields['status'].choices[0]
 
-        
-
-class ListWithSearchProcessoForm(ListWithSearchForm):
-
-    assunto = forms.ModelChoiceField(
-        label=_('Filtrar por Assunto'),
-        queryset=AssuntoProcesso.objects.all(),
-        required=False)
-
-    class Meta(ListWithSearchForm.Meta):
-        fields = ['q', 'o', 'assunto']
-        pass
-
-    def __init__(self, *args, **kwargs):
-        super(ListWithSearchProcessoForm, self).__init__(*args, **kwargs)
-
-        self.helper.layout.fields.append(Field('assunto'))
-
-        self.fields['assunto'].queryset = AssuntoProcesso.objects.all()
-
-
-class GrupoDeContatosForm(ModelForm):
-    q = forms.CharField(
-        required=False,
-        label='Busca por Contatos',
-        widget=forms.TextInput(
-            attrs={'type': 'search'}))
-
-    class Meta:
-        model = GrupoDeContatos
-        fields = ['nome',
-                  'q',
-                  'contatos', ]
-
-    def __init__(self, *args, **kwargs):
-        yaml_layout = kwargs.pop('yaml_layout')
-
-        q_field = Div(
-            FieldWithButtons(
-                Field('q',
-                      placeholder=_('Filtrar Lista'),
-                      autocomplete='off',
-                      type='search',
-                      onkeypress='atualizaContatos(event)'),
-                StrictButton(
-                    _('Filtrar'), css_class='btn-default',
-                    type='button', onclick='atualizaContatos(event)')),
-            Div(css_class='form-group-contato-search')
-        )
-
-        q = [_('Seleção de Contatos'),
-             [(q_field, 5),
-              (Div(Field('contatos'), css_class='form-group-contatos'), 7)]
-             ]
-        yaml_layout.append(q)
-
-        self.helper = FormHelper()
-        self.helper.layout = SaplFormLayout(*yaml_layout)
-
-        super(GrupoDeContatosForm, self).__init__(*args, **kwargs)
-
-        self.fields['q'].help_text = _('Digite parte do nome, nome social ou '
-                                       'apelido do contato que você procura.')
-
-        self.fields['contatos'].widget = forms.CheckboxSelectMultiple()
-
-        self.fields['contatos'].queryset = Contato.objects.all()
-
-        self.fields['contatos'].choices = [
-            (c.pk, c) for c in self.instance.contatos.order_by('nome')]\
-            if self.instance.pk else []
-
-        self.fields['contatos'].help_text = _(
-            'Procure por contatos na caixa de buscas e arraste '
-            'para esta caixa aqueles interessados neste processo.')
-
-
-class ContatoAgrupadoPorGrupoFilterSet(FilterSet):
+class ContatoIndividualFilterSet(FilterSet):
 
     filter_overrides = {models.DateField: {
         'filter_class': MethodFilter,
@@ -1671,14 +2171,264 @@ class ContatoAgrupadoPorGrupoFilterSet(FilterSet):
                    (FEMININO, _('Feminino')),
                    (MASCULINO, _('Masculino')))
 
-    DEPOIS_PRONOME = 'DP'
-    LINHA_NOME = 'LN'
-    DEPOIS_NOME = 'DN'
-    LOCAL_CARGO_CHOICE = ((DEPOIS_PRONOME, _('Depois do pronome '
-                                             'de tratamento')),
-                          (LINHA_NOME, _('Antes do nome do contato')),
-                          (DEPOIS_NOME, _('Entre o nome do contato '
-                                          'e seu endereço')))
+    pk = MethodIntegerFilter()
+
+    pk_selecionados = MethodFilter(
+        required=False,
+        action=filter_pk_selecionados,
+        )
+
+    search = MethodFilter()
+    
+    sexo = ChoiceFilter(choices=SEXO_CHOICE)
+
+    tem_filhos = BooleanFilter()
+
+    ativo = BooleanFilter()
+
+    idade = MethodRangeFilter(
+        label=_('Idade entre:'),
+        widget=RangeWidgetNumber)
+
+    grupo = MethodModelMultipleChoiceFilter(
+        required=False,
+        label=_('Grupo de contatos:'),
+        queryset=GrupoDeContatos.objects.all())
+    
+    search_endereco = MethodFilter()
+
+    bairro = MethodModelMultipleChoiceFilter(
+        required=False,
+        label=_('Bairro de Novo Hamburgo'),
+        queryset=Bairro.objects.filter(municipio=4891))
+
+    cep = MethodFilter(label=_('CEP'))
+
+    municipio = MethodModelChoiceFilter(
+        required=False,
+        label=_('Município do RS'),
+        queryset=Bairro.objects.filter(estado=21))
+
+    def filter_grupo(self, queryset, value):
+        if value:
+            queryset = queryset.filter(grupodecontatos_set__in=value)
+
+        return queryset
+
+    def filter_bairro(self, queryset, value):
+        if value:
+            queryset = queryset.filter(
+                endereco_set__bairro__in=value,
+                endereco_set__principal=True)
+
+        return queryset
+
+    def filter_pk(self, queryset, value):
+        queryset = queryset.filter(pk=value)
+        return queryset
+
+    def filter_municipio(self, queryset, value):
+        queryset = queryset.filter(
+                endereco_set__municipio=value,
+                endereco_set__principal=True)
+        return queryset
+
+    def filter_orientacao(self, queryset, value):
+        return queryset
+
+    def filter_formato(self, queryset, value):
+        return queryset
+
+    def filter_tipo_dado_contato(self, queryset, value):
+        return queryset
+
+    def filter_idade(self, queryset, value):
+        idi = int(value.start) if value.start is not None else 0
+        idf = int(value.stop) if value.stop is not None else 100
+
+        if idi > idf:
+            a = idi
+            idi = idf
+            idf = a
+
+        # lim inicial-dt.mais antiga
+        li = date.today() - relativedelta(years=idf + 1)
+        # lim final - dt. mais nova
+        lf = date.today() - relativedelta(years=idi)
+
+        return queryset.filter(data_nascimento__gt=li,
+                               data_nascimento__lte=lf)
+
+    def filter_search(self, queryset, value):
+
+        query = normalize(value)
+
+        query = query.split(' ')
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                q = q & Q(search__icontains=item)
+
+            if q:
+                queryset = queryset.filter(q)
+        return queryset
+
+    def filter_search_endereco(self, queryset, value):
+
+        query = normalize(value)
+
+        query = query.split(' ')
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                q = q & (Q(endereco_set__endereco__icontains=item) | 
+                         Q(endereco_set__ponto_referencia__icontains=item) |
+                         Q(endereco_set__complemento__icontains=item))
+                q = q & Q(endereco_set__principal=True)
+
+            if q:
+                queryset = queryset.filter(q)
+        return queryset
+
+    def filter_cep(self, queryset, value):
+
+        query = normalize(value.strip())
+        
+        q = Q()
+        
+        if query:
+            q = q & Q(endereco_set__cep=value)
+            q = q & Q(endereco_set__principal=True)
+
+        if q:
+            queryset = queryset.filter(q)
+        
+        return queryset
+
+    def filter_data_nascimento(self, queryset, value):
+
+        if not value[0] or not value[1]:
+            return queryset
+
+        now = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        then = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+        if now > then:
+            a = now
+            now = then
+            then = a
+
+        # Build the list of month/day tuples.
+        monthdays = [(now.month, now.day)]
+        while now <= then:
+            monthdays.append((now.month, now.day))
+            now += timedelta(days=1)
+
+        # Tranform each into queryset keyword args.
+        monthdays = (dict(zip(("data_nascimento__month",
+                               "data_nascimento__day"), t))
+                     for t in monthdays)
+
+        # Compose the djano.db.models.Q objects together for a single query.
+        query = reduce(operator.or_, (Q(**d) for d in monthdays))
+
+        # Run the query.
+        return queryset.extra(select={
+            'month': 'extract( month from data_nascimento )',
+            'day': 'extract( day from data_nascimento )', }
+        ).order_by('month', 'day', 'nome').filter(query)
+
+    class Meta:
+        model = Contato
+        fields = ['search',
+                  'search_endereco',
+                  'sexo',
+                  'tem_filhos',
+                  'data_nascimento',
+                  'tipo_autoridade']
+
+    def __init__(self, data=None,
+                 queryset=None, prefix=None, strict=None, **kwargs):
+
+        workspace = kwargs.pop('workspace')
+ 
+        super(ContatoIndividualFilterSet, self).__init__(
+            data=data,
+            queryset=queryset, prefix=prefix, strict=strict, **kwargs)
+
+        col1 = to_row([
+            ('pk', 2),
+            ('search', 10),
+            ('sexo', 4),
+            ('tem_filhos', 4),
+            ('ativo', 4),
+            ('data_nascimento', 6),
+            ('idade', 6),
+            ('search_endereco', 12),
+            ('cep', 6),
+            ('municipio', 6),
+            ('bairro', 6),
+            ('grupo', 6),
+            ('tipo_autoridade', 6),
+        ])
+
+        col2 = to_row([
+            ('pk_selecionados', 12),
+        ])
+
+        row = to_row(
+            [(Fieldset(
+                _('Busca por Contato'),
+                col1,
+                to_row([(SubmitFilterPrint(
+                    'filter',
+                    value=_('Filtrar'), css_class='btn-default pull-right',
+                    type='submit'), 12)])), 9),
+             (Fieldset(
+                 _('Impressão'),
+                 col2,
+                 to_row([(SubmitFilterPrint(
+                     'print',
+                     value=_('Imprimir'), css_class='btn-primary pull-right',
+                     type='submit'), 12)])), 3)])
+
+        self.form.helper = FormHelper()
+        self.form.helper.form_method = 'GET'
+        self.form.helper.layout = Layout(
+            row,
+        )
+
+        self.form.fields['pk'].label = _('Código')
+        self.form.fields['pk_selecionados'].label = _('Códigos selecionados')
+        self.form.fields['search'].label = 'Nome, nome social ou apelido'
+        self.form.fields['search_endereco'].label = 'Endereço, complemento ou ponto de referência'
+        self.form.fields['data_nascimento'].label = 'Período de aniversário'
+        self.form.fields['tem_filhos'].label = _('Tem filhos?')
+        self.form.fields['ativo'].label = _('Ativo?')
+
+        self.form.fields['grupo'].queryset = GrupoDeContatos.objects.filter(workspace=workspace)
+
+        self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=4891)
+        self.form.fields['municipio'].queryset = Municipio.objects.filter(estado=21)
+
+class ContatosFilterSet(FilterSet):
+
+    filter_overrides = {models.DateField: {
+        'filter_class': MethodFilter,
+        'extra': lambda f: {
+            'label': 'Período de aniversário',
+            'widget': RangeWidgetOverride}
+    }}
+
+    FEMININO = 'F'
+    MASCULINO = 'M'
+    AMBOS = ''
+    SEXO_CHOICE = ((AMBOS, _('Ambos')),
+                   (FEMININO, _('Feminino')),
+                   (MASCULINO, _('Masculino')))
 
     BOTH_CHOICE = [(None, _('Ambos'))] + YES_NO_CHOICES
 
@@ -1884,11 +2634,11 @@ class ContatoAgrupadoPorGrupoFilterSet(FilterSet):
 
         workspace = kwargs.pop('workspace')
  
-        super(ContatoAgrupadoPorGrupoFilterSet, self).__init__(
+        super(ContatosFilterSet, self).__init__(
             data=data,
             queryset=queryset, prefix=prefix, strict=strict, **kwargs)
 
-        #super(ImpressoEnderecamentoContatoFilterSet, self).__init__(
+        #super(ImpressoEnderecamentoFilterSet, self).__init__(
         #    data=data,
         #    queryset=queryset, prefix=prefix, strict=strict, **kwargs)
 
@@ -1915,7 +2665,7 @@ class ContatoAgrupadoPorGrupoFilterSet(FilterSet):
 
         row = to_row(
             [(Fieldset(
-                _('Seleção de Contatos'),
+                _('Filtro de Contatos'),
                 col1,
                 to_row([(SubmitFilterPrint(
                     'filter',
@@ -1936,18 +2686,31 @@ class ContatoAgrupadoPorGrupoFilterSet(FilterSet):
         )
 
         self.form.fields['search'].label = 'Nome, nome social ou apelido'
-        
         self.form.fields['search_endereco'].label = 'Endereço, complemento ou ponto de referência'
-        
         self.form.fields['data_nascimento'].label = 'Período de aniversário'
-
         self.form.fields['tem_filhos'].label = _('Tem filhos?')
-        
         self.form.fields['ativo'].label = _('Ativo?')
 
-        self.form.fields['grupo'].queryset = GrupoDeContatos.objects.filter(
-            workspace=workspace)
-
+        self.form.fields['grupo'].queryset = GrupoDeContatos.objects.filter(workspace=workspace)
         self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=4891)
-        
         self.form.fields['municipio'].queryset = Municipio.objects.filter(estado=21)
+
+class ListWithSearchProcessoForm(ListWithSearchForm):
+
+    assunto = forms.ModelChoiceField(
+        label=_('Filtrar por Assunto'),
+        queryset=AssuntoProcesso.objects.all(),
+        required=False)
+
+    class Meta(ListWithSearchForm.Meta):
+        fields = ['q', 'o', 'assunto']
+        pass
+
+    def __init__(self, *args, **kwargs):
+        super(ListWithSearchProcessoForm, self).__init__(*args, **kwargs)
+
+        self.helper.layout.fields.append(Field('assunto'))
+
+        self.fields['assunto'].queryset = AssuntoProcesso.objects.all()
+
+

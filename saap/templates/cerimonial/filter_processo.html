@@ -13,7 +13,7 @@
     <table class="table table-striped table-hover">
       <thead>
         <tr>
-          <th>Código</th>
+          <th><center>Código</center></th>
           <th>Título <br> Contatos interessados</th>
           <th>Data de abertura <br> Data de solução</th>
           <th>Classificação <br> Status</th>
@@ -25,6 +25,7 @@
       <tr>
           <td style='color: green;'>
               <center><strong>{{ obj.pk }}</strong></center>
+              <input type="checkbox" name="pk_{{ obj.pk|safe }}" onclick="select_pk({{ obj.pk }})" selected="false">
           <td>
               <strong>{{ obj.titulo|safe }}</strong>
               <br><br>
@@ -74,4 +75,77 @@
     </table>
   </div>
   {% include "paginacao.html" %}
+{% endblock %}
+
+{% block extra_js %}
+  <script type="text/javascript">
+    $(document).on("keypress", "form", function(event) {
+        return event.keyCode != 13;
+    });
+
+    var pk_selecionados = $('[name="pk_selecionados"]');
+
+    var select_pk = function(pk){
+       if(pk_selecionados.attr("value") == null)
+       {
+           pk_selecionados.attr("value", "");
+       }
+
+       if(pk_selecionados.attr("value") == "")
+       {
+           pk_selecionados.attr("value", pk);
+       }
+       else
+       {
+           if(find_pk(pk))
+           {
+               pk_selecionados.attr("value", remove_pk(pk));
+           }
+           else
+           {
+               var new_value = pk_selecionados.attr("value") + "," + pk;
+               pk_selecionados.attr("value", new_value);
+           }
+       }  
+    }
+
+    var find_pk = function(pk){
+        values = pk_selecionados.attr("value").split(",");
+
+        var found = false;
+        for(var i = 0; i < values.length; i++)
+        {
+            if(values[i] == pk)
+            {
+                found = true;
+            }
+        }
+
+        return found;
+    }
+
+    var remove_pk = function(pk){
+        values = pk_selecionados.attr("value").split(",");
+
+        var new_value = "";
+        for(var i = 0; i < values.length; i++)
+        {
+            if(values[i] != pk)
+            {
+                if(new_value == "")
+                {
+                    new_value = values[i];
+                }
+                else
+                {
+                    new_value = new_value + "," + values[i];
+                }
+            }
+        }
+
+        return new_value;
+    }
+
+    pk_selecionados.attr("readonly", "readonly");
+  </script>
 {% endblock %}

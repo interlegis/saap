@@ -15,7 +15,6 @@
       $.get(url_get_pronomes, function(data) {
         var new_obj = $(data);
         var old_obj = $('#'+new_obj[0].id).replaceWith(new_obj);
-        console.log(new_obj);
       });
     }
 

@@ -6,7 +6,6 @@ from django.utils.translation import ugettext_lazy as _
 from saap.core.models import Municipio, Estado, Partido
 from saap.core.models import Trecho, Distrito, RegiaoMunicipal,\
     SaapAuditoriaModelMixin, SaapSearchMixin, AreaTrabalho, Bairro
-from saap.utils import UF
 from saap.utils import YES_NO_CHOICES, NONE_YES_NO_CHOICES,\
     get_settings_auth_user_model, validate_CPF, validate_CEP, validate_telefone
 
@@ -908,7 +907,7 @@ class Processo(SaapSearchMixin, SaapAuditoriaModelMixin):
         max_length=1000,
         blank=True,
         null=True,
-        verbose_name=_('Link para acompanhamento na prefeitura ou outro órgão')
+        verbose_name=_('Link para acompanhamento na Prefeitura ou outro Órgão')
     )
 
     proto_pref = models.CharField(
@@ -922,7 +921,7 @@ class Processo(SaapSearchMixin, SaapAuditoriaModelMixin):
         max_length=12,
         blank=True,
         null=True,
-        verbose_name=_('Protocolo do órgão')
+        verbose_name=_('Protocolo do Órgão')
     )
 
     oficio_cam = models.CharField(
@@ -943,7 +942,7 @@ class Processo(SaapSearchMixin, SaapAuditoriaModelMixin):
         max_length=12,
         blank=True,
         null=True,
-        verbose_name=_('Ofício recebido do órgão')
+        verbose_name=_('Ofício recebido do Órgão')
     )
 
     beneficiario = models.CharField(
@@ -1027,7 +1026,7 @@ class Processo(SaapSearchMixin, SaapAuditoriaModelMixin):
         related_name='processo_set',
         verbose_name=_('Tópicos'))
 
-    classificacoes = models.ForeignKey(ClassificacaoProcesso,
+    classificacao = models.ForeignKey(ClassificacaoProcesso,
                                blank=True, null=True,
                                verbose_name=_('Classificação'),
                                related_name='processo_set',

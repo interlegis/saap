@@ -13,6 +13,7 @@
     <table class="table table-striped table-hover">
       <thead>
         <tr>
+          <th><center>Código</center></th>
           <th>Nome</th>
           <th>Endereço</th>
           <th>Município</th>
@@ -23,10 +24,13 @@
       <tbody>
       {% for obj in page_obj %}
         <tr>
+          <td style='color: green;'>
+              <center>{{ obj.pk|safe }}</center>
+          </td>
           {% if obj.endereco == '' %}
-              <td style='color: red;'> {{ obj.nome|safe }}</td>
+              <td style='color: red;'><b>{{ obj.nome|safe }}</b></td>
           {% else %}
-              <td> {{ obj.nome|safe }}</td>
+              <td><b>{{ obj.nome|safe }}</b></td>
           {% endif %}
           <td>
               {{ obj.endereco|safe }}

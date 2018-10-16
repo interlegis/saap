@@ -17,7 +17,7 @@ from smart_selects.db_fields import ChainedForeignKey
 from saap.core.rules import SEARCH_TRECHO
 from saap.globalrules.globalrules import rules, GROUP_SOCIAL_USERS
 from saap.utils import get_settings_auth_user_model, normalize
-from saap.utils import YES_NO_CHOICES, UF, restringe_tipos_de_arquivo_img
+from saap.utils import YES_NO_CHOICES, restringe_tipos_de_arquivo_img
 
 from .rules import MENU_PERMS_FOR_USERS
 

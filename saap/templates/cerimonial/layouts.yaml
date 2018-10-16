@@ -167,7 +167,7 @@ Processo:
   - titulo data_abertura:2
   - topicos assuntos
   - importancia urgente:2 num_controle
-  - status classificacoes
+  - status classificacao
   - historico observacoes:4
   - rua bairro:4
   - instituicao orgao
@@ -182,7 +182,7 @@ ProcessoLayoutForForm:
   - titulo data_abertura:2
   - topicos assuntos
   - importancia urgente:2 num_controle
-  - status classificacoes
+  - status classificacao
   - historico observacoes:4
   - rua bairro:4
   - instituicao orgao

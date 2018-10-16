@@ -90,14 +90,14 @@
            }
            else
            {
-               var new_value = pk_selecionados.attr("value") + ";" + pk;
+               var new_value = pk_selecionados.attr("value") + "," + pk;
                pk_selecionados.attr("value", new_value);
            }
        }  
     }
 
     var find_pk = function(pk){
-        values = pk_selecionados.attr("value").split(";");
+        values = pk_selecionados.attr("value").split(",");
                   
         var found = false;
         for(var i = 0; i < values.length; i++)
@@ -112,7 +112,7 @@
     }
 
     var remove_pk = function(pk){
-        values = pk_selecionados.attr("value").split(";");
+        values = pk_selecionados.attr("value").split(",");
 
         var new_value = "";
         for(var i = 0; i < values.length; i++)
@@ -125,7 +125,7 @@
                 }
                 else
                 {
-                    new_value = new_value + ";" + values[i];
+                    new_value = new_value + "," + values[i];
                 }
             }
         }
