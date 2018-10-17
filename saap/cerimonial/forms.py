@@ -17,7 +17,7 @@ from django.forms.widgets import SelectDateWidget, DateInput
 from django.forms.models import ModelForm, ModelMultipleChoiceField
 from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
-from django_filters.filters import ChoiceFilter, NumberFilter, IntegerFilter,\
+from django_filters.filters import ChoiceFilter, NumberFilter,\
     MethodFilter, ModelChoiceFilter, RangeFilter,\
     MultipleChoiceFilter, ModelMultipleChoiceFilter, BooleanFilter
 from django_filters.filterset import FilterSet
@@ -885,8 +885,8 @@ class MethodMultipleChoiceFilter(MethodFilter, MultipleChoiceFilter):
 class MethodNumberFilter(MethodFilter, NumberFilter):
     pass
 
-class MethodIntegerFilter(MethodFilter, IntegerFilter):
-    pass
+class MethodIntegerFilter(MethodFilter, NumberFilter):
+    field_class = forms.IntegerField
 
 class MethodModelChoiceFilter(MethodFilter, ModelChoiceFilter):
     pass
