@@ -36,3 +36,4 @@ django-admin-bootstrapped
 social-auth-app-django
 pyjwkest
 virtualenvwrapper
+psycopg2-binary

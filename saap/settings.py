@@ -29,6 +29,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ENABLE_DEBUG = config('DJANGO_TOOLBAR', default=False, cast=bool)
 
 SITE_NAME = config('SITE_NAME', default='', cast=str)
+SITE_DOMAIN = config('SITE_DOMAIN', default='', cast=str)
 
 ALLOWED_HOSTS = ['*']
 

@@ -5,13 +5,18 @@ from crispy_forms.layout import Layout, Field
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.forms import UserCreationForm as BaseUserCreationForm, UserChangeForm as BaseUserChangeForm
+from django.contrib.auth.tokens import default_token_generator
 from django.forms.models import ModelForm
 from django.utils.translation import ugettext_lazy as _
 from django_filters.filterset import FilterSet
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
 
 from image_cropping.widgets import ImageCropWidget, CropWidget
 from saap.crispy_layout_mixin import to_row
 from saap.core.models import * 
+from saap.settings import SITE_DOMAIN, SITE_NAME
 
 #import django_filter
 
@@ -70,6 +75,32 @@ class ResetPasswordForm(PasswordResetForm):
                 'class': 'form-control',
                 'name': 'email',
                 'placeholder': _('Digite seu Endereço de email')}))
+
+    def save(self, subject_template_name='registration/password_reset_subject.txt',
+             email_template_name='registration/password_reset_email.html',
+             use_https=True, token_generator=default_token_generator,
+             from_email=None, request=None, html_email_template_name=None,
+             extra_email_context=None):
+
+        email = self.cleaned_data["email"]
+        for user in self.get_users(email):
+            #if not domain_override:
+            #current_site = get_current_site(request)
+            #domain = current_site.domain
+            context = {
+                'email': user.email,
+                'domain': SITE_DOMAIN,
+                'site_name': SITE_NAME,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'user': user,
+                'token': token_generator.make_token(user),
+                'protocol': 'https' if use_https else 'http',
+            }
+            if extra_email_context is not None:
+                context.update(extra_email_context)
+            self.send_mail(subject_template_name, email_template_name,
+                           context, from_email, user.email,
+                           html_email_template_name=html_email_template_name)
 
 class PasswordForm(SetPasswordForm):
     

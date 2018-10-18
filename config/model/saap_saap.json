@@ -1,0 +1,1091 @@
+[
+{
+  "model": "cerimonial.tipotelefone",
+  "pk": 1,
+  "fields": {
+    "descricao": "Residencial"
+  }
+},
+{
+  "model": "cerimonial.tipotelefone",
+  "pk": 2,
+  "fields": {
+    "descricao": "Comercial"
+  }
+},
+{
+  "model": "cerimonial.tipotelefone",
+  "pk": 3,
+  "fields": {
+    "descricao": "Celular"
+  }
+},
+{
+  "model": "cerimonial.tipoendereco",
+  "pk": 1,
+  "fields": {
+    "descricao": "Residencial"
+  }
+},
+{
+  "model": "cerimonial.tipoendereco",
+  "pk": 2,
+  "fields": {
+    "descricao": "Comercial"
+  }
+},
+{
+  "model": "cerimonial.tipoendereco",
+  "pk": 3,
+  "fields": {
+    "descricao": "Profissional"
+  }
+},
+{
+  "model": "cerimonial.tipoemail",
+  "pk": 1,
+  "fields": {
+    "descricao": "Particular"
+  }
+},
+{
+  "model": "cerimonial.tipoemail",
+  "pk": 2,
+  "fields": {
+    "descricao": "Corporativo"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 1,
+  "fields": {
+    "descricao": "Pai / M\u00e3e"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 2,
+  "fields": {
+    "descricao": "Sogro / Sogra"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 3,
+  "fields": {
+    "descricao": "Filho / Filha"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 4,
+  "fields": {
+    "descricao": "Av\u00f4 / Av\u00f3"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 5,
+  "fields": {
+    "descricao": "Bisav\u00f4 / Bisav\u00f3"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 6,
+  "fields": {
+    "descricao": "Trisav\u00f4 / Trisav\u00f3"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 7,
+  "fields": {
+    "descricao": "Neto / Neta"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 8,
+  "fields": {
+    "descricao": "Bisneto / Bisneta"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 9,
+  "fields": {
+    "descricao": "Trineto / Trineta"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 10,
+  "fields": {
+    "descricao": "Irm\u00e3o / Irm\u00e3"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 11,
+  "fields": {
+    "descricao": "Cunhado / Cunhada"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 12,
+  "fields": {
+    "descricao": "Tio / Tia"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 13,
+  "fields": {
+    "descricao": "Primo / Prima"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 14,
+  "fields": {
+    "descricao": "Genro / Nora"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 15,
+  "fields": {
+    "descricao": "Tio-av\u00f4 / Tia-av\u00f3"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 16,
+  "fields": {
+    "descricao": "Esposo / Esposa"
+  }
+},
+{
+  "model": "cerimonial.estadocivil",
+  "pk": 1,
+  "fields": {
+    "descricao": "Solteiro(a)"
+  }
+},
+{
+  "model": "cerimonial.estadocivil",
+  "pk": 3,
+  "fields": {
+    "descricao": "Casado(a)"
+  }
+},
+{
+  "model": "cerimonial.estadocivil",
+  "pk": 4,
+  "fields": {
+    "descricao": "Separado(a)"
+  }
+},
+{
+  "model": "cerimonial.estadocivil",
+  "pk": 5,
+  "fields": {
+    "descricao": "Divorciado(a)"
+  }
+},
+{
+  "model": "cerimonial.estadocivil",
+  "pk": 6,
+  "fields": {
+    "descricao": "Vi\u00favo(a)"
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 1,
+  "fields": {
+    "descricao": "Presidente da Rep\u00fablica",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 2,
+  "fields": {
+    "descricao": "Vice-Presidente da Rep\u00fablica",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 3,
+  "fields": {
+    "descricao": "Ministros de Estado",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 4,
+  "fields": {
+    "descricao": "Secret\u00e1rios dos Governos Estaduais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 5,
+  "fields": {
+    "descricao": "Secret\u00e1rios dos Governos Municipais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 6,
+  "fields": {
+    "descricao": "Chefe do Estado-Maior das For\u00e7as Armadas",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 8,
+  "fields": {
+    "descricao": "Presidentes das Assembl\u00e9ias Legislativas Estaduais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 9,
+  "fields": {
+    "descricao": "Vice-Presidentes das Assembleias Legislativas Estaduais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 10,
+  "fields": {
+    "descricao": "Presidentes das C\u00e2maras Municipais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 11,
+  "fields": {
+    "descricao": "Vice-Presidentes das C\u00e2maras Municipais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 12,
+  "fields": {
+    "descricao": "Membros das Assembleias Legislativas Estaduais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 13,
+  "fields": {
+    "descricao": "Membros da C\u00e2mara dos Deputados",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 14,
+  "fields": {
+    "descricao": "Membros do Senado Federal",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 15,
+  "fields": {
+    "descricao": "Membros das C\u00e2maras Municipais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 16,
+  "fields": {
+    "descricao": "Prefeitos Municipais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 17,
+  "fields": {
+    "descricao": "Vice-Prefeitos Municipais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 18,
+  "fields": {
+    "descricao": "Ju\u00edzes",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 19,
+  "fields": {
+    "descricao": "Procuradores",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 20,
+  "fields": {
+    "descricao": "Desembargadores",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 21,
+  "fields": {
+    "descricao": "Diretores de Autarquias Federais, Estaduais ou Municipais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 22,
+  "fields": {
+    "descricao": "Secret\u00e1rio-Geral da Presid\u00eancia da Rep\u00fablica",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 23,
+  "fields": {
+    "descricao": "Consultor-Geral da Rep\u00fablica",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 24,
+  "fields": {
+    "descricao": "Oficiais e Generais das For\u00e7as Armadas",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 25,
+  "fields": {
+    "descricao": "Chefe do Gabinete Militar da Presid\u00eancia da Rep\u00fablica",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 26,
+  "fields": {
+    "descricao": "Chefe do Gabinete Pessoal da Presid\u00eancia da Rep\u00fablica",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 27,
+  "fields": {
+    "descricao": "Secret\u00e1rios da Presid\u00eancia da Rep\u00fablica",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 28,
+  "fields": {
+    "descricao": "Secret\u00e1rios de Minist\u00e9rios",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 29,
+  "fields": {
+    "descricao": "Procurador-Geral da Rep\u00fablica",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 30,
+  "fields": {
+    "descricao": "Governador de Estado",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 31,
+  "fields": {
+    "descricao": "Vice-Governadores dos Estados",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 32,
+  "fields": {
+    "descricao": "Embaixadores",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 33,
+  "fields": {
+    "descricao": "Presidente do Congresso Nacional",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 34,
+  "fields": {
+    "descricao": "Presidente da C\u00e2mara dos Deputados",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 35,
+  "fields": {
+    "descricao": "Vice-Presidente da C\u00e2mara dos Deputados",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 36,
+  "fields": {
+    "descricao": "Presidente e Membros do Tribunal de Contas da Uni\u00e3o",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 37,
+  "fields": {
+    "descricao": "Presidente e Membros dos Tribunais de Contas dos Estados",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 38,
+  "fields": {
+    "descricao": "Presidente do Senado Federal",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 39,
+  "fields": {
+    "descricao": "Vice-Presidente do Senado Federal",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 40,
+  "fields": {
+    "descricao": "Presidente do Supremo Tribunal Federal",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 41,
+  "fields": {
+    "descricao": "Membros do Supremo Tribunal Federal",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 42,
+  "fields": {
+    "descricao": "Presidente  do Superior Tribunal de Justi\u00e7a",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 43,
+  "fields": {
+    "descricao": "Membros do Superior Tribunal de Justi\u00e7a",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 44,
+  "fields": {
+    "descricao": "Presidente do Tribunal Superior Militar",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 45,
+  "fields": {
+    "descricao": "Membros do Tribunal Superior Militar",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 46,
+  "fields": {
+    "descricao": "Presidente do Tribunal Superior Eleitoral",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 47,
+  "fields": {
+    "descricao": "Membros do Tribunal Superior Eleitoral",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 48,
+  "fields": {
+    "descricao": "Presidente do Tribunal Superior do Trabalho",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 49,
+  "fields": {
+    "descricao": "Membros do Tribunal Superior do Trabalho",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 50,
+  "fields": {
+    "descricao": "Presidentes dos Tribunais de Justi\u00e7a",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 51,
+  "fields": {
+    "descricao": "Membros dos Tribunais de Justi\u00e7a",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 52,
+  "fields": {
+    "descricao": "Presidentes dos Tribunais Regionais Federais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 53,
+  "fields": {
+    "descricao": "Membros dos Tribunais Regionais Federais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 54,
+  "fields": {
+    "descricao": "Presidentes dos Tribunais Regionais Eleitorais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 55,
+  "fields": {
+    "descricao": "Membros dos Tribunais Regionais Eleitorais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 56,
+  "fields": {
+    "descricao": "Presidentes dos Tribunais Regionais do Trabalho",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 57,
+  "fields": {
+    "descricao": "Membros dos Tribunais Regionais do Trabalho",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 58,
+  "fields": {
+    "descricao": "Auditores da Justi\u00e7a Militar",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 59,
+  "fields": {
+    "descricao": "Reitores de Universidades",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 60,
+  "fields": {
+    "descricao": "Presidentes de empresas",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 61,
+  "fields": {
+    "descricao": "Diretores de empresas",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 62,
+  "fields": {
+    "descricao": "C\u00f4nsules",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 63,
+  "fields": {
+    "descricao": "Papa",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 64,
+  "fields": {
+    "descricao": "Cardeais",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 65,
+  "fields": {
+    "descricao": "Arcebispos",
+    "pronomes": [
+      2
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 66,
+  "fields": {
+    "descricao": "Bispos",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 67,
+  "fields": {
+    "descricao": "Monsenhores",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 68,
+  "fields": {
+    "descricao": "C\u00f4negos",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 69,
+  "fields": {
+    "descricao": "Sacerdotes",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 70,
+  "fields": {
+    "descricao": "Cl\u00e9ricos",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 71,
+  "fields": {
+    "descricao": "Padres",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 72,
+  "fields": {
+    "descricao": "Pastores",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 73,
+  "fields": {
+    "descricao": "Outras autoridades",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 74,
+  "fields": {
+    "descricao": "Reis",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 75,
+  "fields": {
+    "descricao": "Imperadores",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 76,
+  "fields": {
+    "descricao": "Pr\u00edncipes e Princesas",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipoautoridade",
+  "pk": 77,
+  "fields": {
+    "descricao": "Duques e Duquesas",
+    "pronomes": [
+      1
+    ]
+  }
+},
+{
+  "model": "cerimonial.tipolocaltrabalho",
+  "pk": 1,
+  "fields": {
+    "descricao": "Agricultura"
+  }
+},
+{
+  "model": "cerimonial.tipolocaltrabalho",
+  "pk": 2,
+  "fields": {
+    "descricao": "Pecu\u00e1ria"
+  }
+},
+{
+  "model": "cerimonial.tipolocaltrabalho",
+  "pk": 3,
+  "fields": {
+    "descricao": "Extrativismo"
+  }
+},
+{
+  "model": "cerimonial.tipolocaltrabalho",
+  "pk": 4,
+  "fields": {
+    "descricao": "Ind\u00fastria"
+  }
+},
+{
+  "model": "cerimonial.tipolocaltrabalho",
+  "pk": 5,
+  "fields": {
+    "descricao": "Com\u00e9rcio"
+  }
+},
+{
+  "model": "cerimonial.tipolocaltrabalho",
+  "pk": 6,
+  "fields": {
+    "descricao": "Servi\u00e7os"
+  }
+},
+{
+  "model": "cerimonial.tipolocaltrabalho",
+  "pk": 7,
+  "fields": {
+    "descricao": "Setor p\u00fablico"
+  }
+},
+{
+  "model": "cerimonial.nivelinstrucao",
+  "pk": 4,
+  "fields": {
+    "descricao": "Ensino Fundamental completo"
+  }
+},
+{
+  "model": "cerimonial.nivelinstrucao",
+  "pk": 5,
+  "fields": {
+    "descricao": "Ensino Fundamental incompleto"
+  }
+},
+{
+  "model": "cerimonial.nivelinstrucao",
+  "pk": 6,
+  "fields": {
+    "descricao": "Ensino M\u00e9dio incompleto"
+  }
+},
+{
+  "model": "cerimonial.nivelinstrucao",
+  "pk": 7,
+  "fields": {
+    "descricao": "Ensino Superior incompleto"
+  }
+},
+{
+  "model": "cerimonial.nivelinstrucao",
+  "pk": 8,
+  "fields": {
+    "descricao": "Ensino M\u00e9dio completo"
+  }
+},
+{
+  "model": "cerimonial.nivelinstrucao",
+  "pk": 9,
+  "fields": {
+    "descricao": "Ensino Superior completo"
+  }
+},
+{
+  "model": "cerimonial.operadoratelefonia",
+  "pk": 1,
+  "fields": {
+    "descricao": "Vivo"
+  }
+},
+{
+  "model": "cerimonial.operadoratelefonia",
+  "pk": 2,
+  "fields": {
+    "descricao": "Claro"
+  }
+},
+{
+  "model": "cerimonial.operadoratelefonia",
+  "pk": 3,
+  "fields": {
+    "descricao": "Oi"
+  }
+},
+{
+  "model": "cerimonial.operadoratelefonia",
+  "pk": 4,
+  "fields": {
+    "descricao": "Tim"
+  }
+},
+{
+  "model": "cerimonial.operadoratelefonia",
+  "pk": 6,
+  "fields": {
+    "descricao": "NET / Embratel"
+  }
+}
+]

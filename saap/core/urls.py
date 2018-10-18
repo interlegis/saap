@@ -38,7 +38,6 @@ urlpatterns = [
                                                       'subject_template_name': 'core/password_reset_subject.txt',
                                                       'post_reset_redirect': '/password_reset/sent',
                                                       'from_email': EMAIL_SEND_USER,
-                                                      'site_name': SITE_NAME,
                                                      }, name='password_reset'),
     url(r'^password_reset/sent/$', v_auth.password_reset_done, {'template_name': 'core/password_reset_sent.html'}, name='password_reset_sent'),
 
