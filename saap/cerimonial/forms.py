@@ -880,6 +880,9 @@ class MethodRangeFilter(MethodFilter, RangeFilter):
 class MethodChoiceFilter(MethodFilter, ChoiceFilter):
     pass
 
+class MethodBooleanFilter(MethodFilter, BooleanFilter):
+    pass
+
 class MethodMultipleChoiceFilter(MethodFilter, MultipleChoiceFilter):
     pass
 
@@ -990,6 +993,8 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
         label=_('Nome maiúsculo'),
         choices=YES_NO_CHOICES, initial=False)
 
+    ocultar_sem_endereco = MethodBooleanFilter()
+
     local_cargo = MethodChoiceFilter(
         label=_('Local para imprimir o cargo'),
         choices=LOCAL_CARGO_CHOICE, initial=False)
@@ -1011,14 +1016,14 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
         if value:
             queryset = queryset.filter(
                 endereco_set__bairro__in=value,
-                endereco_set__principal=True)
+                endereco_set__permite_contato=True)
 
         return queryset
 
     def filter_municipio(self, queryset, value):
         queryset = queryset.filter(
                 endereco_set__municipio=value,
-                endereco_set__principal=True)
+                endereco_set__permite_contato=True)
         return queryset
 
     def filter_pk(self, queryset, value):
@@ -1029,6 +1034,13 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
         return queryset
 
     def filter_imprimir_pronome(self, queryset, value):
+        return queryset
+
+    def filter_ocultar_sem_endereco(self, queryset, value):
+        if(value == True):
+            queryset = queryset.filter(
+                    endereco_set__permite_contato=True)
+
         return queryset
 
     def filter_imprimir_cargo(self, queryset, value):
@@ -1083,7 +1095,7 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
                 q = q & (Q(endereco_set__endereco__icontains=item) | 
                          Q(endereco_set__ponto_referencia__icontains=item) |
                          Q(endereco_set__complemento__icontains=item))
-                q = q & Q(endereco_set__principal=True)
+                q = q & Q(endereco_set__permite_contato=True)
 
             if q:
                 queryset = queryset.filter(q)
@@ -1097,7 +1109,7 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
         
         if query:
             q = q & Q(endereco_set__cep=value)
-            q = q & Q(endereco_set__principal=True)
+            q = q & Q(endereco_set__permite_contato=True)
 
         if q:
             queryset = queryset.filter(q)
@@ -1166,7 +1178,8 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
             ('ativo', 4),
             ('data_nascimento', 6),
             ('idade', 6),
-            ('search_endereco', 12),
+            ('search_endereco', 9),
+            ('ocultar_sem_endereco', 3),
             ('cep', 6),
             ('municipio', 6),
             ('bairro', 6),
@@ -1218,6 +1231,9 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
         self.form.fields['imprimir_pronome'].widget = forms.RadioSelect()
         self.form.fields['imprimir_pronome'].inline_class = True
+
+        self.form.fields['ocultar_sem_endereco'].inline_class = True
+        self.form.fields['ocultar_sem_endereco'].label = _('<font color=red>Ocultar sem endereço?</font>')
 
         self.form.fields['imprimir_cargo'].widget = forms.RadioSelect()
         self.form.fields['imprimir_cargo'].inline_class = True
@@ -2193,8 +2209,7 @@ class ContatoIndividualFilterSet(FilterSet):
     def filter_bairro(self, queryset, value):
         if value:
             queryset = queryset.filter(
-                endereco_set__bairro__in=value,
-                endereco_set__principal=True)
+                endereco_set__bairro__in=value)
 
         return queryset
 
@@ -2204,8 +2219,7 @@ class ContatoIndividualFilterSet(FilterSet):
 
     def filter_municipio(self, queryset, value):
         queryset = queryset.filter(
-                endereco_set__municipio=value,
-                endereco_set__principal=True)
+                endereco_set__municipio=value)
         return queryset
 
     def filter_orientacao(self, queryset, value):
@@ -2263,7 +2277,6 @@ class ContatoIndividualFilterSet(FilterSet):
                 q = q & (Q(endereco_set__endereco__icontains=item) | 
                          Q(endereco_set__ponto_referencia__icontains=item) |
                          Q(endereco_set__complemento__icontains=item))
-                q = q & Q(endereco_set__principal=True)
 
             if q:
                 queryset = queryset.filter(q)
@@ -2277,7 +2290,6 @@ class ContatoIndividualFilterSet(FilterSet):
         
         if query:
             q = q & Q(endereco_set__cep=value)
-            q = q & Q(endereco_set__principal=True)
 
         if q:
             queryset = queryset.filter(q)
@@ -2432,6 +2444,8 @@ class ContatosFilterSet(FilterSet):
 
     ativo = BooleanFilter()
 
+    ocultar_sem_email = MethodBooleanFilter()
+
     idade = MethodRangeFilter(
         label=_('Idade entre:'),
         widget=RangeWidgetNumber)
@@ -2473,18 +2487,23 @@ class ContatosFilterSet(FilterSet):
 
         return queryset
 
+    def filter_ocultar_sem_email(self, queryset, value):
+        if(value == True):
+            queryset = queryset.filter(
+                    email_set__permite_contato=True)
+
+        return queryset
+
     def filter_bairro(self, queryset, value):
         if value:
             queryset = queryset.filter(
-                endereco_set__bairro__in=value,
-                endereco_set__principal=True)
+                endereco_set__bairro__in=value)
 
         return queryset
 
     def filter_municipio(self, queryset, value):
         queryset = queryset.filter(
-                endereco_set__municipio=value,
-                endereco_set__principal=True)
+                endereco_set__municipio=value)
         return queryset
 
     def filter_orientacao(self, queryset, value):
@@ -2542,7 +2561,6 @@ class ContatosFilterSet(FilterSet):
                 q = q & (Q(endereco_set__endereco__icontains=item) | 
                          Q(endereco_set__ponto_referencia__icontains=item) |
                          Q(endereco_set__complemento__icontains=item))
-                q = q & Q(endereco_set__principal=True)
 
             if q:
                 queryset = queryset.filter(q)
@@ -2556,7 +2574,6 @@ class ContatosFilterSet(FilterSet):
         
         if query:
             q = q & Q(endereco_set__cep=value)
-            q = q & Q(endereco_set__principal=True)
 
         if q:
             queryset = queryset.filter(q)
@@ -2624,7 +2641,8 @@ class ContatosFilterSet(FilterSet):
             ('ativo', 4),
             ('data_nascimento', 6),
             ('idade', 6),
-            ('search_endereco', 12),
+            ('search_endereco', 9),
+            ('ocultar_sem_email', 3),
             ('cep', 6),
             ('municipio', 6),
             ('bairro', 6),
@@ -2665,6 +2683,9 @@ class ContatosFilterSet(FilterSet):
         self.form.fields['data_nascimento'].label = 'Período de aniversário'
         self.form.fields['tem_filhos'].label = _('Tem filhos?')
         self.form.fields['ativo'].label = _('Ativo?')
+
+        self.form.fields['ocultar_sem_email'].inline_class = True
+        self.form.fields['ocultar_sem_email'].label = _('<font color=red>Ocultar sem e-mail?</font>')
 
         self.form.fields['grupo'].queryset = GrupoDeContatos.objects.filter(workspace=workspace)
         self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=4891)

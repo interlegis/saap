@@ -1834,8 +1834,11 @@ class RelatorioContatosView(RelatorioProcessosView):
             elif self.filterset.form.cleaned_data['formato'] == 'TXT':
                 total_erros = self.validate_data()
                 if(total_erros > 0):
+                    self.filterset.form._errors['ocultar_sem_email'] = ErrorList([_(
+                        'ATENÇÃO! Marcando Sim, você vai remover do relatório %s contatos que não tem e-mail' % (total_erros))])
+
                     messages.error(request, _('Existem %s contatos na busca que não tem e-mail marcado para Contato.\
-                             Revise-os na lista abaixo, antes de gerar a mala direta.' % (total_erros)))
+                             <br>Revise-os antes de gerar a mala direta, ou se preferir, escolha Sim no campo "Ocultar sem e-mail"' % (total_erros)))
                 else:
                     filename = str(self.filterset.form.cleaned_data['formato']) + "_Contatos_"\
                          + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
@@ -2265,8 +2268,11 @@ class ImpressoEnderecamentoView(RelatorioProcessosView):
             if self.filterset.form.cleaned_data['impresso']:
                 total_erros = self.validate_data()
                 if(total_erros > 0):
+                    self.filterset.form._errors['ocultar_sem_endereco'] = ErrorList([_(
+                        'ATENÇÃO! Marcando Sim, você vai remover do relatório %s contatos que não tem endereço' % (total_erros))])
+
                     messages.error(request, _('Existem %s contatos na busca que não tem endereço marcado para Contato.\
-                             Revise-os na lista abaixo, antes de gerar o impresso.' % (total_erros)))
+                             <br>Revise-os antes de gerar o impresso, ou se preferir, escolha Sim no campo "Ocultar sem endereço"' % (total_erros)))
                 else:
                     filename = str(self.filterset.form.cleaned_data['impresso']) + "_"\
                          + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))

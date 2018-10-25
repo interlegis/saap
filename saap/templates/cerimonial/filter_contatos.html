@@ -76,18 +76,23 @@
     var change_formato = function() {
       var orientacao = $('[name="orientacao"]');
       var tipo_dado_contato = $('[name="tipo_dado_contato"]');
+      var ocultar_sem_email = $('[name="ocultar_sem_email"]');
       var _this = this;
       if ($('[name="formato"]').val() == "PDF") {
         orientacao.removeAttr("disabled");
         orientacao.closest('.form-group').removeClass("disabled");
         tipo_dado_contato.removeAttr("disabled");
         tipo_dado_contato.closest('.form-group').removeClass("disabled");
+        ocultar_sem_email.attr("disabled", "disabled");
+        ocultar_sem_email.closest('.form-group').addClass("disabled");
       }
       else {
         orientacao.attr("disabled", "disabled");
         orientacao.closest('.form-group').addClass("disabled");
         tipo_dado_contato.attr("disabled", "disabled");
         tipo_dado_contato.closest('.form-group').addClass("disabled");
+        ocultar_sem_email.removeAttr("disabled");
+        ocultar_sem_email.closest('.form-group').removeClass("disabled");
       }
     }
 
