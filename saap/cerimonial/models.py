@@ -401,6 +401,9 @@ class Telefone(SaapAuditoriaModelMixin):
         max_length=40, verbose_name='De quem é?', blank=True,
         help_text=_('Se não é próprio, de quem é?'))
 
+    ramal = models.CharField(
+        max_length=40, verbose_name='Ramal', blank=True,)
+
 #    principal = models.BooleanField(
 #        choices=YES_NO_CHOICES,
 #        blank=False, default=True, verbose_name=_('Principal?'))
@@ -554,7 +557,7 @@ class LocalTrabalho(SaapAuditoriaModelMixin):
     nome = models.CharField(
         max_length=254, verbose_name=_('Nome / Razão social'))
 
-    nome_social = models.CharField(
+    nome_fantasia = models.CharField(
         blank=True, default='', max_length=254,
         verbose_name=_('Nome fantasia'))
 
@@ -754,7 +757,7 @@ class Endereco(SaapAuditoriaModelMixin):
     numero = models.PositiveSmallIntegerField(blank=False, default=0,
                               verbose_name=_('Número'))
 
-    complemento = models.CharField(max_length=6, blank=True, default='',
+    complemento = models.CharField(max_length=15, blank=True, default='',
                                    verbose_name=_('Complemento'))
 
     ponto_referencia = models.CharField(max_length=254, blank=True, default='',

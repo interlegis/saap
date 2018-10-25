@@ -3,10 +3,16 @@ from django.db.models.aggregates import Max
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.edit import FormView
 
+from _functools import reduce
+from datetime import date, timedelta
+import datetime
+import operator
+
 from saap.cerimonial.forms import LocalTrabalhoForm, EnderecoForm,\
     TipoAutoridadeForm, LocalTrabalhoPerfilForm,\
     ContatoFragmentPronomesForm, ContatoForm, ProcessoForm,\
-    ContatoFragmentSearchForm, ProcessoContatoForm, ListWithSearchProcessoForm,\
+    ContatoFragmentSearchForm, ProcessoContatoForm,\
+    ListWithSearchProcessoForm, ListWithSearchContatoForm,\
     GrupoDeContatosForm, TelefoneForm, EmailForm
 from saap.cerimonial.models import TipoTelefone, TipoEndereco,\
     TipoEmail, Parentesco, EstadoCivil, TipoAutoridade, TipoLocalTrabalho,\
@@ -23,6 +29,10 @@ from saap.crispy_layout_mixin import CrispyLayoutFormMixin
 from saap.globalrules import globalrules
 from saap.globalrules.crud_custom import DetailMasterCrud,\
     MasterDetailCrudPermission, PerfilAbstractCrud, PerfilDetailCrudPermission
+
+from saap.utils import normalize
+
+from django.db.models import Q
 
 globalrules.rules.config_groups(rules_patterns)
 
@@ -101,8 +111,7 @@ class ContatoCrud(DetailMasterCrud):
     container_field = 'workspace__operadores'
 
     class BaseMixin(DetailMasterCrud.BaseMixin):
-        list_field_names = ['nome', 'nome_social', 'data_nascimento',
-                            'estado_civil', 'sexo', ]
+        list_field_names = ['id', 'nome', 'data_nascimento', 'sexo', 'estado_civil']
 
         """def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
@@ -122,14 +131,178 @@ class ContatoCrud(DetailMasterCrud):
             return initial
 
     class ListView(DetailMasterCrud.ListView):
-        form_search_class = ListWithSearchForm
+        form_search_class = ListWithSearchContatoForm
 
         def get(self, request, *args, **kwargs):
             return DetailMasterCrud.ListView.get(
                 self, request, *args, **kwargs)
 
+        def get_queryset(self):
+            queryset = DetailMasterCrud.ListView.get_queryset(self)
+            
+            sexo = self.request.GET.get('sexo', '')
+            pk = self.request.GET.get('pk', '')
+            tem_filhos = self.request.GET.get('tem_filhos', '')
+            ativo = self.request.GET.get('ativo', '')
+            endereco = self.request.GET.get('endereco', '')
+            cep = self.request.GET.get('cep', '')
+            bairro = self.request.GET.get('bairro', '')
+            municipio = self.request.GET.get('municipio', '')
+            estado_civil = self.request.GET.get('estado_civil', '')
+            nivel_instrucao = self.request.GET.get('nivel_instrucao', '')
+            profissao = self.request.GET.get('profissao', '')
+            dependente = self.request.GET.get('dependente', '')
+            data_inicial = self.request.GET.get('data_inicial', '')
+            data_final = self.request.GET.get('data_final', '')
+            nasc_inicial = self.request.GET.get('nasc_inicial', '')
+            nasc_final = self.request.GET.get('nasc_final', '')
+
+            if sexo:
+                queryset = queryset.filter(sexo=sexo)
+ 
+            if pk:
+                queryset = queryset.filter(pk=pk)
+
+            if tem_filhos:
+                if int(tem_filhos) > 1:
+                    f = None
+                    if int(tem_filhos) == 2:
+                        f = True
+                    elif int(tem_filhos) == 3:
+                        f = False
+
+                    queryset = queryset.filter(tem_filhos=f)
+
+            if ativo:
+                if int(ativo) > 1:
+                    a = None
+                    if int(ativo) == 2:
+                        a = True
+                    elif int(ativo) == 3:
+                        a = False
+
+                    queryset = queryset.filter(ativo=a)
+
+            if endereco:
+                query = normalize(endereco)
+
+                query = query.split(' ')
+                if query:
+                    q = Q()
+                    for item in query:
+                        if not item:
+                            continue
+                        q = q & (Q(endereco_set__endereco__icontains=item) | 
+                                 Q(endereco_set__ponto_referencia__icontains=item) |
+                                 Q(endereco_set__complemento__icontains=item))
+                    if q:
+                        queryset = queryset.filter(q)
+
+            #if grupo:        
+            #    queryset = queryset.filter(grupodecontatos_set__in=value)
+
+            if bairro:
+                print(bairro)
+                queryset = queryset.filter(endereco_set__bairro__in=value)
+
+            if municipio:
+                queryset = queryset.filter(endereco_set__municipio__in=municipio)
+
+            if cep:
+                queryset = queryset.filter(endereco_set__cep__icontains=cep)
+
+            if estado_civil:
+                queryset = queryset.filter(estado_civil=estado_civil)
+
+            if nivel_instrucao:
+                queryset = queryset.filter(nivel_instrucao=nivel_instrucao)
+
+            if profissao:
+                query = normalize(profissao)
+
+                query = query.split(' ')
+                if query:
+                    q = Q()
+                    for item in query:
+                        if not item:
+                            continue
+                        q = q & (Q(profissao__icontains=item))
+
+                    if q:
+                        queryset = queryset.filter(q)
+
+
+            if profissao:
+                query = normalize(profissao)
+
+                query = query.split(' ')
+                if query:
+                    q = Q()
+                    for item in query:
+                        if not item:
+                            continue
+                        q = q & (Q(profissao__icontains=item))
+
+                    if q:
+                        queryset = queryset.filter(q)
+
+            if dependente:
+                query = normalize(dependente)
+
+                query = query.split(' ')
+                if query:
+                    q = Q()
+                    for item in query:
+                        if not item:
+                            continue
+                        q = q & (Q(dependente_set__icontains=item))
+
+                    if q:
+                        queryset = queryset.filter(q)
+
+            if data_inicial and data_final:
+                now = datetime.datetime.strptime(data_inicial, "%d/%m/%Y").date()
+                then = datetime.datetime.strptime(data_final, "%d/%m/%Y").date()
+                if now > then:
+                    a = now
+                    now = then
+                    then = a
+
+                # Build the list of month/day tuples.
+                monthdays = [(now.month, now.day)]
+                while now <= then:
+                    monthdays.append((now.month, now.day))
+                    now += timedelta(days=1)
+
+                # Transform each into queryset keyword args.
+                monthdays = (dict(zip(("data_nascimento__month",
+                                       "data_nascimento__day"), t))
+                             for t in monthdays)
+
+                # Compose the djano.db.models.Q objects together for a single query.
+                query = reduce(operator.or_, (Q(**d) for d in monthdays))
+
+                # Run the query.
+                queryset = queryset.extra(select={
+                           'month': 'extract( month from data_nascimento )',
+                           'day': 'extract( day from data_nascimento )', }
+                           ).order_by('month', 'day', 'nome').filter(query)
+ 
+            if nasc_inicial:
+                data = datetime.datetime.strptime(nasc_inicial, "%d/%m/%Y").date()
+
+                queryset = queryset.filter(data_nascimento__gt=data)
+
+            if nasc_final:
+                data = datetime.datetime.strptime(nasc_final, "%d/%m/%Y").date()
+
+                queryset = queryset.filter(data_nascimento__lte=data)
+
+            return queryset
+
     class CreateView(DetailMasterCrud.CreateView):
         form_class = ContatoForm
+        layout_key = 'ContatoLayoutForForm'
         template_name = 'cerimonial/contato_form.html'
 
         def form_valid(self, form):
@@ -144,6 +317,7 @@ class ContatoCrud(DetailMasterCrud):
 
     class UpdateView(DetailMasterCrud.UpdateView):
         form_class = ContatoForm
+        layout_key = 'ContatoLayoutForForm'
         template_name = 'cerimonial/contato_form.html'
 
         def form_valid(self, form):
@@ -180,6 +354,9 @@ class DependenteCrud(MasterDetailCrudPermission):
     parent_field = 'contato'
     container_field = 'contato__workspace__operadores'
 
+    class BaseMixin(MasterDetailCrudPermission.BaseMixin):
+        list_field_names = ['nome', 'parentesco', 'data_nascimento', 'sexo']
+
 
 class TelefoneCrud(MasterDetailCrudPermission):
     model = Telefone
@@ -187,7 +364,7 @@ class TelefoneCrud(MasterDetailCrudPermission):
     container_field = 'contato__workspace__operadores'
 
     class BaseMixin(MasterDetailCrudPermission.BaseMixin):
-        list_field_names = ['telefone', 'tipo', 'principal', 'permite_contato', 'whatsapp', 'operadora']
+        list_field_names = ['telefone', 'tipo', 'operadora', 'principal', 'permite_contato', 'whatsapp']
 
     class CreateView(PrincipalMixin, MasterDetailCrudPermission.CreateView):
         form_class = TelefoneForm
@@ -202,7 +379,7 @@ class EmailCrud(MasterDetailCrudPermission):
     container_field = 'contato__workspace__operadores'
 
     class BaseMixin(MasterDetailCrudPermission.BaseMixin):
-        list_field_names = ['email', 'tipo', 'principal']
+        list_field_names = ['email', 'tipo', 'principal', 'permite_contato']
 
     class CreateView(PrincipalMixin, MasterDetailCrudPermission.CreateView):
         form_class = EmailForm
@@ -216,7 +393,7 @@ class LocalTrabalhoCrud(MasterDetailCrudPermission):
     container_field = 'contato__workspace__operadores'
 
     class BaseMixin(MasterDetailCrudPermission.BaseMixin):
-        list_field_names = ['nome', 'nome_social', 'tipo', 'data_inicio']
+        list_field_names = ['nome', 'nome_fantasia', 'cargo', 'data_inicio']
 
     class CreateView(PrincipalMixin, MasterDetailCrudPermission.CreateView):
         form_class = LocalTrabalhoForm
@@ -255,7 +432,7 @@ class EnderecoCrud(MasterDetailCrudPermission):
     container_field = 'contato__workspace__operadores'
 
     class BaseMixin(MasterDetailCrudPermission.BaseMixin):
-        list_field_names = [('endereco', 'numero'), 'cep', 'bairro','municipio', 'principal', 'permite_contato']
+        list_field_names = [('endereco', 'numero'), 'cep', 'bairro', 'municipio', 'principal', 'permite_contato']
 
     class CreateView(PrincipalMixin, MasterDetailCrudPermission.CreateView):
         form_class = EnderecoForm
@@ -292,7 +469,7 @@ class TelefonePerfilCrud(PerfilDetailCrudPermission):
     parent_field = 'contato'
 
     class BaseMixin(PerfilDetailCrudPermission.BaseMixin):
-        list_field_names = ['telefone', 'tipo', 'principal', 'permite_contato', 'whatsapp', 'operadora']
+        list_field_names = ['telefone', 'tipo', 'operadora', 'principal', 'permite_contato', 'whatsapp']
 
     class UpdateView(PrincipalMixin, PerfilDetailCrudPermission.UpdateView):
         pass
@@ -306,7 +483,7 @@ class EmailPerfilCrud(PerfilDetailCrudPermission):
     parent_field = 'contato'
 
     class BaseMixin(PerfilDetailCrudPermission.BaseMixin):
-        list_field_names = ['email', 'tipo', 'principal']
+        list_field_names = ['email', 'tipo', 'principal', 'permite_contato']
 
     class UpdateView(PrincipalMixin, PerfilDetailCrudPermission.UpdateView):
         pass
@@ -320,7 +497,7 @@ class LocalTrabalhoPerfilCrud(PerfilDetailCrudPermission):
     parent_field = 'contato'
 
     class BaseMixin(PerfilDetailCrudPermission.BaseMixin):
-        list_field_names = ['nome', 'nome_social', 'tipo', 'data_inicio']
+        list_field_names = ['nome', 'nome_fantasia', 'cargo', 'data_inicio']
 
     class CreateView(PrincipalMixin, PerfilDetailCrudPermission.CreateView):
         form_class = LocalTrabalhoPerfilForm
@@ -334,69 +511,6 @@ class LocalTrabalhoPerfilCrud(PerfilDetailCrudPermission):
 class DependentePerfilCrud(PerfilDetailCrudPermission):
     model = DependentePerfil
     parent_field = 'contato'
-
-
-"""
-
-    class CreateView11(DetailMasterCrud.CreateView):
-
-        def form_valid(self, form):
-            adm = OperadorAreaTrabalho.objects.filter(
-                administrador=True).first()
-            self.object = form.save(commit=False)
-
-            if not adm and not self.object.administrador:
-                form._errors['administrador'] = ErrorList([_(
-                    'A Área de Trabalho não pode ficar '
-                    'sem um Administrador. O primeiro registro '
-                    'deve ser de um Administrador.')])
-                return self.form_invalid(form)
-
-            oper = OperadorAreaTrabalho.objects.filter(
-                operador_id=self.object.operador_id,
-                area_trabalho_id=self.object.area_trabalho_id
-            ).first()
-
-            if oper:
-                form._errors['operador'] = ErrorList([_(
-                    'Este Operador já está registrado '
-                    'nesta Área de Trabalho.')])
-                return self.form_invalid(form)
-
-            response = super().form_valid(form)
-
-            if self.object.administrador:
-                OperadorAreaTrabalho.objects.filter(
-                    area_trabalho_id=self.object.area_trabalho_id).exclude(
-                    pk=self.object.pk).update(administrador=False)
-
-            self.reload_groups(self.object.area_trabalho_id)
-
-            return response
-
-    class DeleteView11(DetailMasterCrud.DeleteView):
-
-        def post(self, request, *args, **kwargs):
-
-            self.object = self.get_object()
-
-            if self.object.administrador:
-                messages.add_message(
-                    request, messages.ERROR, _(
-                        'O Administrador não pode ser excluido diretamente. '
-                        'Primeiro você deve delegar a função de administrador '
-                        'a outro operador!'))
-                return HttpResponseRedirect(self.detail_url)
-
-            globalrules.rules.groups_remove_user(
-                self.object.operador, [
-                    globalrules.GROUP_WORKSPACE_MANAGERS,
-                    globalrules.GROUP_WORKSPACE_USERS, ])
-
-            return DetailMasterCrud.DeleteView.post(
-                self, request, *args, **kwargs)
-
-"""
 
 # ---- Processo Master e Details ----------------------------
 
@@ -425,12 +539,7 @@ class ProcessoMasterCrud(DetailMasterCrud):
     container_field = 'workspace__operadores'
 
     class BaseMixin(DetailMasterCrud.BaseMixin):
-        list_field_names = ['data_abertura',
-                            ('titulo', 'contatos'),
-                            'assuntos',
-                            ('status',
-                             'classificacao',)
-                            ]
+        list_field_names = [ 'id', 'titulo', 'data_abertura', 'classificacao', 'status', 'topicos','assuntos' ]
 
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
@@ -515,12 +624,7 @@ class ProcessoContatoCrud(MasterDetailCrudPermission):
     container_field = 'contatos__workspace__operadores'
 
     class BaseMixin(MasterDetailCrudPermission.BaseMixin):
-        list_field_names = ['data_abertura',
-                            'titulo',
-                            'num_controle',
-                            'assuntos',
-                            'status',
-                            'classificacao']
+        list_field_names = [ 'id', 'titulo', 'data_abertura', 'classificacao', 'status', 'topicos','assuntos' ]
 
         def get_initial(self):
             initial = {}

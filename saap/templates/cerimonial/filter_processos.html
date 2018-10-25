@@ -17,7 +17,8 @@
           <th>Título <br> Contatos interessados</th>
           <th>Data de abertura <br> Data de solução</th>
           <th>Classificação <br> Status</th>
-          <th>Tópicos <br> Assuntos</th>
+          <th>Tópicos</th>
+          <th>Assuntos</th>
         </tr>
       </thead>
       <tbody>
@@ -66,6 +67,8 @@
                     </ul>
                   {% endif %}
               {% endfor %}
+          </td>
+          <td>
               {% for assunto in obj.assuntos.all %}
                   {% if forloop.first %}
                     <ul>

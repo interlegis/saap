@@ -1,6 +1,5 @@
 dj-database-url==0.4.1
 django>=1.9,<1.10
-django-admin-bootstrapped-compatible
 django-bootstrap3==7.0.1
 django-bower==5.1.0
 django-braces==1.8.1
@@ -37,3 +36,5 @@ social-auth-app-django
 pyjwkest
 virtualenvwrapper
 psycopg2-binary
+bootstrap-admin
+django-easy-audit

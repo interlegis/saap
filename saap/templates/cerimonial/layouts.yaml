@@ -43,6 +43,25 @@ PronomeTratamento:
     - enderecamento_singular_f enderecamento_plural_f
 Contato:
   {% trans 'Dados básicos' %}:
+  - id:2 nome data_nascimento:2 ativo:2
+  - estado naturalidade
+  - sexo:3 identidade_genero:3 nome_social apelido
+  - estado_civil tem_filhos:3 quantos_filhos:3
+  {% trans 'Pais' %}:
+  - nome_pai nome_mae
+  {% trans 'Documentos' %}:
+  - numero_sus cpf titulo_eleitor
+  - rg rg_orgao_expedidor rg_data_expedicao
+  {% trans 'Ensino/Profissão/Tratamento' %}:
+  - nivel_instrucao profissao
+  - cargo tipo_autoridade
+  - pronome_tratamento
+  {% trans 'Grupos' %}:
+  - grupodecontatos_set
+  {% trans 'Observações' %}:
+  - observacoes
+ContatoLayoutForForm:
+  {% trans 'Dados básicos' %}:
   - nome data_nascimento:2 ativo:2
   - estado naturalidade
   - sexo:3 identidade_genero:3 nome_social apelido
@@ -60,9 +79,10 @@ Contato:
   - grupodecontatos_set
   {% trans 'Observações' %}:
   - observacoes
+
 Telefone:
   {% trans 'Telefone' %}:
-  - telefone tipo:2 operadora:3 whatsapp:2
+  - telefone ramal:2 tipo:2 operadora:3 whatsapp:2
   - principal:3 permite_contato:3 proprio:2 de_quem_e
 Email:
   {% trans 'Email' %}:
@@ -70,11 +90,11 @@ Email:
 Dependente:
   {% trans 'Dados básicos' %}:
   - parentesco:2 nome data_nascimento:2
-  - nome_social:3 apelido:2 sexo identidade_genero
+  - sexo identidade_genero nome_social apelido
   - nivel_instrucao:4
 LocalTrabalho:
   {% trans 'Dados básicos' %}:
-  - nome nome_social principal:3
+  - nome nome_fantasia principal:3
   - data_inicio:2 data_fim:2 cargo:5 tipo
   {% trans 'Endereço' %}:
   - endereco:6 numero complemento
@@ -82,7 +102,7 @@ LocalTrabalho:
   - bairro distrito regiao_municipal
 LocalTrabalhoLayoutForForm:
   {% trans 'Dados básicos' %}:
-  - nome nome_social principal:3
+  - nome nome_fantasia principal:3
   - data_inicio:2 data_fim:2 cargo:5 tipo
   {% trans 'Endereço' %}:
   - trecho
@@ -126,15 +146,16 @@ Perfil:
   #- pronome_tratamento
 TelefonePerfil:
   {% trans 'Telefone' %}:
-  - telefone tipo:2 operadora:3 whatsapp:2
+  - telefone ramal:2 tipo:2 operadora:3 whatsapp:2
   - principal:3 permite_contato:3 proprio:3 de_quem_e
 EmailPerfil:
   {% trans 'Email' %}:
   - email:4 tipo:4 principal:2 permite_contato:2
 DependentePerfil:
   {% trans 'Dados básicos' %}:
-  - parentesco:2 nome:5 nome_social:3 apelido:2
-  - data_nascimento sexo identidade_genero nivel_instrucao
+  - parentesco:2 nome data_nascimento:2
+  - sexo identidade_genero nome_social apelido
+  - nivel_instrucao:4
 LocalTrabalhoPerfil:
   {% trans 'Dados básicos' %}:
   - nome nome_social principal:3
@@ -164,7 +185,7 @@ AssuntoProcesso:
   - descricao
 Processo:
   {% trans 'Dados básicos' %}:
-  - titulo data_abertura:2
+  - id:2 titulo data_abertura:2
   - topicos assuntos
   - importancia urgente:2 num_controle
   - status classificacao

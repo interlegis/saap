@@ -28,9 +28,9 @@ from saap import settings
 from saap.cerimonial.models import LocalTrabalho, Endereco,\
     TipoAutoridade, PronomeTratamento, Contato, Perfil, Processo, Dependente,\
     IMPORTANCIA_CHOICE, AssuntoProcesso, ClassificacaoProcesso, StatusProcesso, ProcessoContato,\
-    GrupoDeContatos, TopicoProcesso, Telefone, Email
+    GrupoDeContatos, TopicoProcesso, Telefone, Email, EstadoCivil
 from saap.core.forms import ListWithSearchForm
-from saap.core.models import Trecho, ImpressoEnderecamento, Bairro
+from saap.core.models import Trecho, ImpressoEnderecamento, Bairro, NivelInstrucao
 from saap.utils import normalize, YES_NO_CHOICES, NONE_YES_NO_CHOICES
 
 
@@ -58,7 +58,7 @@ class LocalTrabalhoPerfilForm(ModelForm):
     class Meta:
         model = LocalTrabalho
         fields = ['nome',
-                  'nome_social',
+                  'nome_fantasia',
                   'data_inicio',
                   'data_fim',
                   'tipo',
@@ -97,7 +97,7 @@ class LocalTrabalhoForm(ModelForm):
     class Meta:
         model = LocalTrabalho
         fields = ['nome',
-                  'nome_social',
+                  'nome_fantasia',
                   'data_inicio',
                   'data_fim',
                   'tipo',
@@ -476,6 +476,7 @@ class TelefoneForm(ModelForm):
                   'tipo',
                   'operadora',
                   'whatsapp',
+                  'ramal',
                   'principal',
                   'permite_contato',
                   'proprio',
@@ -597,7 +598,7 @@ class ProcessoForm(ModelForm):
         q_field = Div(
             FieldWithButtons(
                 Field('q',
-                      placeholder=_('Filtrar Lista'),
+                      placeholder=_('Filtrar lista'),
                       autocomplete='off',
                       type='search',
                       onkeypress='atualizaContatos(event)'),
@@ -735,7 +736,7 @@ class ContatoFragmentSearchForm(forms.Form):
 
         """q_field = FieldWithButtons(
             Field('q',
-                  placeholder=_('Filtrar Lista'),
+                  placeholder=_('Filtrar lista'),
                   autocomplete='off'),
             StrictButton(
                 _('Filtrar'), css_class='btn-default',
@@ -792,7 +793,7 @@ class GrupoDeContatosForm(ModelForm):
         q_field = Div(
             FieldWithButtons(
                 Field('q',
-                      placeholder=_('Filtrar Lista'),
+                      placeholder=_('Filtrar lista'),
                       autocomplete='off',
                       type='search',
                       onkeypress='atualizaContatos(event)'),
@@ -2129,32 +2130,6 @@ class ProcessosFilterSet(FilterSet):
         self.form.fields['agrupamento'].label = _('Agrupamento')
         self.form.fields['agrupamento'].widget = forms.RadioSelect()
 
-        #self.form.fields['importancia'].label = _('Importância')
-        #self.form.fields['classificacao'].label = _('Classificações')
-
-        #self.form.fields['topicos'].widget = forms.SelectMultiple(
-        #    attrs={'size': '7'})
-        #self.form.fields['topicos'].queryset = TopicoProcesso.objects.all()
-
-        #self.form.fields['assuntos'].widget = forms.SelectMultiple(
-        #    attrs={'size': '7'})
-        #self.form.fields['assuntos'].queryset = AssuntoProcesso.objects.all()
-
-        #self.form.fields['importancia'].widget = forms.CheckboxSelectMultiple()
-        #self.form.fields['importancia'].inline_class = True
-
-        #self.form.fields['status'].widget = forms.CheckboxSelectMultiple()
-        #self.form.fields['status'].inline_class = True
-
-        #self.form.fields['classificacao'].widget = forms.SelectMultiple()
-        #self.form.fields['classificacao'].inline_class = True
-
-        #self.form.fields['status'].choices = list(
-        #    self.form.fields['status'].choices)
-	
-        #if (len(self.form.fields['status'].choices) > 0):
-        #    del self.form.fields['status'].choices[0]
-
 class ContatoIndividualFilterSet(FilterSet):
 
     filter_overrides = {models.DateField: {
@@ -2697,20 +2672,180 @@ class ContatosFilterSet(FilterSet):
 
 class ListWithSearchProcessoForm(ListWithSearchForm):
 
-    assunto = forms.ModelChoiceField(
-        label=_('Filtrar por Assunto'),
-        queryset=AssuntoProcesso.objects.all(),
-        required=False)
+#    assunto = forms.ModelChoiceField(
+#        label=_('Filtrar por assunto'),
+#        queryset=AssuntoProcesso.objects.all(),
+#        required=False)
 
     class Meta(ListWithSearchForm.Meta):
-        fields = ['q', 'o', 'assunto']
+        fields = ['q', 'o']
+#        fields = ['q', 'o', 'assunto']
         pass
 
     def __init__(self, *args, **kwargs):
         super(ListWithSearchProcessoForm, self).__init__(*args, **kwargs)
 
-        self.helper.layout.fields.append(Field('assunto'))
+#        self.helper.layout.fields.append(Field('assunto'))
 
-        self.fields['assunto'].queryset = AssuntoProcesso.objects.all()
+#        self.fields['assunto'].queryset = AssuntoProcesso.objects.all()
 
+class ListWithSearchContatoForm(ListWithSearchForm):
+    
+    FEMININO = 'F'
+    MASCULINO = 'M'
+    INDIFERENTE = ''
+    SEXO_CHOICE = ((INDIFERENTE, _('Indiferente')),
+                   (FEMININO, _('Feminino')),
+                   (MASCULINO, _('Masculino')))
 
+    filter_overrides = {models.DateField: {
+        'filter_class': MethodFilter,
+        'extra': lambda f: {
+            'label': 'Período de aniversário',
+            'widget': RangeWidgetOverride}
+    }}
+
+    pk = forms.IntegerField(
+                   label=_('Código'),
+                   required=False
+                   )
+    
+    sexo = forms.ChoiceField(
+                   choices=SEXO_CHOICE,
+                   required=False
+                   )
+
+    tem_filhos = forms.NullBooleanField()
+
+    ativo = forms.NullBooleanField()
+#    ativo = forms.TypedChoiceField(
+#                   required=False,
+#                   choices=((False, 'Não'), (True, 'Sim')),
+#                   label=_('Ativo?'),
+#                   widget=forms.RadioSelect
+#                   )
+
+#    grupo = forms.ModelMultipleChoiceField(
+#        required=False,
+#        label=_('Grupo de contatos:'),
+#        queryset=GrupoDeContatos.objects.all())
+   
+    data_inicial = forms.DateField(
+        required=False,
+        label=_('Aniversário (I)'))
+ 
+    data_final = forms.DateField(
+        required=False,
+        label=_('Aniversário (F)'))
+
+    nasc_inicial = forms.DateField(
+        required=False,
+        label=_('Nascimento (I)'))
+ 
+    nasc_final = forms.DateField(
+        required=False,
+        label=_('Nascimento (F)'))
+
+    endereco = forms.CharField(
+        required=False,
+        label=_('Endereço'))
+
+    bairro = forms.ModelMultipleChoiceField(
+        required=False,
+        label=_('Bairro de Novo Hamburgo'),
+        queryset=Bairro.objects.filter(municipio=4891))
+
+    cep = forms.CharField(
+        required=False,
+        label=_('CEP'))
+
+    municipio = forms.ModelMultipleChoiceField(
+        required=False,
+        label=_('Município do Rio Grande do Sul'),
+        queryset=Municipio.objects.filter(estado=21))
+
+    estado_civil = forms.ModelChoiceField(
+        required=False,
+        label=_('Estado civil'),
+        queryset=EstadoCivil.objects.all())
+
+    nivel_instrucao = forms.ModelChoiceField(
+        required=False,
+        label=_('Nível de instrução'),
+        queryset=NivelInstrucao.objects.all())
+
+    profissao = forms.CharField(
+        required=False,
+        label=_('Profissão'))
+
+    dependente = forms.CharField(
+        required=False,
+        label=_('Dependente'))
+
+    class Meta(ListWithSearchForm.Meta):
+        fields = ['q',
+                  'o',
+                  'pk'
+                  'sexo',
+                  'tem_filhos',
+                  'ativo',
+                  'endereco',
+                  #'grupo',
+                  'cep',
+                  'bairro',
+                  'municipio',
+                  'estado_civil',
+                  'nivel_instrucao',
+                  'profissao',
+                  'dependente',
+                  'data_inicial',
+                  'data_final',
+                  'nasc_inicial',
+                  'nasc_final',
+                 ]
+        pass
+
+    def __init__(self, *args, **kwargs):
+        super(ListWithSearchContatoForm, self).__init__(*args, **kwargs)
+
+        col1 = to_row([
+            ('pk', 3),
+            ('q', 9),
+            ('data_inicial', 3),
+            ('data_final', 3),
+            ('nasc_inicial', 3),
+            ('nasc_final', 3),
+            ('sexo', 3),
+            ('estado_civil', 3),
+            ('tem_filhos', 3),
+            ('ativo', 3),
+            ('endereco', 8),
+            ('cep', 4),
+            ('bairro', 6),
+            ('municipio', 6),
+            ('nivel_instrucao', 6),
+            ('profissao', 6),
+            ('dependente', 9),
+#            ('o', 4),
+        ])
+
+        row = to_row(
+            [(Fieldset(
+                _(''),
+                col1,
+                to_row([(SubmitFilterPrint(
+                    'filter',
+                    value=_('Filtrar'), css_class='btn-default pull-right',
+                    type='submit'), 12)])
+            ), 12),
+            ])
+
+        #self.helper.form. = FormHelper()
+        #self.helper.form.form_method = 'GET'
+        self.helper.layout = Layout(
+            row,
+        )
+
+        #workspace = kwargs.pop('workspace')
+
+        self.fields['q'].label = _('Nome, nome social ou apelido')

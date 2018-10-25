@@ -81,6 +81,7 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'taggit',
     'modelcluster',
+    'easyaudit',
 )
 
 INSTALLED_APPS = INSTALLED_APPS + SAAP_APPS
@@ -100,6 +101,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
 )
 
 if DEBUG:
@@ -376,3 +378,7 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 
 USE_DJANGO_JQUERY = True
+
+DJANGO_EASY_AUDIT_WATCH_MODEL_EVENTS = True
+DJANGO_EASY_AUDIT_WATCH_AUTH_EVENTS = True
+DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS = True

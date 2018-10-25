@@ -97,3 +97,6 @@ media
 whoosh_index/
 .ipynb_checkpoints
 *.ipynb
+
+*.css
+gunicorn_conf

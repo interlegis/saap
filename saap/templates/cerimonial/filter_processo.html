@@ -17,7 +17,8 @@
           <th>Título <br> Contatos interessados</th>
           <th>Data de abertura <br> Data de solução</th>
           <th>Classificação <br> Status</th>
-          <th>Tópicos <br> Assuntos</th>
+          <th>Tópicos</th>
+          <th>Assuntos</th>
         </tr>
       </thead>
       <tbody>
@@ -43,9 +44,17 @@
               {% endif %}
           </td>
           <td>
-              <strong>{{ obj.classificacao|safe }}</strong>
+              {% if obj.classificacao != None %}
+                  <strong>{{ obj.classificacao|safe }}</strong>
+              {% else %}
+                  -
+              {% endif %}
               <br><br>
-              {{ obj.status}}
+              {% if obj.status != None %}
+                  {{ obj.status }}
+              {% else %}
+                  -
+              {% endif %}
           </td>
 
           <td>
@@ -58,7 +67,8 @@
                     </ul>
                   {% endif %}
               {% endfor %}
-              ----------</br>
+          </td>
+          <td>
               {% for assunto in obj.assuntos.all %}
                   {% if forloop.first %}
                     <ul>

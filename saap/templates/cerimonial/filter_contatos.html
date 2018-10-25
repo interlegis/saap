@@ -29,7 +29,11 @@
               <center>{{ obj.pk|safe }}</center>
           </td> 
           <td>
-              <b>{{ obj.nome|safe }}</b>
+          {% if obj.email == '' %}
+              <td style='color: red;'><b>{{ obj.nome|safe }}</b></td>
+          {% else %}
+              <td><b>{{ obj.nome|safe }}</b></td>
+          {% endif %}
           </td>
           <td>
               {{ obj.email|safe }}
