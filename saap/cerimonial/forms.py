@@ -2736,15 +2736,11 @@ class ListWithSearchContatoForm(ListWithSearchForm):
                    required=False
                    )
 
-    tem_filhos = forms.NullBooleanField()
+    tem_filhos = forms.NullBooleanField(
+        required=False)
 
-    ativo = forms.NullBooleanField()
-#    ativo = forms.TypedChoiceField(
-#                   required=False,
-#                   choices=((False, 'Não'), (True, 'Sim')),
-#                   label=_('Ativo?'),
-#                   widget=forms.RadioSelect
-#                   )
+    ativo = forms.NullBooleanField(
+        required=False)
 
 #    grupo = forms.ModelMultipleChoiceField(
 #        required=False,

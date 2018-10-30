@@ -215,7 +215,7 @@ class Contato(SaapSearchMixin, SaapAuditoriaModelMixin):
         blank=True, default='', max_length=100, verbose_name=_('Apelido'))
 
     data_nascimento = models.DateField(
-        blank=True, null=True, verbose_name=_('Data de nascimento')
+        blank=True, null=True, verbose_name=_('Data de nascimento'),
     )
 
     sexo = models.CharField(
@@ -577,30 +577,30 @@ class LocalTrabalho(SaapAuditoriaModelMixin):
         Estado,
         verbose_name=_('Estado'),
         related_name='localtrabalho_set',
-        blank=False, null=False, default=21)
+        blank=True, null=True, default=21)
 
     municipio = ChainedForeignKey(
         Municipio,
         chained_field="estado",
         chained_model_field="estado",
-        null=False, blank=False,
+        null=True, blank=True,
         default=4891,
         show_all=False,
         auto_choose=True,
         sort=True,
         verbose_name=_('Município'))
 
-    cep = models.CharField(max_length=9, blank=False, default='',
+    cep = models.CharField(max_length=9, blank=True, default='',
                            verbose_name=_('CEP'), validators=[validate_CEP])
 
     endereco = models.CharField(
-        max_length=35, blank=False, default='',
+        max_length=35, blank=True, default='',
         verbose_name=_('Endereço'),
         help_text=_('O campo endereço também é um campo de busca. Nele '
                     'você pode digitar qualquer informação, inclusive '
                     'digitar o CEP para localizar o endereço, e vice-versa!'))
 
-    numero = models.PositiveSmallIntegerField(blank=False, default=0,
+    numero = models.PositiveSmallIntegerField(blank=True, default=0,
                               verbose_name=_('Número'))
 
     bairro = ChainedForeignKey(
@@ -1073,11 +1073,9 @@ class ProcessoContato(Processo):
 class GrupoDeContatos(SaapAuditoriaModelMixin):
 
     nome = models.CharField(max_length=100,
-                            unique=True,
                             verbose_name=_('Nome do grupo'))
 
     contatos = models.ManyToManyField(Contato,
-                                      blank=True,
                                       verbose_name=_(
                                           'Contatos do grupo'),
                                       related_name='grupodecontatos_set',)
@@ -1091,6 +1089,7 @@ class GrupoDeContatos(SaapAuditoriaModelMixin):
     class Meta:
         verbose_name = _('Grupo de contatos')
         verbose_name_plural = _('Grupos de contatos')
+        unique_together = ('nome', 'workspace',)
         ordering = ('nome', )
 
     def __str__(self):

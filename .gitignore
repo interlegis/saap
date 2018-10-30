@@ -98,5 +98,7 @@ whoosh_index/
 .ipynb_checkpoints
 *.ipynb
 
+*.pyc
 *.css
 gunicorn_conf
+.gitignore

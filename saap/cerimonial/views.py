@@ -139,7 +139,7 @@ class ContatoCrud(DetailMasterCrud):
 
         def get_queryset(self):
             queryset = DetailMasterCrud.ListView.get_queryset(self)
-            
+
             sexo = self.request.GET.get('sexo', '')
             pk = self.request.GET.get('pk', '')
             tem_filhos = self.request.GET.get('tem_filhos', '')
@@ -297,6 +297,8 @@ class ContatoCrud(DetailMasterCrud):
                 data = datetime.datetime.strptime(nasc_final, "%d/%m/%Y").date()
 
                 queryset = queryset.filter(data_nascimento__lte=data)
+
+            queryset = queryset.order_by('nome')
 
             return queryset
 

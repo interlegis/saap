@@ -1429,7 +1429,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
             elif(p.sexo == 'F'):
                 sexo = 'Feminino'
 
-            line.append(Paragraph(p.sexo, conteudo))
+            line.append(Paragraph(sexo, conteudo))
             data.append(line)
 
         if(p.identidade_genero):

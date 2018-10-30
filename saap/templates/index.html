@@ -7,6 +7,14 @@
 
 {% block base_content %}
 
+{% if user and not user.is_anonymous %}
+    	<h2>Novidades:</h2>
+	<ul>
+	<li>26/10 - Contatos passam a ser exibidos pela ordem do nome</li>
+	<li>28/10 - Dados do endereço deixam de ser obrigatórios</li>
+	</li>
+{% endif %}
+
 <div id="conteudo" style="min-height: 60px">
   <div id="homeIndex">
     <div class="homeBlock">
@@ -68,4 +76,5 @@
     </div>
 
 </div>
+
 {% endblock %}
