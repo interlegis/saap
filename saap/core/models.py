@@ -565,7 +565,7 @@ class RegiaoMunicipal(models.Model):
         verbose_name = _('Região municipal')
         verbose_name_plural = _('Regiões municipais')
         unique_together = (
-            ('nome', 'tipo'),)
+            ('nome', 'municipio'),)
 
     def __str__(self):
         return '%s - %s' % (
@@ -575,8 +575,7 @@ class RegiaoMunicipal(models.Model):
 class Distrito(models.Model):
     nome = models.CharField(
         max_length=254,
-        verbose_name=_('Nome do distrito'),
-        unique=True)
+        verbose_name=_('Nome do distrito'))
 
     estado = models.ForeignKey(
         Estado,
@@ -602,6 +601,7 @@ class Distrito(models.Model):
     class Meta:
         verbose_name = _('Distrito')
         verbose_name_plural = _("Distritos")
+        unique_together = ('nome', 'municipio')
 
     def __str__(self):
         return self.nome
@@ -639,6 +639,7 @@ class Bairro(models.Model):
         help_text=_('Ocorrências similares'))
 
     class Meta:
+        unique_together=('nome', 'municipio')
         ordering = ('nome',)
         verbose_name = _('Bairro')
         verbose_name_plural = _("Bairros")
