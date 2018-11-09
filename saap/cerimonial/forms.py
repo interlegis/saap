@@ -1511,7 +1511,7 @@ class ProcessoIndividualFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = Q(endereco__icontains=item)
+                q = q & Q(endereco__icontains=item)
 
             if q:
                 queryset = queryset.filter(q)
@@ -1971,7 +1971,7 @@ class ProcessosFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = Q(endereco__icontains=item)
+                q = q & Q(endereco__icontains=item)
 
             if q:
                 queryset = queryset.filter(q)
@@ -2137,11 +2137,11 @@ class ProcessosFilterSet(FilterSet):
             rows,
         )
 
-        self.form.fields['search'].label = _('Pesquisa por título, histórico, observações ou solução:')
-        self.form.fields['search_contato'].label = _('Contatos interessados:')
-        self.form.fields['search_numeros'].label = _('Matéria, protocolo ou ofício:')
-        self.form.fields['search_endereco'].label = _('Endereço:')
-        self.form.fields['search_envolvidos'].label = _('Órgão ou instituição:')
+        self.form.fields['search'].label = _('Pesquisa por título, histórico, observações ou solução')
+        self.form.fields['search_contato'].label = _('Contatos interessados')
+        self.form.fields['search_numeros'].label = _('Matéria, protocolo ou ofício')
+        self.form.fields['search_endereco'].label = _('Endereço')
+        self.form.fields['search_envolvidos'].label = _('Órgão ou instituição')
        
         self.form.fields['agrupamento'].label = _('Agrupamento')
         self.form.fields['agrupamento'].widget = forms.RadioSelect()
@@ -2447,7 +2447,7 @@ class ContatosFilterSet(FilterSet):
     ocultar_sem_email = MethodBooleanFilter()
 
     idade = MethodRangeFilter(
-        label=_('Idade entre:'),
+        label=_('Idade entre'),
         widget=RangeWidgetNumber)
 
     formato = MethodChoiceFilter(
@@ -2693,22 +2693,177 @@ class ContatosFilterSet(FilterSet):
 
 class ListWithSearchProcessoForm(ListWithSearchForm):
 
-#    assunto = forms.ModelChoiceField(
-#        label=_('Filtrar por assunto'),
-#        queryset=AssuntoProcesso.objects.all(),
-#        required=False)
+    pk = forms.IntegerField(
+        label=_('Código'),
+        required=False)
+
+    numeros = forms.CharField(
+        required=False,
+        label=_('Matéria, protocolo ou ofício'))
+
+    contatos = forms.CharField(
+        required=False,
+        label=_('Contatos interessados'))
+
+    data_envio_inicial = forms.DateField(
+        required=False,
+        label=_('Envio (I)'))
+ 
+    data_envio_final = forms.DateField(
+        required=False,
+        label=_('Envio (F)'))
+
+    data_protocolo_inicial = forms.DateField(
+        required=False,
+        label=_('Protocolo (I)'))
+ 
+    data_protocolo_final = forms.DateField(
+        required=False,
+        label=_('Protocolo (F)'))
+
+    data_abertura_inicial = forms.DateField(
+        required=False,
+        label=_('Abertura (I)'))
+ 
+    data_abertura_final = forms.DateField(
+        required=False,
+        label=_('Abertura (F)'))
+
+    data_retorno_inicial = forms.DateField(
+        required=False,
+        label=_('Retorno (I)'))
+ 
+    data_retorno_final = forms.DateField(
+        required=False,
+        label=_('Retorno (F)'))
+
+    data_solucao_inicial = forms.DateField(
+        required=False,
+        label=_('Solução (I)'))
+ 
+    data_solucao_final = forms.DateField(
+        required=False,
+        label=_('Solução (F)'))
+
+    topicos = forms.ModelMultipleChoiceField(
+        required=False,
+        label=_('Tópico'),
+        queryset=TopicoProcesso.objects.all())
+
+    assuntos = forms.ModelMultipleChoiceField(
+        required=False,
+        label=_('Assunto'),
+        queryset=AssuntoProcesso.objects.all())
+
+    importancias = forms.MultipleChoiceField(
+        required=False,
+        label=_('Importância'),
+        choices=IMPORTANCIA_CHOICE)
+
+    status = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=StatusProcesso.objects.all())
+
+    classificacoes = forms.ModelMultipleChoiceField(
+        required=False,
+        label=_('Classificação'),
+        queryset=ClassificacaoProcesso.objects.all())
+
+    endereco = forms.CharField(
+        required=False,
+        label=_('Endereço'))
+   
+    envolvidos = forms.CharField(
+        required=False,
+        label=_('Órgão ou instituição'))
+
+    bairros = forms.ModelMultipleChoiceField(
+        required=False,
+        label=_('Bairro de Novo Hamburgo'),
+        queryset=Bairro.objects.filter(municipio=4891))
+
+    urgente = forms.NullBooleanField(
+        required=False,
+        label=_('Urgente?'))
 
     class Meta(ListWithSearchForm.Meta):
-        fields = ['q', 'o']
-#        fields = ['q', 'o', 'assunto']
+        fields = ['q',
+                  'o',
+                  'pk'
+                  'contatos',
+                  'numeros',
+                  'classificacoes',
+                  'status',
+                  'topicos',
+                  'assuntos',
+                  'bairros',
+                  'importancias',
+                  'urgente',
+                  'endereco',
+                  'envolvidos',
+                  'data_envio_inicial',
+                  'data_envio_final',
+                  'data_protocolo_inicial',
+                  'data_protocolo_final',
+                  'data_abertura_inicial',
+                  'data_abertura_final',
+                  'data_retorno_inicial',
+                  'data_retorno_final',
+                  'data_solucao_inicial',
+                  'data_solucao_final',
+                 ]
         pass
 
     def __init__(self, *args, **kwargs):
         super(ListWithSearchProcessoForm, self).__init__(*args, **kwargs)
 
-#        self.helper.layout.fields.append(Field('assunto'))
+        col1 = to_row([
+            ('pk', 2),
+            ('q', 6),
+            ('contatos', 4),
+            ('numeros', 6),
+            ('data_envio_inicial', 3),
+            ('data_envio_final', 3),
+            ('data_protocolo_inicial', 3),
+            ('data_protocolo_final', 3),
+            ('data_abertura_inicial', 3),
+            ('data_abertura_final', 3),
+            ('data_retorno_inicial', 3),
+            ('data_retorno_final', 3),
+            ('data_solucao_inicial', 3),
+            ('data_solucao_final', 3),
+            ('classificacoes', 6),
+            ('status', 6),
+            ('topicos', 6),
+            ('assuntos', 6),
+            ('bairros', 6),
+            ('importancias', 3),
+            ('urgente', 3),
+            ('endereco', 5),
+            ('envolvidos', 5),
+            #('o', 4),
+        ])
 
-#        self.fields['assunto'].queryset = AssuntoProcesso.objects.all()
+        row = to_row(
+            [(Fieldset(
+                _(''),
+                col1,
+                to_row([(SubmitFilterPrint(
+                    'filter',
+                    value=_('Filtrar'), css_class='btn-default pull-right',
+                    type='submit'), 12)])
+            ), 12),
+            ])
+
+        #self.helper.form. = FormHelper()
+        #self.helper.form.form_method = 'GET'
+        self.helper.layout = Layout(
+            row,
+        )
+
+        #workspace = kwargs.pop('workspace')
+
+        self.fields['q'].label = _('Título, histórico, observações ou solução')
 
 class ListWithSearchContatoForm(ListWithSearchForm):
     
@@ -2737,10 +2892,12 @@ class ListWithSearchContatoForm(ListWithSearchForm):
                    )
 
     tem_filhos = forms.NullBooleanField(
-        required=False)
+        required=False,
+        label=_('Tem filhos?'))
 
     ativo = forms.NullBooleanField(
-        required=False)
+        required=False,
+        label=_('Ativo?'))
 
 #    grupo = forms.ModelMultipleChoiceField(
 #        required=False,

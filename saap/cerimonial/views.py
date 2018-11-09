@@ -146,8 +146,8 @@ class ContatoCrud(DetailMasterCrud):
             ativo = self.request.GET.get('ativo', '')
             endereco = self.request.GET.get('endereco', '')
             cep = self.request.GET.get('cep', '')
-            bairro = self.request.GET.get('bairro', '')
-            municipio = self.request.GET.get('municipio', '')
+            bairro = self.request.GET.getlist('bairro', '')
+            municipio = self.request.GET.getlist('municipio', '')
             estado_civil = self.request.GET.get('estado_civil', '')
             nivel_instrucao = self.request.GET.get('nivel_instrucao', '')
             profissao = self.request.GET.get('profissao', '')
@@ -202,10 +202,10 @@ class ContatoCrud(DetailMasterCrud):
             #    queryset = queryset.filter(grupodecontatos_set__in=value)
 
             if bairro:
-                print(bairro)
-                queryset = queryset.filter(endereco_set__bairro__in=value)
+                queryset = queryset.filter(endereco_set__bairro__in=bairro)
 
             if municipio:
+                print(municipio)
                 queryset = queryset.filter(endereco_set__municipio__in=municipio)
 
             if cep:
@@ -216,21 +216,6 @@ class ContatoCrud(DetailMasterCrud):
 
             if nivel_instrucao:
                 queryset = queryset.filter(nivel_instrucao=nivel_instrucao)
-
-            if profissao:
-                query = normalize(profissao)
-
-                query = query.split(' ')
-                if query:
-                    q = Q()
-                    for item in query:
-                        if not item:
-                            continue
-                        q = q & (Q(profissao__icontains=item))
-
-                    if q:
-                        queryset = queryset.filter(q)
-
 
             if profissao:
                 query = normalize(profissao)
@@ -291,7 +276,7 @@ class ContatoCrud(DetailMasterCrud):
             if nasc_inicial:
                 data = datetime.datetime.strptime(nasc_inicial, "%d/%m/%Y").date()
 
-                queryset = queryset.filter(data_nascimento__gt=data)
+                queryset = queryset.filter(data_nascimento__gte=data)
 
             if nasc_final:
                 data = datetime.datetime.strptime(nasc_final, "%d/%m/%Y").date()
@@ -577,13 +562,181 @@ class ProcessoMasterCrud(DetailMasterCrud):
     class ListView(DetailMasterCrud.ListView):
         form_search_class = ListWithSearchProcessoForm
 
+        def get(self, request, *args, **kwargs):
+            return DetailMasterCrud.ListView.get(
+                self, request, *args, **kwargs)
+
         def get_queryset(self):
             queryset = DetailMasterCrud.ListView.get_queryset(self)
 
-            assunto = self.request.GET.get('assunto', '')
+            pk = self.request.GET.get('pk', '')
+            contatos = self.request.GET.get('contatos', '')
+            numeros = self.request.GET.get('numeros', '')
+            classificacoes = self.request.GET.getlist('classificacoes', '')
+            status = self.request.GET.getlist('status', '')
+            topicos = self.request.GET.getlist('topicos', '')
+            assuntos = self.request.GET.getlist('assuntos', '')
+            bairros = self.request.GET.getlist('bairros', '')
+            importancias = self.request.GET.getlist('importancias', '')
+            urgente = self.request.GET.get('urgente', '')
+            endereco = self.request.GET.get('endereco', '')
+            envolvidos = self.request.GET.get('envolvidos', '')
+            data_envio_inicial = self.request.GET.get('data_envio_inicial', '')
+            data_envio_final = self.request.GET.get('data_envio_final', '')
+            data_protocolo_inicial = self.request.GET.get('data_protocolo_inicial', '')
+            data_protocolo_final = self.request.GET.get('data_protocolo_final', '')
+            data_abertura_inicial = self.request.GET.get('data_abertura_inicial', '')
+            data_abertura_final = self.request.GET.get('data_abertura_final', '')
+            data_retorno_inicial = self.request.GET.get('data_retorno_inicial', '')
+            data_retorno_final = self.request.GET.get('data_retorno_final', '')
+            data_solucao_inicial = self.request.GET.get('data_solucao_inicial', '')
+            data_solucao_final = self.request.GET.get('data_solucao_final', '')
 
-            if assunto:
-                queryset = queryset.filter(assuntos=assunto)
+            if pk:
+                queryset = queryset.filter(pk=pk)
+
+            if urgente:
+                if int(urgente) > 1:
+                    f = None
+                    if int(urgente) == 2:
+                        f = True
+                    elif int(urgente) == 3:
+                        f = False
+
+                    queryset = queryset.filter(urgente=f)
+
+            if endereco:
+                query = normalize(endereco)
+
+                query = query.split(' ')
+                if query:
+                    q = Q()
+                    for item in query:
+                        if not item:
+                            continue
+                        q = q & Q(rua__icontains=item)
+                    if q:
+                        queryset = queryset.filter(q)
+
+            if envolvidos:
+                query = normalize(envolvidos)
+
+                query = query.split(' ')
+                if query:
+                    q = Q()
+                    for item in query:
+                        if not item:
+                            continue
+                        q = q & (Q(orgao__icontains=item) |
+                                 Q(instituicao__icontains=item))
+                    if q:
+                        queryset = queryset.filter(q)
+
+
+
+            if numeros:
+                query = normalize(numeros)
+
+                if query:
+                    q = Q()
+                    for item in query:
+                        if not item:
+                            continue
+                        q = q & (Q(materia_cam__icontains=item) |
+                                 Q(oficio_cam__icontains=item) |
+                                 Q(oficio_pref__icontains=item) |
+                                 Q(oficio_orgao__icontains=item) |
+                                 Q(proto_pref__icontains=item) |
+                                 Q(proto_orgao__icontains=item))
+                    if q:
+                        queryset = queryset.filter(q)
+
+            if bairros:
+                queryset = queryset.filter(bairro__in=bairros)
+
+            if classificacoes:
+                queryset = queryset.filter(classificacao__in=classificacoes)
+
+            if assuntos:
+                queryset = queryset.filter(assuntos__in=assuntos)
+
+            if status:
+                queryset = queryset.filter(status__in=status)
+
+            if topicos:
+                queryset = queryset.filter(topicos__in=topicos)
+
+            if importancias:
+                queryset = queryset.filter(importancia__in=importancias)
+
+            if contatos:
+                query = normalize(contatos)
+
+                query = query.split(' ')
+                if query:
+                    q = Q()
+                    for item in query:
+                        if not item:
+                            continue
+                        q = q & (Q(contatos__nome__icontains=item) |
+                                 Q(contatos__nome_social__icontains=item) |
+                                 Q(contatos__apelido__icontains=item))
+
+                    if q:
+                        queryset = queryset.filter(q)
+ 
+            if data_envio_inicial:
+                data = datetime.datetime.strptime(data_envio_inicial, "%d/%m/%Y").date()
+
+                queryset = queryset.filter(data_envio__gte=data)
+
+            if data_envio_final:
+                data = datetime.datetime.strptime(data_envio_final, "%d/%m/%Y").date()
+
+                queryset = queryset.filter(data_envio__lte=data)
+
+            if data_abertura_inicial:
+                data = datetime.datetime.strptime(data_abertura_inicial, "%d/%m/%Y").date()
+
+                queryset = queryset.filter(data_abertura__gte=data)
+
+            if data_abertura_final:
+                data = datetime.datetime.strptime(data_abertura_final, "%d/%m/%Y").date()
+
+                queryset = queryset.filter(data_abertura__lte=data)
+
+            if data_solucao_inicial:
+                data = datetime.datetime.strptime(data_solucao_inicial, "%d/%m/%Y").date()
+
+                queryset = queryset.filter(data_solucao__gte=data)
+
+            if data_solucao_final:
+                data = datetime.datetime.strptime(data_solucao_final, "%d/%m/%Y").date()
+
+                queryset = queryset.filter(data_solucao__lte=data)
+
+            if data_retorno_inicial:
+                data = datetime.datetime.strptime(data_retorno_inicial, "%d/%m/%Y").date()
+
+                queryset = queryset.filter(data_retorno__gte=data)
+
+            if data_retorno_final:
+                data = datetime.datetime.strptime(data_retorno_final, "%d/%m/%Y").date()
+
+                queryset = queryset.filter(data_retorno__lte=data)
+
+            if data_protocolo_inicial:
+                data = datetime.datetime.strptime(data_protocolo_inicial, "%d/%m/%Y").date()
+
+                queryset = queryset.filter(data_protocolo__gte=data)
+
+            if data_protocolo_final:
+                data = datetime.datetime.strptime(data_protocolo_final, "%d/%m/%Y").date()
+
+                queryset = queryset.filter(data_protocolo__lte=data)
+
+            queryset = queryset.order_by('titulo')
+
             return queryset
 
     class CreateView(DetailMasterCrud.CreateView):
