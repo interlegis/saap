@@ -1229,6 +1229,8 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
         
         self.form.fields['ativo'].label = _('Ativo?')
 
+        self.form.fields['cep'].widget.attrs['class'] = 'cep'
+
         self.form.fields['imprimir_pronome'].widget = forms.RadioSelect()
         self.form.fields['imprimir_pronome'].inline_class = True
 
@@ -2194,6 +2196,8 @@ class ContatoIndividualFilterSet(FilterSet):
         queryset=Bairro.objects.filter(municipio=4891))
 
     cep = MethodFilter(label=_('CEP'))
+    
+    telefone = MethodFilter(label=_('Telefone'))
 
     municipio = MethodModelChoiceFilter(
         required=False,
@@ -2296,6 +2300,20 @@ class ContatoIndividualFilterSet(FilterSet):
         
         return queryset
 
+    def filter_telefone(self, queryset, value):
+
+        query = normalize(value.strip())
+        
+        q = Q()
+       
+        if query:
+            q = q & Q(telefone_set__telefone=value)
+
+        if q:
+            queryset = queryset.filter(q)
+        
+        return queryset
+
     def filter_data_nascimento(self, queryset, value):
 
         if not value[0] or not value[1]:
@@ -2355,8 +2373,9 @@ class ContatoIndividualFilterSet(FilterSet):
             ('data_nascimento', 6),
             ('idade', 6),
             ('search_endereco', 12),
-            ('cep', 6),
-            ('municipio', 6),
+            ('cep', 4),
+            ('telefone', 4),
+            ('municipio', 4),
             ('bairro', 6),
             ('grupo', 6),
             ('tipo_autoridade', 6),
@@ -2395,6 +2414,7 @@ class ContatoIndividualFilterSet(FilterSet):
         self.form.fields['data_nascimento'].label = 'Período de aniversário'
         self.form.fields['tem_filhos'].label = _('Tem filhos?')
         self.form.fields['ativo'].label = _('Ativo?')
+        self.form.fields['cep'].widget.attrs['class'] = 'cep'
 
         self.form.fields['grupo'].queryset = GrupoDeContatos.objects.filter(workspace=workspace)
 
@@ -2683,6 +2703,7 @@ class ContatosFilterSet(FilterSet):
         self.form.fields['data_nascimento'].label = 'Período de aniversário'
         self.form.fields['tem_filhos'].label = _('Tem filhos?')
         self.form.fields['ativo'].label = _('Ativo?')
+        self.form.fields['cep'].widget.attrs['class'] = 'cep'
 
         self.form.fields['ocultar_sem_email'].inline_class = True
         self.form.fields['ocultar_sem_email'].label = _('<font color=red>Ocultar sem e-mail?</font>')
@@ -2933,6 +2954,10 @@ class ListWithSearchContatoForm(ListWithSearchForm):
         required=False,
         label=_('CEP'))
 
+    telefone = forms.CharField(
+        required=False,
+        label=_('Telefone'))
+
     municipio = forms.ModelMultipleChoiceField(
         required=False,
         label=_('Município do Rio Grande do Sul'),
@@ -2966,6 +2991,7 @@ class ListWithSearchContatoForm(ListWithSearchForm):
                   'endereco',
                   #'grupo',
                   'cep',
+                  'telefone',
                   'bairro',
                   'municipio',
                   'estado_civil',
@@ -2993,8 +3019,9 @@ class ListWithSearchContatoForm(ListWithSearchForm):
             ('estado_civil', 3),
             ('tem_filhos', 3),
             ('ativo', 3),
-            ('endereco', 8),
-            ('cep', 4),
+            ('endereco', 6),
+            ('cep', 3),
+            ('telefone', 3),
             ('bairro', 6),
             ('municipio', 6),
             ('nivel_instrucao', 6),
@@ -3023,3 +3050,4 @@ class ListWithSearchContatoForm(ListWithSearchForm):
         #workspace = kwargs.pop('workspace')
 
         self.fields['q'].label = _('Nome, nome social ou apelido')
+        self.fields['cep'].widget.attrs['class'] = 'cep'

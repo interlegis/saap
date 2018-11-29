@@ -102,3 +102,4 @@ whoosh_index/
 *.css
 gunicorn_conf
 .gitignore
+news.html

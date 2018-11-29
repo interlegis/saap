@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load staticfiles%}
+{% load staticfiles %}
 {% load i18n %}
 
 {% block title %}
@@ -8,13 +8,7 @@
 {% block base_content %}
 
 {% if user and not user.is_anonymous %}
-    	<h2>Novidades:</h2>
-	<ul>
-	<li><b>09/11 - Campos de filtro na tela de processos</b></li>
-        <li><b>08/11 - Contatos dos gabinetes (que passaram suas planilhas) foram importados e estão disponíveis</b></li>
-	<li>28/10 - Dados do endereço deixam de ser obrigatórios</li>
-	<li>28/10 - Dados do endereço deixam de ser obrigatórios</li>
-	</li>
+     {% include "news.html" %}
 {% endif %}
 
 <div id="conteudo" style="min-height: 60px">

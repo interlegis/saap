@@ -146,6 +146,7 @@ class ContatoCrud(DetailMasterCrud):
             ativo = self.request.GET.get('ativo', '')
             endereco = self.request.GET.get('endereco', '')
             cep = self.request.GET.get('cep', '')
+            telefone = self.request.GET.get('telefon', '')
             bairro = self.request.GET.getlist('bairro', '')
             municipio = self.request.GET.getlist('municipio', '')
             estado_civil = self.request.GET.get('estado_civil', '')
@@ -209,7 +210,10 @@ class ContatoCrud(DetailMasterCrud):
                 queryset = queryset.filter(endereco_set__municipio__in=municipio)
 
             if cep:
-                queryset = queryset.filter(endereco_set__cep__icontains=cep)
+                queryset = queryset.filter(endereco_set__cep=cep)
+
+            if telefone:
+                queryset = queryset.filter(telefone_set__telefone=telefone)
 
             if estado_civil:
                 queryset = queryset.filter(estado_civil=estado_civil)
