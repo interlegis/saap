@@ -59,7 +59,8 @@ class RelatorioProcessosView(PermissionRequiredMixin, FilterView):
     #    self.nome_objeto = 'Nome do Objeto'
     #    self.filename = 'Relatorio'
 
-    permission_required = 'cerimonial.print_rel_processo'
+    #permission_required = 'cerimonial.print_rel_processos'
+    permission_required = 'core.menu_processos'
     filterset_class = ProcessosFilterSet
     model = Processo
     template_name = "cerimonial/filter_processos.html"
@@ -608,7 +609,8 @@ class RelatorioProcessosView(PermissionRequiredMixin, FilterView):
 
 class RelatorioProcessoIndividualView(PermissionRequiredMixin, FilterView):
 
-    permission_required = 'cerimonial.print_processo'
+    #permission_required = 'cerimonial.print_rel_processos'
+    permission_required = 'core.menu_processos'
     filterset_class = ProcessoIndividualFilterSet
     model = Processo
     template_name = "cerimonial/filter_processo.html"
@@ -1111,7 +1113,8 @@ class RelatorioProcessoIndividualView(PermissionRequiredMixin, FilterView):
 
 class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
 
-    permission_required = 'cerimonial.print_contato'
+    #permission_required = 'cerimonial.print_rel_contatos'
+    permission_required = 'core.menu_contatos'
     filterset_class = ContatoIndividualFilterSet
     model = Contato
     template_name = "cerimonial/filter_contato.html"
@@ -1798,7 +1801,8 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
 
 
 class RelatorioContatosView(RelatorioProcessosView):
-    permission_required = 'cerimonial.print_rel_contatos'
+    #permission_required = 'cerimonial.print_rel_contatos'
+    permission_required = 'core.menu_contatos'
     filterset_class = ContatosFilterSet
     model = Contato
     template_name = 'cerimonial/filter_contatos.html'
@@ -2234,7 +2238,8 @@ class RelatorioContatosView(RelatorioProcessosView):
 
 #class ImpressoEnderecamentoView(PermissionRequiredMixin, FilterView):
 class ImpressoEnderecamentoView(RelatorioProcessosView):
-    permission_required = 'cerimonial.print_impressoenderecamento'
+    #permission_required = 'cerimonial.print_impressoenderecamento'
+    permission_required = 'core.menu_contatos'
     filterset_class = ImpressoEnderecamentoFilterSet
     model = Contato
     template_name = "cerimonial/filter_impressoenderecamento_contato.html"
