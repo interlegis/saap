@@ -1089,7 +1089,6 @@ class GrupoDeContatos(SaapAuditoriaModelMixin):
     class Meta:
         verbose_name = _('Grupo de contatos')
         verbose_name_plural = _('Grupos de contatos')
-        unique_together = ('nome', 'workspace',)
         ordering = ('nome', )
 
     def __str__(self):
