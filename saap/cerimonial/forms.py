@@ -387,22 +387,19 @@ class ContatoFragmentPronomesForm(forms.Form):
         if 'instance' in self.initial:
             self.fields['pronome_tratamento'].queryset = self.initial[
                 'instance'].pronomes.order_by(
-                'prefixo_nome_singular_m', 'nome_por_extenso')
+                'nome_por_extenso')
         else:
             self.fields['pronome_tratamento'].queryset = \
                 PronomeTratamento.objects.order_by(
-                'prefixo_nome_singular_m', 'nome_por_extenso')
+                'nome_por_extenso')
      
         self.fields['pronome_tratamento'].choices = [
-            (p.pk, '%s, %s - %s - %s - %s - %s - %s - %s' % (
-                p.prefixo_nome_singular_m,
-                p.prefixo_nome_singular_f,
+            (p.pk, '%s ( "%s" ou "%s" )' % (
                 p.nome_por_extenso,
-                p.abreviatura_singular_m,
-                p.abreviatura_plural_m,
-                p.vocativo_direto_singular_m,
-                p.vocativo_indireto_singular_m,
-                p.enderecamento_singular_m))
+                p.enderecamento_singular_m,
+                p.enderecamento_singular_f))
+                #p.vocativo_direto_singular_m,
+                #p.vocativo_direto_singular_f
             for p in self.fields['pronome_tratamento'].queryset]
 
         self.fields['pronome_tratamento'].help_text = _('O pronome de \
