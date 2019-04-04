@@ -1,0 +1,310 @@
+[
+{
+  "model": "core.tipologradouro",
+  "pk": 1,
+  "fields": {
+    "nome": "Aeroporto"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 2,
+  "fields": {
+    "nome": "Alameda"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 3,
+  "fields": {
+    "nome": "\u00c1rea"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 4,
+  "fields": {
+    "nome": "Avenida"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 5,
+  "fields": {
+    "nome": "Campo"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 6,
+  "fields": {
+    "nome": "Ch\u00e1cara"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 7,
+  "fields": {
+    "nome": "Col\u00f4nia"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 8,
+  "fields": {
+    "nome": "Condom\u00ednio"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 9,
+  "fields": {
+    "nome": "Conjunto"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 10,
+  "fields": {
+    "nome": "Distrito"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 11,
+  "fields": {
+    "nome": "Esplanada"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 12,
+  "fields": {
+    "nome": "Esta\u00e7\u00e3o"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 13,
+  "fields": {
+    "nome": "Estrada"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 14,
+  "fields": {
+    "nome": "Favela"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 15,
+  "fields": {
+    "nome": "Fazenda"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 16,
+  "fields": {
+    "nome": "Feira"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 17,
+  "fields": {
+    "nome": "Jardim"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 18,
+  "fields": {
+    "nome": "Ladeira"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 19,
+  "fields": {
+    "nome": "Lago"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 20,
+  "fields": {
+    "nome": "Lagoa"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 21,
+  "fields": {
+    "nome": "Largo"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 22,
+  "fields": {
+    "nome": "Loteamento"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 23,
+  "fields": {
+    "nome": "Morro"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 24,
+  "fields": {
+    "nome": "N\u00facleo"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 25,
+  "fields": {
+    "nome": "Parque"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 26,
+  "fields": {
+    "nome": "Passarela"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 27,
+  "fields": {
+    "nome": "P\u00e1tio"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 28,
+  "fields": {
+    "nome": "Pra\u00e7a"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 29,
+  "fields": {
+    "nome": "Quadra"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 30,
+  "fields": {
+    "nome": "Recanto"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 31,
+  "fields": {
+    "nome": "Residencial"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 32,
+  "fields": {
+    "nome": "Rodovia"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 33,
+  "fields": {
+    "nome": "Rua"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 34,
+  "fields": {
+    "nome": "Setor"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 35,
+  "fields": {
+    "nome": "S\u00edtio"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 36,
+  "fields": {
+    "nome": "Travessa"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 37,
+  "fields": {
+    "nome": "Trecho"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 38,
+  "fields": {
+    "nome": "Trevo"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 39,
+  "fields": {
+    "nome": "Vale"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 40,
+  "fields": {
+    "nome": "Vereda"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 41,
+  "fields": {
+    "nome": "Via"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 42,
+  "fields": {
+    "nome": "Viaduto"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 43,
+  "fields": {
+    "nome": "Viela"
+  }
+},
+{
+  "model": "core.tipologradouro",
+  "pk": 44,
+  "fields": {
+    "nome": "Vila"
+  }
+}
+]

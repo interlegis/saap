@@ -1,0 +1,44 @@
+[
+{
+  "model": "core.nivelinstrucao",
+  "pk": 1,
+  "fields": {
+    "descricao": "Ensino Superior completo"
+  }
+},
+{
+  "model": "core.nivelinstrucao",
+  "pk": 2,
+  "fields": {
+    "descricao": "Ensino M\u00e9dio completo"
+  }
+},
+{
+  "model": "core.nivelinstrucao",
+  "pk": 3,
+  "fields": {
+    "descricao": "Ensino Fundamental completo"
+  }
+},
+{
+  "model": "core.nivelinstrucao",
+  "pk": 5,
+  "fields": {
+    "descricao": "Ensino Fundamental incompleto"
+  }
+},
+{
+  "model": "core.nivelinstrucao",
+  "pk": 6,
+  "fields": {
+    "descricao": "Ensino M\u00e9dio incompleto"
+  }
+},
+{
+  "model": "core.nivelinstrucao",
+  "pk": 7,
+  "fields": {
+    "descricao": "Ensino Superior incompleto"
+  }
+}
+]

@@ -1,0 +1,37 @@
+[
+{
+  "model": "cerimonial.operadoratelefonia",
+  "pk": 1,
+  "fields": {
+    "descricao": "Vivo"
+  }
+},
+{
+  "model": "cerimonial.operadoratelefonia",
+  "pk": 2,
+  "fields": {
+    "descricao": "Claro"
+  }
+},
+{
+  "model": "cerimonial.operadoratelefonia",
+  "pk": 3,
+  "fields": {
+    "descricao": "Oi"
+  }
+},
+{
+  "model": "cerimonial.operadoratelefonia",
+  "pk": 4,
+  "fields": {
+    "descricao": "Tim"
+  }
+},
+{
+  "model": "cerimonial.operadoratelefonia",
+  "pk": 6,
+  "fields": {
+    "descricao": "NET / Embratel"
+  }
+}
+]

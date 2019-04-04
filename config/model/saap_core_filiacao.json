@@ -1,0 +1,322 @@
+[
+{
+  "model": "core.filiacao",
+  "pk": 1,
+  "fields": {
+    "data": "2008-01-01",
+    "parlamentar": 67,
+    "partido": 5,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 2,
+  "fields": {
+    "data": "2008-01-01",
+    "parlamentar": 37,
+    "partido": 13,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 3,
+  "fields": {
+    "data": "1988-01-01",
+    "parlamentar": 62,
+    "partido": 1,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 4,
+  "fields": {
+    "data": "2016-01-01",
+    "parlamentar": 75,
+    "partido": 17,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 5,
+  "fields": {
+    "data": "2012-01-01",
+    "parlamentar": 63,
+    "partido": 17,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 6,
+  "fields": {
+    "data": "2012-01-01",
+    "parlamentar": 58,
+    "partido": 5,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 7,
+  "fields": {
+    "data": "2016-01-01",
+    "parlamentar": 74,
+    "partido": 18,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 8,
+  "fields": {
+    "data": "2000-01-01",
+    "parlamentar": 32,
+    "partido": 2,
+    "data_desfiliacao": "2018-05-15"
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 9,
+  "fields": {
+    "data": "2018-05-15",
+    "parlamentar": 32,
+    "partido": 20,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 10,
+  "fields": {
+    "data": "1996-01-01",
+    "parlamentar": 36,
+    "partido": 2,
+    "data_desfiliacao": "2018-05-15"
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 11,
+  "fields": {
+    "data": "2018-05-25",
+    "parlamentar": 36,
+    "partido": 20,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 12,
+  "fields": {
+    "data": "2000-01-01",
+    "parlamentar": 76,
+    "partido": 1,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 13,
+  "fields": {
+    "data": "2016-03-01",
+    "parlamentar": 55,
+    "partido": 4,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 14,
+  "fields": {
+    "data": "2010-01-01",
+    "parlamentar": 59,
+    "partido": 13,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 15,
+  "fields": {
+    "data": "1996-01-01",
+    "parlamentar": 30,
+    "partido": 2,
+    "data_desfiliacao": "2018-05-15"
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 16,
+  "fields": {
+    "data": "2018-05-15",
+    "parlamentar": 30,
+    "partido": 20,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 17,
+  "fields": {
+    "data": "2004-01-01",
+    "parlamentar": 28,
+    "partido": 2,
+    "data_desfiliacao": "2018-05-15"
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 18,
+  "fields": {
+    "data": "2018-05-15",
+    "parlamentar": 28,
+    "partido": 20,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 19,
+  "fields": {
+    "data": "2016-01-01",
+    "parlamentar": 79,
+    "partido": 19,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 20,
+  "fields": {
+    "data": "2016-01-01",
+    "parlamentar": 84,
+    "partido": 2,
+    "data_desfiliacao": "2018-05-15"
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 21,
+  "fields": {
+    "data": "2018-05-15",
+    "parlamentar": 84,
+    "partido": 20,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 22,
+  "fields": {
+    "data": "2016-01-01",
+    "parlamentar": 78,
+    "partido": 14,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 23,
+  "fields": {
+    "data": "2016-01-01",
+    "parlamentar": 82,
+    "partido": 13,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 24,
+  "fields": {
+    "data": "1988-01-01",
+    "parlamentar": 35,
+    "partido": 2,
+    "data_desfiliacao": "2018-05-15"
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 25,
+  "fields": {
+    "data": "2018-05-15",
+    "parlamentar": 35,
+    "partido": 20,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 26,
+  "fields": {
+    "data": "2016-01-01",
+    "parlamentar": 77,
+    "partido": 15,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 27,
+  "fields": {
+    "data": "2016-01-01",
+    "parlamentar": 80,
+    "partido": 2,
+    "data_desfiliacao": "2018-05-15"
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 28,
+  "fields": {
+    "data": "2018-05-15",
+    "parlamentar": 80,
+    "partido": 20,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 29,
+  "fields": {
+    "data": "2016-01-01",
+    "parlamentar": 61,
+    "partido": 7,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 30,
+  "fields": {
+    "data": "2016-01-01",
+    "parlamentar": 81,
+    "partido": 5,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 31,
+  "fields": {
+    "data": "2016-01-01",
+    "parlamentar": 72,
+    "partido": 13,
+    "data_desfiliacao": null
+  }
+},
+{
+  "model": "core.filiacao",
+  "pk": 32,
+  "fields": {
+    "data": "1996-01-01",
+    "parlamentar": 34,
+    "partido": 5,
+    "data_desfiliacao": null
+  }
+}
+]
