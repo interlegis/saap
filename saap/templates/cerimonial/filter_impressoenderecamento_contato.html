@@ -17,8 +17,9 @@
           <th>Nome</th>
           <th>Endereço</th>
           <th>Município</th>
+          <th><font color='red'>Sexo</font><br><font color='#FF8C00'>Estado civil</font></th>
           <th>Data de nascimento</th>
-          <th>Grupo</th>
+          <th>Grupos</th>
         </tr>
       </thead>
       <tbody>
@@ -39,9 +40,26 @@
               {{ obj.municipio|safe }}
           </td>
           <td>
+              {% if obj.sexo == '' %}
+                  <font color='red'>N/I</font>
+              {% else %}
+                  {{ obj.sexo }}
+              {% endif %}
+              <br>
+              {% if obj.estado_civil == None %}
+                  <font color='#FF8C00'>N/I</font>
+              {% else %}
+                  {{ obj.estado_civil }}
+              {% endif %}
+
+          </td>
+          <td>
               {% if obj.data_nascimento != None %}
                   {{ obj.data_nascimento }}<small><small> - {{obj.data_nascimento|age }}</small></small>
+              {% else %}
+                  Data não informada
               {% endif %}
+
           </td>
           <td>
               <ul>

@@ -219,7 +219,7 @@ class Contato(SaapSearchMixin, SaapAuditoriaModelMixin):
     )
 
     sexo = models.CharField(
-        max_length=1, blank=True,
+        max_length=1, blank=False,
         verbose_name=_('Sexo biológico'), choices=SEXO_CHOICE)
 
     identidade_genero = models.CharField(

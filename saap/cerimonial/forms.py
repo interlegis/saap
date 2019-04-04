@@ -221,20 +221,18 @@ class ContatoForm(ModelForm):
         if 'tipo_autoridade' in self.fields and\
                 instance and instance.tipo_autoridade:
             pronomes_choice = instance.tipo_autoridade.pronomes.order_by(
-                'prefixo_nome_singular_m', 'nome_por_extenso')
+                'nome_por_extenso', 'enderecamento_singular_m')
         else:
             pronomes_choice = self.fields['pronome_tratamento'].queryset
 
         self.fields['pronome_tratamento'].choices = [
-            (p.pk, '%s, %s - %s - %s - %s - %s - %s - %s' % (
-                p.prefixo_nome_singular_m,
-                p.prefixo_nome_singular_f,
+            (p.pk, '%s ( "%s" ou "%s" )' % (
                 p.nome_por_extenso,
-                p.abreviatura_singular_m,
-                p.abreviatura_plural_m,
-                p.vocativo_direto_singular_m,
-                p.vocativo_indireto_singular_m,
-                p.enderecamento_singular_m))
+                p.enderecamento_singular_m,
+                p.enderecamento_singular_f,
+                #p.vocativo_direto_singular_m,
+                #p.vocativo_direto_singular_f
+                ))
             for p in pronomes_choice]
 
         self.fields[
@@ -939,11 +937,29 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
     BOTH_CHOICE = [(None, _('Ambos'))] + YES_NO_CHOICES
 
+    NENHUMA = 'N'
+    FAMILIA = 'FAM'
+    ESPOSO = 'EPO'
+    ESPOSA = 'EPA'
+    COMPANHEIRO = 'CPO'
+    COMPANHEIRA = 'CPA'
+
+    POS_NOME_CHOICE = ((NENHUMA, _('Nenhuma')),
+                         (FAMILIA, _('"e família"')),
+                         (ESPOSO, _('"e esposo"')),
+                         (ESPOSA, _('"e esposa"')),
+                         (COMPANHEIRO, _('"e companheiro"')),
+                         (COMPANHEIRA, _('"e companheira"')))
+
     pk = MethodIntegerFilter()
     
     search = MethodFilter()
     
     sexo = ChoiceFilter(choices=SEXO_CHOICE)
+
+    estado_civil = ModelChoiceFilter(
+        required=False,
+        queryset=EstadoCivil.objects.all())
 
     tem_filhos = BooleanFilter()
 
@@ -982,6 +998,9 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
         choices=YES_NO_CHOICES,
         initial=False)
 
+    pronome_padrao = MethodChoiceFilter(
+        choices=YES_NO_CHOICES, initial=False)
+
     imprimir_cargo = MethodChoiceFilter(
         choices=YES_NO_CHOICES, initial=False)
 
@@ -998,6 +1017,10 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
     local_cargo = MethodChoiceFilter(
         label=_('Local para imprimir o cargo'),
         choices=LOCAL_CARGO_CHOICE, initial=False)
+
+    pos_nome = MethodChoiceFilter(
+        label=_('Expressão pós-nome'),
+        choices=POS_NOME_CHOICE, initial=False)
 
     #def filter_fontsize(self, queryset, value):
     #    return queryset
@@ -1034,6 +1057,9 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
         return queryset
 
     def filter_imprimir_pronome(self, queryset, value):
+        return queryset
+
+    def filter_pronome_padrao(self, queryset, value):
         return queryset
 
     def filter_ocultar_sem_endereco(self, queryset, value):
@@ -1173,9 +1199,10 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
         col1 = to_row([
             ('pk', 2),
             ('search', 10),
-            ('sexo', 4),
-            ('tem_filhos', 4),
-            ('ativo', 4),
+            ('sexo', 3),
+            ('estado_civil', 3),
+            ('tem_filhos', 3),
+            ('ativo', 3),
             ('data_nascimento', 6),
             ('idade', 6),
             ('search_endereco', 9),
@@ -1191,6 +1218,8 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
             ('impresso', 12),
             ('nome_maiusculo', 12),
             ('imprimir_pronome', 12),
+            ('pronome_padrao', 12),
+            ('pos_nome', 12),
             ('imprimir_cargo', 12),
             ('local_cargo', 12),
         ])
@@ -1233,6 +1262,10 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
         self.form.fields['imprimir_pronome'].widget = forms.RadioSelect()
         self.form.fields['imprimir_pronome'].inline_class = True
+
+        self.form.fields['pronome_padrao'].widget = forms.RadioSelect()
+        self.form.fields['pronome_padrao'].inline_class = True
+        self.form.fields['pronome_padrao'].label = _('<font color=red>Utilizar pronome padrão</font>')
 
         self.form.fields['ocultar_sem_endereco'].inline_class = True
         self.form.fields['ocultar_sem_endereco'].label = _('<font color=red>Ocultar sem endereço?</font>')

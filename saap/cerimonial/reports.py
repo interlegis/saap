@@ -2271,13 +2271,35 @@ class ImpressoEnderecamentoView(RelatorioProcessosView):
 
         if 'print' in request.GET and self.object_list.exists():
             if self.filterset.form.cleaned_data['impresso']:
-                total_erros = self.validate_data()
-                if(total_erros > 0):
+
+                erros_endereco = self.validate_endereco()
+                erros_sexo = self.validate_sexo()
+                contatos_nao_casados = self.validate_estado_civil()
+
+                # Pessoas sem endereço cadastrado
+                if(self.filterset.form.cleaned_data['ocultar_sem_endereco'] != '2' and erros_endereco > 0):
                     self.filterset.form._errors['ocultar_sem_endereco'] = ErrorList([_(
-                        'ATENÇÃO! Marcando Sim, você vai remover do relatório %s contatos que não tem endereço' % (total_erros))])
+                        'ATENÇÃO! Marcando Sim, você vai remover do relatório %s contatos que não tem endereço' % (erros_endereco))])
 
                     messages.error(request, _('Existem %s contatos na busca que não tem endereço marcado para Contato.\
-                             <br>Revise-os antes de gerar o impresso, ou se preferir, escolha Sim no campo "Ocultar sem endereço"' % (total_erros)))
+                             <br>Revise-os antes de gerar o impresso, ou se preferir, escolha Sim no campo "Ocultar sem endereço"' % (erros_endereco)))
+                # Pessoas sem pronome cadastrado, usando a expressão "Para"
+                elif(self.filterset.form.cleaned_data['imprimir_pronome'] == 'True' and self.filterset.form.cleaned_data['pronome_padrao'] != 'True' and erros_sexo > 0):
+                    self.filterset.form._errors['pronome_padrao'] = ErrorList([_(
+                        'ATENÇÃO! Marcando Sim, você vai utilizar a expressão "Para" em %s contatos que não tem pronome cadastrado' % (erros_sexo))])
+
+                    messages.error(request, _('Existem %s contatos na busca que não tem sexo escolhido.\
+                             <br>Revise-os para exibir o pronome corretamente, ou se preferir, escolha Sim no campo "Utilizar pronome padrão"' % (erros_sexo)))
+                # Pessoas não casadas usando a expressão "e esposo" ou "e esposa"
+                elif( (self.filterset.form.cleaned_data['pos_nome'] == 'EPO' and contatos_nao_casados > 0) or
+                      (self.filterset.form.cleaned_data['pos_nome'] == 'EPA' and contatos_nao_casados > 0) ):
+                    messages.error(request, _('Existem contatos na busca que não são casados, e por isso não podem usar a expressão pós-nome escolhida.\
+                             <br>Escolha apenas contatos casados ou altere a expressão pós-nome escolhida'))
+                # Comentado devido a casamento entre pessoas do mesmo sexo
+                # elif( (self.filterset.form.cleaned_data['pos_nome'] == 'EPO' and erros_sexo[1] > 0) or
+                #       (self.filterset.form.cleaned_data['pos_nome'] == 'EPA' and erros_sexo[2] > 0) ):
+                #     messages.error(request, _('Existem contatos na busca que não podem usar a expressão pós-nome escolhida devido ao sexo.\
+                #              <br>Escolha apenas contatos do mesmo sexo ou altere a expressão pós-nome escolhida'))
                 else:
                     filename = str(self.filterset.form.cleaned_data['impresso']) + "_"\
                          + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
@@ -2340,6 +2362,12 @@ class ImpressoEnderecamentoView(RelatorioProcessosView):
             else:
                 contato.endereco = ''
                 contato.municipio = ''
+
+            if contato.sexo != '':
+                if contato.sexo == 'M':
+                    contato.sexo = 'Masculino'
+                elif contato.sexo == 'F':
+                    contato.sexo = 'Feminino'
 
             contato.grupo = contato.grupodecontatos_set.all()
 
@@ -2436,21 +2464,25 @@ class ImpressoEnderecamentoView(RelatorioProcessosView):
         linha_pronome = ''
         prefixo_nome = ''
 
-        if contato.pronome_tratamento:
-            if 'imprimir_pronome' in cleaned_data and\
-                    cleaned_data['imprimir_pronome'] == 'True':
-                linha_pronome = getattr(
-                    contato.pronome_tratamento,
-                    'enderecamento_singular_%s' % lower(
-                        contato.sexo))
-            prefixo_nome = getattr(
-                contato.pronome_tratamento,
-                'prefixo_nome_singular_%s' % lower(
-                    contato.sexo))
+        if 'imprimir_pronome' in cleaned_data and cleaned_data['imprimir_pronome'] == 'True':
+            if contato.pronome_tratamento:
+                if contato.sexo == '':
+                    linha_pronome = "Para"
+                else:
+                    linha_pronome = getattr(
+                        contato.pronome_tratamento,
+                        'enderecamento_singular_%s' % lower(
+                            contato.sexo))
+                    prefixo_nome = getattr(
+                        contato.pronome_tratamento,
+                        'prefixo_nome_singular_%s' % lower(
+                            contato.sexo))
+            else:
+                linha_pronome = "Para"
 
         if local_cargo == ImpressoEnderecamentoFilterSet.DEPOIS_PRONOME\
                 and imprimir_cargo and (linha_pronome or contato.cargo):
-            linha_pronome = '%s - %s' % (linha_pronome, contato.cargo)
+            linha_pronome = '%s %s' % (linha_pronome, contato.cargo)
 
         if linha_pronome:
             story.append(Paragraph(
@@ -2465,9 +2497,25 @@ class ImpressoEnderecamentoView(RelatorioProcessosView):
             linha_nome = '%s %s' % (contato.cargo, linha_nome)
             linha_nome = linha_nome.strip()
 
+        pos_nome = ""
+
         linha_nome = linha_nome.upper()\
             if 'nome_maiusculo' in cleaned_data and\
             cleaned_data['nome_maiusculo'] == 'True' else linha_nome
+
+        if 'pos_nome' in cleaned_data and cleaned_data['pos_nome'] != 'N':
+            if cleaned_data['pos_nome'] == 'FAM':
+                pos_nome = " " + "e família"
+            elif cleaned_data['pos_nome'] == 'EPO':
+                pos_nome = " " + "e esposo"
+            elif cleaned_data['pos_nome'] == 'EPA':
+                pos_nome = " " + "e esposa"
+            elif cleaned_data['pos_nome'] == 'CPO':
+                pos_nome = " " + "e companheiro"
+            elif cleaned_data['pos_nome'] == 'CPA':
+                pos_nome = " " + "e companheira"
+
+        linha_nome = linha_nome + pos_nome 
 
         story.append(Paragraph(linha_nome, stylesheet['nome_style']))
 
@@ -2526,7 +2574,7 @@ class ImpressoEnderecamentoView(RelatorioProcessosView):
 
         p.drawText(textobject)
 
-    def validate_data(self):
+    def validate_endereco(self):
         contatos = []
         consulta_agregada = self.object_list.order_by('nome',)
         consulta_agregada = consulta_agregada.values_list(
@@ -2546,7 +2594,35 @@ class ImpressoEnderecamentoView(RelatorioProcessosView):
 
         return total_erros
 
+    def validate_sexo(self):
+        contatos = []
+        consulta_agregada = self.object_list.order_by('nome')
+        consulta_agregada = consulta_agregada.values_list(
+            'sexo',
+        )
 
+        total_erros = 0
+
+        for contato_sexo in consulta_agregada.all():
+            if(contato_sexo[0] == ''):
+                total_erros = total_erros + 1
+
+        return total_erros
+
+    def validate_estado_civil(self):
+        contatos = []
+        consulta_agregada = self.object_list.order_by('nome')
+        consulta_agregada = consulta_agregada.values_list(
+            'estado_civil',
+        )
+
+        nao_casados = 0
+
+        for estado_civil in consulta_agregada.all():
+            if(estado_civil != '3'):
+                nao_casados = nao_casados + 1
+
+        return nao_casados
 
 class NumberedCanvas(canvas.Canvas):
     def __init__(self, *args, **kwargs):
