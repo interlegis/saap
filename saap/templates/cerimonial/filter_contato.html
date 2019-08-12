@@ -26,8 +26,8 @@
       {% for obj in page_obj %}
         <tr>
           <td style='color: green;'>
-              <center><b>{{ obj.pk|safe }}</b></center>
               <input type="checkbox" name="pk_{{ obj.pk|safe }}" onclick="select_pk({{ obj.pk }})" selected="false">
+              <a href="{% url 'saap.cerimonial:contato_list' %}{{obj.pk|safe}}">{{ obj.pk|safe }}</a>
           </td> 
           <td>
               {{ obj.nome|safe }}

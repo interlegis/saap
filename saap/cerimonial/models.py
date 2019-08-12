@@ -595,10 +595,10 @@ class LocalTrabalho(SaapAuditoriaModelMixin):
 
     endereco = models.CharField(
         max_length=35, blank=True, default='',
-        verbose_name=_('Endereço'),
-        help_text=_('O campo endereço também é um campo de busca. Nele '
-                    'você pode digitar qualquer informação, inclusive '
-                    'digitar o CEP para localizar o endereço, e vice-versa!'))
+        verbose_name=_('Endereço'))
+        #help_text=_('O campo endereço também é um campo de busca. Nele '
+        #            'você pode digitar qualquer informação, inclusive '
+        #            'digitar o CEP para localizar o endereço, e vice-versa!'))
 
     numero = models.PositiveSmallIntegerField(blank=True, default=0,
                               verbose_name=_('Número'))
@@ -716,7 +716,7 @@ class Endereco(SaapAuditoriaModelMixin):
         Bairro,
         chained_field="municipio",
         chained_model_field="municipio",
-        null=False, blank=False, default=5,
+        null=False, blank=False,
         show_all=False,
         auto_choose=True,
         sort=True,
@@ -749,10 +749,10 @@ class Endereco(SaapAuditoriaModelMixin):
 
     endereco = models.CharField(
         max_length=35, blank=False, null=False, default='',
-        verbose_name=_('Endereço'),
-        help_text=_('O campo endereço também é um campo de busca, nele '
-                    'você pode digitar qualquer informação, inclusive '
-                    'digitar o CEP para localizar o endereço, e vice-versa!'))
+        verbose_name=_('Endereço'))
+        #help_text=_('O campo endereço também é um campo de busca, nele '
+        #            'você pode digitar qualquer informação, inclusive '
+        #            'digitar o CEP para localizar o endereço, e vice-versa!'))
 
     numero = models.PositiveSmallIntegerField(blank=False, default=0,
                               verbose_name=_('Número'))

@@ -25,7 +25,7 @@
       {% for obj in page_obj %}
       <tr>
           <td style='color: green;'>
-              <center>{{ obj.pk|safe }}</center>
+              <center><a href="{% url 'saap.cerimonial:processo_list' %}{{obj.pk|safe}}">{{ obj.pk|safe }}</a></center>
           </td>
           <td>
               <strong>{{ obj.titulo|safe }}</strong>

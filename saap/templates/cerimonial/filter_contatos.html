@@ -26,15 +26,13 @@
       {% for obj in page_obj %}
         <tr>
           <td style='color: green;'>
-              <center>{{ obj.pk|safe }}</center>
+              <center><a href="{% url 'saap.cerimonial:contato_list' %}{{obj.pk|safe}}">{{ obj.pk|safe }}</a></center>
           </td> 
-          <td>
           {% if obj.email == '' %}
               <td style='color: red;'><b>{{ obj.nome|safe }}</b></td>
           {% else %}
               <td><b>{{ obj.nome|safe }}</b></td>
           {% endif %}
-          </td>
           <td>
               {{ obj.email|safe }}
           </td>
