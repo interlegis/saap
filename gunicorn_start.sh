@@ -18,7 +18,8 @@ USER=`whoami`                                   # the user to run as (*)
 GROUP=`whoami`                                  # the group to run as (*)
 NUM_WORKERS=3                                   # how many worker processes should Gunicorn spawn (*)
                                                 # NUM_WORKERS = 2 * CPUS + 1
-TIMEOUT=60
+TIMEOUT=960
+#GRACEFUL_TIMEOUT=480
 MAX_REQUESTS=100                                # number of requests before restarting worker
 DJANGO_SETTINGS_MODULE=saap.settings            # which settings file should Django use (*)
 DJANGO_WSGI_MODULE=saap.wsgi                    # WSGI module name (*)
@@ -43,10 +44,11 @@ test -d $RUNDIR || mkdir -p $RUNDIR
 exec gunicorn ${DJANGO_WSGI_MODULE}:application \
   --name $NAME \
   --log-level debug \
-  --timeout $TIMEOUT \
   --workers $NUM_WORKERS \
   --max-requests $MAX_REQUESTS \
   --user $USER \
   --access-logfile /var/log/saap/access.log \
   --error-logfile /var/log/saap/error.log \
   --bind=unix:$SOCKFILE
+  --timeout $TIMEOUT
+  #--graceful-timeout $GRACEFUL_TIMEOUT

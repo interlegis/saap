@@ -99,7 +99,5 @@ whoosh_index/
 *.ipynb
 
 *.pyc
-*.css
-gunicorn_conf
 .gitignore
 news.html

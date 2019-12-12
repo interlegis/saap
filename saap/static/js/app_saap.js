@@ -78,6 +78,7 @@ function refreshMask() {
     $('.numero_endereco').mask("00000", {placeholder:"_____"});
     $('[name="telefone"]').mask("(99) 0000-00000", {placeholder:"(__) _____-____"});
     $('.cpf').mask("000.000.000-00", {placeholder:"___.___.___-__"});
+    $('.cnpj').mask("00.000.000/0000-00", {placeholder:"__.___.___/____-__"});
     $('.cep').mask("00000-000", {placeholder:"_____-___"});
     /*$('.rg').mask("0.000.000", {placeholder:"_.___.___"});*/
     $('.titulo_eleitor').mask("0000.0000.0000", {placeholder:"____.____.____"});

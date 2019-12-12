@@ -17,19 +17,19 @@
           <th>Nome</th>
           <th>Endereço</th>
           <th>Município</th>
-          <th><font color='red'>Sexo</font><br><font color='#FF8C00'>Estado civil</font></th>
-          <th>Data de nascimento</th>
+          <th>Sexo<br><small>Estado civil</small></th>
+          <th>Data de nascimento<br><small>Idade</small></th>
           <th>Grupos</th>
         </tr>
       </thead>
       <tbody>
       {% for obj in page_obj %}
         <tr>
-          <td style='color: green;'>
+          <td>
               <center><a href="{% url 'saap.cerimonial:contato_list' %}{{obj.pk|safe}}">{{ obj.pk|safe }}</a></center>
           </td>
           {% if obj.endereco == '' %}
-              <td style='color: red;'><b>{{ obj.nome|safe }}</b></td>
+              <td class='erro'><b>{{ obj.nome|safe }}</b></td>
           {% else %}
               <td><b>{{ obj.nome|safe }}</b></td>
           {% endif %}
@@ -41,23 +41,24 @@
           </td>
           <td>
               {% if obj.sexo == '' %}
-                  <font color='red'>N/I</font>
+                  <font class='erro'>Sexo N/I</font>
               {% else %}
                   {{ obj.sexo }}
               {% endif %}
-              <br>
+              <br><small>
               {% if obj.estado_civil == None %}
-                  <font color='#FF8C00'>N/I</font>
+                  <font class='erro'>Estado N/I</font>
               {% else %}
                   {{ obj.estado_civil }}
               {% endif %}
-
+	      </small>
           </td>
           <td>
               {% if obj.data_nascimento != None %}
-                  {{ obj.data_nascimento }}<small><small> - {{obj.data_nascimento|age }}</small></small>
+                  {{ obj.data_nascimento }}<br>
+                  <small>{{obj.data_nascimento|age }}</small>
               {% else %}
-                  Data não informada
+                  Não informada
               {% endif %}
 
           </td>

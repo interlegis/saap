@@ -146,7 +146,7 @@ class ContatoCrud(DetailMasterCrud):
             ativo = self.request.GET.get('ativo', '')
             endereco = self.request.GET.get('endereco', '')
             cep = self.request.GET.get('cep', '')
-            telefone = self.request.GET.get('telefon', '')
+            telefone = self.request.GET.get('telefone', '')
             bairro = self.request.GET.getlist('bairro', '')
             municipio = self.request.GET.getlist('municipio', '')
             estado_civil = self.request.GET.get('estado_civil', '')
@@ -157,6 +157,8 @@ class ContatoCrud(DetailMasterCrud):
             data_final = self.request.GET.get('data_final', '')
             nasc_inicial = self.request.GET.get('nasc_inicial', '')
             nasc_final = self.request.GET.get('nasc_final', '')
+            grupos = self.request.GET.getlist('grupos', '')
+            documentos = self.request.GET.get('documentos','')
 
             if sexo:
                 queryset = queryset.filter(sexo=sexo)
@@ -199,8 +201,18 @@ class ContatoCrud(DetailMasterCrud):
                     if q:
                         queryset = queryset.filter(q)
 
-            #if grupo:        
-            #    queryset = queryset.filter(grupodecontatos_set__in=value)
+            if documentos:
+
+                q = Q()
+                q = q & (Q(rg=documentos) | 
+                         Q(cpf=documentos) |
+                         Q(cnpj=documentos) |
+                         Q(ie=documentos))
+               
+                queryset = queryset.filter(q)
+
+            if grupos:        
+                queryset = queryset.filter(grupodecontatos_set__in=grupos)
 
             if bairro:
                 queryset = queryset.filter(endereco_set__bairro__in=bairro)
@@ -444,7 +456,8 @@ class EnderecoPerfilCrud(PerfilDetailCrudPermission):
     parent_field = 'contato'
 
     class BaseMixin(PerfilDetailCrudPermission.BaseMixin):
-        list_field_names = [('endereco', 'numero'), 'cep', 'bairro','municipio', 'principal', 'permite_contato']
+        #list_field_names = [('endereco', 'numero'), 'cep', 'bairro','municipio', 'principal', 'permite_contato']
+        list_field_names = ['endereco', 'numero', 'cep', 'bairro','municipio', 'principal', 'permite_contato']
 
     class CreateView(PrincipalMixin, PerfilDetailCrudPermission.CreateView):
         form_class = EnderecoForm
@@ -530,7 +543,7 @@ class ProcessoMasterCrud(DetailMasterCrud):
     container_field = 'workspace__operadores'
 
     class BaseMixin(DetailMasterCrud.BaseMixin):
-        list_field_names = [ 'id', 'titulo', 'data_abertura', 'classificacao', 'status', 'topicos','assuntos' ]
+        list_field_names = [ 'id', 'titulo', 'data_abertura', 'classificacao', 'status', 'topicos', 'assuntos' ]
 
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)

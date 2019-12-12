@@ -71,6 +71,25 @@
         <a href="{% url 'saap.cerimonial:print_impressoenderecamento' %}"></a>
     </div>
 
+    <div class="homeBlock">
+        <div class="homeFront">
+            <div class="homeIcon">
+                <img src="{% static 'img/index_relatorios.png' %}" alt="Impressos">
+            </div>
+            <h2>Relatório de contatos</h2>
+        </div>
+        <div class="homeContent">
+            <div class="homeTitle">
+                <img src="{% static 'img/index_relatorios.png' %}">
+                <h2>Relatório de contatos</h2>
+            </div>
+            <p>
+                Ferramenta para gerar envelopes e etiquetas dos contatos selecionados, conforme busca e filtros selecionados.
+		</p>
+        </div>
+        <a href="{% url 'saap.cerimonial:print_rel_contatos' %}"></a>
+    </div>
+
 </div>
 
 {% endblock %}

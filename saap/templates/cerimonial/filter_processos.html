@@ -24,15 +24,19 @@
       <tbody>
       {% for obj in page_obj %}
       <tr>
-          <td style='color: green;'>
+          <td>
               <center><a href="{% url 'saap.cerimonial:processo_list' %}{{obj.pk|safe}}">{{ obj.pk|safe }}</a></center>
           </td>
           <td>
               <strong>{{ obj.titulo|safe }}</strong>
               <br><br>
-              {% for contato in obj.contatos.all %}
-                  {{contato.nome}}<br>
-              {% endfor %}
+              {% if obj.contatos_count > 0 %}
+                  {% for contato in obj.contatos.all %}
+                      {{contato.nome}}<br>
+                  {% endfor %}
+              {% else %}
+                  -
+              {% endif %}
           </td>
           <td>
               <b>{{ obj.data_abertura }} </b>

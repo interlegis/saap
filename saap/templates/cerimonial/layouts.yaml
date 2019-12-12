@@ -49,9 +49,11 @@ Contato:
   - estado_civil tem_filhos:3 quantos_filhos:3
   {% trans 'Pais' %}:
   - nome_pai nome_mae
-  {% trans 'Documentos' %}:
+  {% trans 'Documentos pessoais' %}:
   - numero_sus cpf titulo_eleitor
   - rg rg_orgao_expedidor rg_data_expedicao
+  {% trans 'Cadastros empresariais' %}:
+  - cnpj ie
   {% trans 'Ensino/Profissão/Tratamento' %}:
   - nivel_instrucao profissao
   - cargo tipo_autoridade
@@ -68,9 +70,11 @@ ContatoLayoutForForm:
   - estado_civil tem_filhos:3 quantos_filhos:3
   {% trans 'Pais' %}:
   - nome_pai nome_mae
-  {% trans 'Documentos' %}:
+  {% trans 'Documentos pessoais' %}:
   - numero_sus cpf titulo_eleitor
   - rg rg_orgao_expedidor rg_data_expedicao
+  {% trans 'Cadastros empresariais' %}:
+  - cnpj ie
   {% trans 'Ensino/Profissão/Tratamento' %}:
   - nivel_instrucao profissao
   - cargo tipo_autoridade

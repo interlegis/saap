@@ -47,17 +47,6 @@ import time, datetime
 #
 
 class RelatorioProcessosView(PermissionRequiredMixin, FilterView):
-    #permission_required = 'deve_ser_definida_na_heranca'
-    #filterset_class = None
-    #model = None
-    #template_name = 'deve_ser_definido_na_heranca'
-    #container_field = 'workspace_definido_na_heranca'
-
-    #def __init__(self):
-    #        self.ctx_title = 'Título do relatório'
-    #    self.relat_title = 'Título do relatório'
-    #    self.nome_objeto = 'Nome do Objeto'
-    #    self.filename = 'Relatorio'
 
     #permission_required = 'cerimonial.print_rel_processos'
     permission_required = 'core.menu_processos'
@@ -66,11 +55,10 @@ class RelatorioProcessosView(PermissionRequiredMixin, FilterView):
     template_name = "cerimonial/filter_processos.html"
     container_field = 'workspace__operadores'
 
-    paginate_by = 30
+    paginate_by = 100
 
     def __init__(self):
         super().__init__()
-        self.MAX_TITULO = 80
         self.ctx_title = 'Relatório de Processos'
         self.relat_title = 'Relatório de Processos'
         self.nome_objeto = 'Processo'
@@ -136,10 +124,12 @@ class RelatorioProcessosView(PermissionRequiredMixin, FilterView):
 
     def get_context_data(self, **kwargs):
         count = self.object_list.count()
-        context = super(RelatorioProcessosView, self).get_context_data(**kwargs)
-        context['count'] = count
+        context = super(RelatorioProcessosView,
+                        self).get_context_data(**kwargs)
 
+        context['count'] = count
         context['title'] = _(self.ctx_title)
+
         paginator = context['paginator']
         page_obj = context['page_obj']
 
@@ -616,7 +606,7 @@ class RelatorioProcessoIndividualView(PermissionRequiredMixin, FilterView):
     template_name = "cerimonial/filter_processo.html"
     container_field = 'workspace__operadores'
 
-    paginate_by = 30
+    paginate_by = 100
 
     def __init__(self):
         super().__init__()
@@ -686,10 +676,12 @@ class RelatorioProcessoIndividualView(PermissionRequiredMixin, FilterView):
 
     def get_context_data(self, **kwargs):
         count = self.object_list.count()
-        context = super(RelatorioProcessoIndividualView, self).get_context_data(**kwargs)
-        context['count'] = count
+        context = super(RelatorioProcessoIndividualView,
+                        self).get_context_data(**kwargs)
 
+        context['count'] = count
         context['title'] = _(self.ctx_title)
+
         paginator = context['paginator']
         page_obj = context['page_obj']
 
@@ -700,6 +692,9 @@ class RelatorioProcessoIndividualView(PermissionRequiredMixin, FilterView):
         if 'page' in qr:
             del qr['page']
         context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
+
+        for processo in context['page_obj']:            
+            processo.contatos_count = processo.contatos.count()
 
         return context
 
@@ -1120,7 +1115,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
     template_name = "cerimonial/filter_contato.html"
     container_field = 'workspace__operadores'
 
-    paginate_by = 30
+    paginate_by = 100
 
     def __init__(self):
         super().__init__()
@@ -1192,9 +1187,10 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
         count = self.object_list.count()
         context = super(RelatorioContatoIndividualView,
                         self).get_context_data(**kwargs)
-        context['count'] = count
 
-        context['title'] = _('Detalhamento de Contato')
+        context['count'] = count
+        context['title'] = _(self.ctx_title)
+
         paginator = context['paginator']
         page_obj = context['page_obj']
 
@@ -1881,9 +1877,10 @@ class RelatorioContatosView(RelatorioProcessosView):
         count = self.object_list.count()
         context = super(RelatorioContatosView,
                         self).get_context_data(**kwargs)
-        context['count'] = count
 
-        context['title'] = _('Relatório de Contatos')
+        context['count'] = count
+        context['title'] = _(self.ctx_title)
+
         paginator = context['paginator']
         page_obj = context['page_obj']
 
@@ -2236,8 +2233,8 @@ class RelatorioContatosView(RelatorioProcessosView):
 #
 #
 
-#class ImpressoEnderecamentoView(PermissionRequiredMixin, FilterView):
-class ImpressoEnderecamentoView(RelatorioProcessosView):
+class ImpressoEnderecamentoView(PermissionRequiredMixin, FilterView):
+#class ImpressoEnderecamentoView(RelatorioProcessosView):
     #permission_required = 'cerimonial.print_impressoenderecamento'
     permission_required = 'core.menu_contatos'
     filterset_class = ImpressoEnderecamentoFilterSet
@@ -2245,7 +2242,14 @@ class ImpressoEnderecamentoView(RelatorioProcessosView):
     template_name = "cerimonial/filter_impressoenderecamento_contato.html"
     container_field = 'workspace__operadores'
 
-    paginate_by = 30
+    paginate_by = 100
+
+    def __init__(self):
+        super().__init__()
+        self.ctx_title = 'Impressão de Etiquetas e Envelopes'
+        self.relat_title = 'Impressão de Etiquetas e Envelopes'
+        self.nome_objeto = 'Contato'
+        self.filename = 'Impresso_Enderecamento'
 
     @cached_property
     def is_contained(self):
@@ -2339,9 +2343,10 @@ class ImpressoEnderecamentoView(RelatorioProcessosView):
         count = self.object_list.count()
         context = super(ImpressoEnderecamentoView,
                         self).get_context_data(**kwargs)
-        context['count'] = count
 
-        context['title'] = _('Impressão de Etiquetas e Envelopes')
+        context['count'] = count
+        context['title'] = _(self.ctx_title)
+
         paginator = context['paginator']
         page_obj = context['page_obj']
 
@@ -2478,7 +2483,12 @@ class ImpressoEnderecamentoView(RelatorioProcessosView):
                         'prefixo_nome_singular_%s' % lower(
                             contato.sexo))
             else:
-                linha_pronome = "Para"
+                if contato.sexo == '':
+                    linha_pronome = "Para"
+                elif contato.sexo == 'M':
+                    linha_pronome = "Ao Sr."
+                elif contato.sexo == 'F':
+                    linha_pronome = "À Sra."
 
         if local_cargo == ImpressoEnderecamentoFilterSet.DEPOIS_PRONOME\
                 and imprimir_cargo and (linha_pronome or contato.cargo):

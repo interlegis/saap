@@ -173,6 +173,8 @@ class ContatoForm(ModelForm):
                   'nome_mae',
                   'numero_sus',
                   'cpf',
+                  'cnpj',
+                  'ie',
                   'titulo_eleitor',
                   'rg',
                   'rg_orgao_expedidor',
@@ -205,6 +207,7 @@ class ContatoForm(ModelForm):
             instance = self.instance
 
         self.fields['cpf'].widget.attrs['class'] = 'cpf'
+        self.fields['cnpj'].widget.attrs['class'] = 'cnpj'
         self.fields['numero_sus'].widget.attrs['class'] = 'numero_sus'
         self.fields['rg'].widget.attrs['class'] = 'rg'
         self.fields['titulo_eleitor'].widget.attrs['class'] = 'titulo_eleitor'
@@ -450,6 +453,7 @@ class EnderecoForm(ModelForm):
         self.fields['permite_contato'].inline_class = True
 
     def clean(self):
+
         print('x')
 
 #       principais = Endereco.objects.filter(
@@ -952,7 +956,11 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
     
     search = MethodFilter()
     
+    search_documentos = MethodFilter()
+
     sexo = ChoiceFilter(choices=SEXO_CHOICE)
+    
+    #sem_data = BooleanFilter()
 
     estado_civil = ModelChoiceFilter(
         required=False,
@@ -965,12 +973,6 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
     idade = MethodRangeFilter(
         label=_('Idade entre:'),
         widget=RangeWidgetNumber)
-
-    impresso = ModelChoiceFilter(
-        required=False,
-        queryset=ImpressoEnderecamento.objects.all(),
-        action=filter_impresso,
-        initial=2)
 
     grupo = MethodModelMultipleChoiceFilter(
         required=False,
@@ -986,24 +988,25 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
     cep = MethodFilter(label=_('CEP'))
 
-    municipio = MethodModelChoiceFilter(
+    municipio = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Município do RS'),
-        queryset=Bairro.objects.filter(estado=21))
+        label=_('Município do Rio Grande do Sul'),
+        queryset=Municipio.objects.filter(estado=21))
+
+    impresso = ModelChoiceFilter(
+        required=False,
+        queryset=ImpressoEnderecamento.objects.all(),
+        action=filter_impresso,
+        initial=2)
 
     imprimir_pronome = MethodChoiceFilter(
-        choices=YES_NO_CHOICES,
-        initial=False)
+        choices=YES_NO_CHOICES, initial=False)
 
     pronome_padrao = MethodChoiceFilter(
         choices=YES_NO_CHOICES, initial=False)
 
     imprimir_cargo = MethodChoiceFilter(
         choices=YES_NO_CHOICES, initial=False)
-
-    #fontsize = MethodNumberFilter(
-    #    label=_('Tamanho da Fonte'), initial='',
-    #    max_value=100, min_value=0, max_digits=3, decimal_places=0,)
 
     nome_maiusculo = MethodChoiceFilter(
         label=_('Nome maiúsculo'),
@@ -1013,24 +1016,17 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
     local_cargo = MethodChoiceFilter(
         label=_('Local para imprimir o cargo'),
-        choices=LOCAL_CARGO_CHOICE, initial=False)
+        choices=LOCAL_CARGO_CHOICE)
 
     pos_nome = MethodChoiceFilter(
         label=_('Expressão pós-nome'),
-        choices=POS_NOME_CHOICE, initial=False)
+        choices=POS_NOME_CHOICE)
 
-    #def filter_fontsize(self, queryset, value):
-    #    return queryset
-    
     def filter_grupo(self, queryset, value):
         if value:
             queryset = queryset.filter(grupodecontatos_set__in=value)
 
         return queryset
-
-    #def filter_grupo(self, queryset, value):
-    #    queryset = queryset.filter(grupodecontatos_set=value)
-    #    return queryset
 
     def filter_bairro(self, queryset, value):
         if value:
@@ -1041,9 +1037,11 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
         return queryset
 
     def filter_municipio(self, queryset, value):
-        queryset = queryset.filter(
-                endereco_set__municipio=value,
+        if value:
+            queryset = queryset.filter(
+                endereco_set__municipio__in=value,
                 endereco_set__permite_contato=True)
+
         return queryset
 
     def filter_pk(self, queryset, value):
@@ -1105,6 +1103,12 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
                 queryset = queryset.filter(q)
         return queryset
 
+    def filter_sem_data(self, queryset, value):
+
+        print(value)
+
+        return queryset
+
     def filter_search_endereco(self, queryset, value):
 
         query = normalize(value)
@@ -1124,6 +1128,18 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
                 queryset = queryset.filter(q)
         return queryset
 
+    def filter_search_documentos(self, queryset, value):
+
+        if value: 
+            q = Q()
+            q = q & (Q(cpf=value) | 
+                     Q(rg=value) |
+                     Q(cnpj=value) |
+                     Q(ie=value))
+            queryset = queryset.filter(q)
+
+        return queryset
+
     def filter_cep(self, queryset, value):
 
         query = normalize(value.strip())
@@ -1140,10 +1156,6 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
         return queryset
 
     def filter_data_nascimento(self, queryset, value):
-        # _where = ("date_part('year', age(timestamp '%s', "
-        #     "data_nascimento)) != date_part('year', "
-        #     "age(timestamp '%s', data_nascimento))"
-        # return queryset.extra(where=_where, params=value)
 
         if not value[0] and not value[1]:
             return queryset
@@ -1182,7 +1194,8 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
                   'sexo',
                   'tem_filhos',
                   'data_nascimento',
-                  'tipo_autoridade']
+                  'tipo_autoridade'
+		  ]
 
     def __init__(self, data=None,
                  queryset=None, prefix=None, strict=None, **kwargs):
@@ -1195,18 +1208,20 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
         col1 = to_row([
             ('pk', 2),
-            ('search', 10),
+            ('search', 7),
+            ('ativo', 3),
             ('sexo', 3),
             ('estado_civil', 3),
             ('tem_filhos', 3),
-            ('ativo', 3),
+            ('search_documentos', 3),
             ('data_nascimento', 6),
             ('idade', 6),
-            ('search_endereco', 9),
+            #('sem_data', 2),
+            ('search_endereco', 6),
+            ('cep', 3),
             ('ocultar_sem_endereco', 3),
-            ('cep', 6),
-            ('municipio', 6),
             ('bairro', 6),
+            ('municipio', 6),
             ('grupo', 6),
             ('tipo_autoridade', 6),
         ])
@@ -1246,17 +1261,19 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
         self.form.fields['pk'].label = 'Código'
 
         self.form.fields['search'].label = 'Nome, nome social ou apelido'
-        
+       
         self.form.fields['search_endereco'].label = 'Endereço, complemento ou ponto de referência'
-        
-        self.form.fields['data_nascimento'].label = 'Período de aniversário'
 
-        self.form.fields['tem_filhos'].label = _('Tem filhos?')
+        self.form.fields['search_documentos'].label = 'RG, CPF, CNPJ ou IE'
+
+        self.form.fields['data_nascimento'].label = 'Período de aniversário'
+        
+        #self.form.fields['sem_data'].label = 'Sem data'
         
         self.form.fields['ativo'].label = _('Ativo?')
 
         self.form.fields['cep'].widget.attrs['class'] = 'cep'
-
+        
         self.form.fields['imprimir_pronome'].widget = forms.RadioSelect()
         self.form.fields['imprimir_pronome'].inline_class = True
 
@@ -2205,6 +2222,10 @@ class ContatoIndividualFilterSet(FilterSet):
     
     sexo = ChoiceFilter(choices=SEXO_CHOICE)
 
+    estado_civil = ModelChoiceFilter(
+        required=False,
+        queryset=EstadoCivil.objects.all())
+
     tem_filhos = BooleanFilter()
 
     ativo = BooleanFilter()
@@ -2397,9 +2418,10 @@ class ContatoIndividualFilterSet(FilterSet):
         col1 = to_row([
             ('pk', 2),
             ('search', 10),
-            ('sexo', 4),
-            ('tem_filhos', 4),
-            ('ativo', 4),
+            ('sexo', 3),
+            ('estado_civil', 3),
+            ('tem_filhos', 3),
+            ('ativo', 3),
             ('data_nascimento', 6),
             ('idade', 6),
             ('search_endereco', 12),
@@ -2489,6 +2511,10 @@ class ContatosFilterSet(FilterSet):
     search = MethodFilter()
     
     sexo = ChoiceFilter(choices=SEXO_CHOICE)
+
+    estado_civil = ModelChoiceFilter(
+        required=False,
+        queryset=EstadoCivil.objects.all())
 
     tem_filhos = BooleanFilter()
 
@@ -2680,15 +2706,12 @@ class ContatosFilterSet(FilterSet):
             data=data,
             queryset=queryset, prefix=prefix, strict=strict, **kwargs)
 
-        #super(ImpressoEnderecamentoFilterSet, self).__init__(
-        #    data=data,
-        #    queryset=queryset, prefix=prefix, strict=strict, **kwargs)
-
         col1 = to_row([
             ('search', 12),
-            ('sexo', 4),
-            ('tem_filhos', 4),
-            ('ativo', 4),
+            ('sexo', 3),
+            ('estado_civil', 3),
+            ('tem_filhos', 3),
+            ('ativo', 3),
             ('data_nascimento', 6),
             ('idade', 6),
             ('search_endereco', 9),
@@ -2950,26 +2973,21 @@ class ListWithSearchContatoForm(ListWithSearchForm):
         required=False,
         label=_('Ativo?'))
 
-#    grupo = forms.ModelMultipleChoiceField(
-#        required=False,
-#        label=_('Grupo de contatos:'),
-#        queryset=GrupoDeContatos.objects.all())
-   
     data_inicial = forms.DateField(
         required=False,
-        label=_('Aniversário (I)'))
+        label=_('Aniversário (Início)'))
  
     data_final = forms.DateField(
         required=False,
-        label=_('Aniversário (F)'))
+        label=_('Aniversário (Fim)'))
 
     nasc_inicial = forms.DateField(
         required=False,
-        label=_('Nascimento (I)'))
+        label=_('Nascimento (Início)'))
  
     nasc_final = forms.DateField(
         required=False,
-        label=_('Nascimento (F)'))
+        label=_('Nascimento (Fim)'))
 
     endereco = forms.CharField(
         required=False,
@@ -2993,6 +3011,11 @@ class ListWithSearchContatoForm(ListWithSearchForm):
         label=_('Município do Rio Grande do Sul'),
         queryset=Municipio.objects.filter(estado=21))
 
+    grupos = forms.ModelMultipleChoiceField(
+        required=False,
+        label=_('Grupos de contatos:'),
+        queryset=GrupoDeContatos.objects.all())
+
     estado_civil = forms.ModelChoiceField(
         required=False,
         label=_('Estado civil'),
@@ -3011,6 +3034,10 @@ class ListWithSearchContatoForm(ListWithSearchForm):
         required=False,
         label=_('Dependente'))
 
+    documentos = forms.CharField(
+        required=False,
+        label=_('RG, CPF, CNPJ e IE'))
+
     class Meta(ListWithSearchForm.Meta):
         fields = ['q',
                   'o',
@@ -3019,7 +3046,6 @@ class ListWithSearchContatoForm(ListWithSearchForm):
                   'tem_filhos',
                   'ativo',
                   'endereco',
-                  #'grupo',
                   'cep',
                   'telefone',
                   'bairro',
@@ -3028,10 +3054,12 @@ class ListWithSearchContatoForm(ListWithSearchForm):
                   'nivel_instrucao',
                   'profissao',
                   'dependente',
+                  'documentos',
                   'data_inicial',
                   'data_final',
                   'nasc_inicial',
                   'nasc_final',
+                  'grupos',
                  ]
         pass
 
@@ -3039,25 +3067,26 @@ class ListWithSearchContatoForm(ListWithSearchForm):
         super(ListWithSearchContatoForm, self).__init__(*args, **kwargs)
 
         col1 = to_row([
-            ('pk', 3),
-            ('q', 9),
+            ('pk', 2),
+            ('q', 7),
+            ('ativo', 3),
+            ('sexo', 3),
+            ('estado_civil', 3),
+            ('tem_filhos', 3),
+            ('documentos', 3),
             ('data_inicial', 3),
             ('data_final', 3),
             ('nasc_inicial', 3),
             ('nasc_final', 3),
-            ('sexo', 3),
-            ('estado_civil', 3),
-            ('tem_filhos', 3),
-            ('ativo', 3),
             ('endereco', 6),
             ('cep', 3),
             ('telefone', 3),
             ('bairro', 6),
             ('municipio', 6),
-            ('nivel_instrucao', 6),
-            ('profissao', 6),
-            ('dependente', 9),
-#            ('o', 4),
+            ('nivel_instrucao', 4),
+            ('profissao', 4),
+            ('dependente', 4),
+            ('grupos', 6),
         ])
 
         row = to_row(
@@ -3077,7 +3106,8 @@ class ListWithSearchContatoForm(ListWithSearchForm):
             row,
         )
 
-        #workspace = kwargs.pop('workspace')
+        workspace = kwargs['initial']['workspace']
 
         self.fields['q'].label = _('Nome, nome social ou apelido')
         self.fields['cep'].widget.attrs['class'] = 'cep'
+        self.fields['grupos'].queryset = GrupoDeContatos.objects.filter(workspace=workspace)

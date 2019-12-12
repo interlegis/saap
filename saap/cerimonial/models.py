@@ -7,7 +7,7 @@ from saap.core.models import Municipio, Estado, Partido
 from saap.core.models import Trecho, Distrito, RegiaoMunicipal,\
     SaapAuditoriaModelMixin, SaapSearchMixin, AreaTrabalho, Bairro
 from saap.utils import YES_NO_CHOICES, NONE_YES_NO_CHOICES,\
-    get_settings_auth_user_model, validate_CPF, validate_CEP, validate_telefone
+    get_settings_auth_user_model, validate_CPF, validate_CNPJ, validate_CEP, validate_telefone
 
 from smart_selects.db_fields import ChainedForeignKey
 
@@ -270,6 +270,10 @@ class Contato(SaapSearchMixin, SaapAuditoriaModelMixin):
     numero_sus = models.CharField(max_length=20, blank=True, default='', verbose_name=_('Número do SUS'))
 
     cpf = models.CharField(max_length=14, blank=True, verbose_name=_('CPF'), validators=[validate_CPF])
+    
+    cnpj = models.CharField(max_length=18, blank=True, verbose_name=_('CNPJ'), validators=[validate_CNPJ])
+    
+    ie = models.CharField(max_length=15, blank=True, verbose_name=_('Inscrição estadual'))
 
     titulo_eleitor = models.CharField(
         max_length=14,
