@@ -274,6 +274,11 @@ class ContatoForm(ModelForm):
             elif tem_filhos == True and quantos_filhos < 1: 
                 self._errors['quantos_filhos'] = [_('Se o contato tem filhos, informe mais que 0 no campo "Quantos filhos?".')]
 
+        contatos = Contato.objects.filter(workspace=self.initial['workspace'],nome=self.cleaned_data['nome'])
+
+        if contatos.count() > 0:
+            self._errors['nome'] = [_('Já existe um contato com esse nome.')]
+
 class PerfilForm(ModelForm):
 
     class Meta:
@@ -454,7 +459,7 @@ class EnderecoForm(ModelForm):
 
     def clean(self):
 
-        print('x')
+        print('')
 
 #       principais = Endereco.objects.filter(
 
@@ -755,7 +760,7 @@ class ContatoFragmentSearchForm(forms.Form):
             for item in query:
                 if not item:
                     continue
-                q = q & Q(search__icontains=item)
+                q = q & Q(search__unaccent__icontains=item)
 
             if q:
                 queryset = queryset.filter(q)
@@ -1097,7 +1102,7 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & Q(search__icontains=item)
+                q = q & Q(search__unaccent__icontains=item)
 
             if q:
                 queryset = queryset.filter(q)
@@ -1119,10 +1124,12 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & (Q(endereco_set__endereco__icontains=item) | 
-                         Q(endereco_set__ponto_referencia__icontains=item) |
-                         Q(endereco_set__complemento__icontains=item))
+                q = q & (Q(endereco_set__endereco__unaccent__icontains=item) | 
+                         Q(endereco_set__ponto_referencia__unaccent__icontains=item) |
+                         Q(endereco_set__complemento__unaccent__icontains=item))
                 q = q & Q(endereco_set__permite_contato=True)
+
+            print(q)
 
             if q:
                 queryset = queryset.filter(q)
@@ -1560,7 +1567,7 @@ class ProcessoIndividualFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & Q(endereco__icontains=item)
+                q = q & Q(endereco__unaccent__icontains=item)
 
             if q:
                 queryset = queryset.filter(q)
@@ -1576,9 +1583,9 @@ class ProcessoIndividualFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & (Q(contato_set__nome__icontains=item) | 
-                         Q(contato_set__nome_social__icontains=item) |
-                         Q(contato_set__apelido__icontains=item))
+                q = q & (Q(contato_set__nome__unaccent__icontains=item) | 
+                         Q(contato_set__nome_social__unaccent__icontains=item) |
+                         Q(contato_set__apelido__unaccent__icontains=item))
 
             if q:
                 queryset = queryset.filter(q)
@@ -1594,7 +1601,7 @@ class ProcessoIndividualFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & Q(search__icontains=item)
+                q = q & Q(search__unaccent__icontains=item)
 
             if q:
                 queryset = queryset.filter(q)
@@ -1630,8 +1637,8 @@ class ProcessoIndividualFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & (Q(orgao__icontains=item) | 
-                         Q(instituicao__icontains=item))
+                q = q & (Q(orgao__unaccent__icontains=item) | 
+                         Q(instituicao__unaccent__icontains=item))
 
             if q:
                 queryset = queryset.filter(q)
@@ -2020,7 +2027,7 @@ class ProcessosFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & Q(endereco__icontains=item)
+                q = q & Q(endereco__unaccent__icontains=item)
 
             if q:
                 queryset = queryset.filter(q)
@@ -2036,9 +2043,9 @@ class ProcessosFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & (Q(contato_set__nome__icontains=item) | 
-                         Q(contato_set__nome_social__icontains=item) |
-                         Q(contato_set__apelido__icontains=item))
+                q = q & (Q(contato_set__nome__unaccent__icontains=item) | 
+                         Q(contato_set__nome_social__unaccent__icontains=item) |
+                         Q(contato_set__apelido__unaccent__icontains=item))
 
             if q:
                 queryset = queryset.filter(q)
@@ -2054,7 +2061,7 @@ class ProcessosFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & Q(search__icontains=item)
+                q = q & Q(search__unaccent__icontains=item)
 
             if q:
                 queryset = queryset.filter(q)
@@ -2090,8 +2097,8 @@ class ProcessosFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & (Q(orgao__icontains=item) | 
-                         Q(instituicao__icontains=item))
+                q = q & (Q(orgao__unaccent__icontains=item) | 
+                         Q(instituicao__unaccent__icontains=item))
 
             if q:
                 queryset = queryset.filter(q)
@@ -2313,7 +2320,7 @@ class ContatoIndividualFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & Q(search__icontains=item)
+                q = q & Q(search__unaccent__icontains=item)
 
             if q:
                 queryset = queryset.filter(q)
@@ -2329,9 +2336,9 @@ class ContatoIndividualFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & (Q(endereco_set__endereco__icontains=item) | 
-                         Q(endereco_set__ponto_referencia__icontains=item) |
-                         Q(endereco_set__complemento__icontains=item))
+                q = q & (Q(endereco_set__endereco__unaccent__icontains=item) | 
+                         Q(endereco_set__ponto_referencia__unaccent__icontains=item) |
+                         Q(endereco_set__complemento__unaccent__icontains=item))
 
             if q:
                 queryset = queryset.filter(q)
@@ -2618,7 +2625,7 @@ class ContatosFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & Q(search__icontains=item)
+                q = q & Q(search__unaccent__icontains=item)
 
             if q:
                 queryset = queryset.filter(q)
@@ -2634,9 +2641,9 @@ class ContatosFilterSet(FilterSet):
             for item in query:
                 if not item:
                     continue
-                q = q & (Q(endereco_set__endereco__icontains=item) | 
-                         Q(endereco_set__ponto_referencia__icontains=item) |
-                         Q(endereco_set__complemento__icontains=item))
+                q = q & (Q(endereco_set__endereco__unaccent__icontains=item) | 
+                         Q(endereco_set__ponto_referencia__unaccent__icontains=item) |
+                         Q(endereco_set__complemento__unaccent__icontains=item))
 
             if q:
                 queryset = queryset.filter(q)

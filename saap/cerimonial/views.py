@@ -195,9 +195,9 @@ class ContatoCrud(DetailMasterCrud):
                     for item in query:
                         if not item:
                             continue
-                        q = q & (Q(endereco_set__endereco__icontains=item) | 
-                                 Q(endereco_set__ponto_referencia__icontains=item) |
-                                 Q(endereco_set__complemento__icontains=item))
+                        q = q & (Q(endereco_set__endereco__unaccent__icontains=item) | 
+                                 Q(endereco_set__ponto_referencia__unaccent__icontains=item) |
+                                 Q(endereco_set__complemento__unaccent__icontains=item))
                     if q:
                         queryset = queryset.filter(q)
 
@@ -242,7 +242,7 @@ class ContatoCrud(DetailMasterCrud):
                     for item in query:
                         if not item:
                             continue
-                        q = q & (Q(profissao__icontains=item))
+                        q = q & (Q(profissao__unaccent__icontains=item))
 
                     if q:
                         queryset = queryset.filter(q)
@@ -256,7 +256,7 @@ class ContatoCrud(DetailMasterCrud):
                     for item in query:
                         if not item:
                             continue
-                        q = q & (Q(dependente_set__icontains=item))
+                        q = q & (Q(dependente_set__unaccent__icontains=item))
 
                     if q:
                         queryset = queryset.filter(q)
@@ -631,7 +631,7 @@ class ProcessoMasterCrud(DetailMasterCrud):
                     for item in query:
                         if not item:
                             continue
-                        q = q & Q(rua__icontains=item)
+                        q = q & Q(rua__unaccent__icontains=item)
                     if q:
                         queryset = queryset.filter(q)
 
@@ -695,9 +695,9 @@ class ProcessoMasterCrud(DetailMasterCrud):
                     for item in query:
                         if not item:
                             continue
-                        q = q & (Q(contatos__nome__icontains=item) |
-                                 Q(contatos__nome_social__icontains=item) |
-                                 Q(contatos__apelido__icontains=item))
+                        q = q & (Q(contatos__nome__unaccent__icontains=item) |
+                                 Q(contatos__nome_social__unaccent__icontains=item) |
+                                 Q(contatos__apelido__unaccent__icontains=item))
 
                     if q:
                         queryset = queryset.filter(q)
