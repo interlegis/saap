@@ -2509,10 +2509,6 @@ class ImpressoEnderecamentoView(PermissionRequiredMixin, FilterView):
 
         pos_nome = ""
 
-        linha_nome = linha_nome.upper()\
-            if 'nome_maiusculo' in cleaned_data and\
-            cleaned_data['nome_maiusculo'] == 'True' else linha_nome
-
         if 'pos_nome' in cleaned_data and cleaned_data['pos_nome'] != 'N':
             if cleaned_data['pos_nome'] == 'FAM':
                 pos_nome = " " + "e família"
@@ -2524,6 +2520,12 @@ class ImpressoEnderecamentoView(PermissionRequiredMixin, FilterView):
                 pos_nome = " " + "e companheiro"
             elif cleaned_data['pos_nome'] == 'CPA':
                 pos_nome = " " + "e companheira"
+
+        if 'nome_maiusculo' in cleaned_data and cleaned_data['nome_maiusculo'] == 'True':
+           linha_nome = linha_nome.upper()
+           pos_nome = pos_nome.upper()
+        else:
+           linha_nome = linha_nome       
 
         linha_nome = linha_nome + pos_nome 
 
