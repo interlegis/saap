@@ -1,4 +1,4 @@
-{% load i18n staticfiles sass_tags menus common_tags %}
+{% load i18n staticfiles sass_tags menus common_tags dados_camara crispy_forms_tags %}
 <!DOCTYPE html>
 <!--[if IE 8]> <html class="no-js lt-ie9" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!-->
@@ -43,13 +43,10 @@
                 <span class="icon-bar"></span>
               </button>
             {% endblock %}
+            {% brasao_sistema as brasao %}
             <a class="navbar-brand" href="/">
-		<img width=60px src="{% static 'img/logo.png' %}" alt="Logo" class="img-responsive visible-md-inline-block visible-lg-inline-block">
-		<span class="vcenter">
-                  Câmara Municipal de Novo Hamburgo
-                  <br>
-		  <small>Sistema de Apoio à Atividade Parlamentar</small>
-              	</span>
+		<img width=60px src="{% static brasao %}" alt="Logo" class="img-responsive visible-md-inline-block visible-lg-inline-block">
+		<span class="vcenter">  {% nome_camara %} <br> <small>{% nome_sistema %}</small> </span>
             </a>
           </div>
           <div id="navbar" class="navbar-collapse collapse">
@@ -246,18 +243,13 @@
               
               <address>
                 <small>
-                  <strong>
-                    <span class="org">Câmara Municipal de Novo Hamburgo</span>
-                  </strong>
-                  <br>
-                  <span class="street-address">Rua Almirante Barroso, 261</span>
-                  <br> CEP: <span class="postal-code">93510-290</span> | Telefone: <span>(51) 3594-0500</span>
-                  <br>
-                  <a href="http://portal.camaranh.rs.gov.br" class="url">Site</a> |
-                  <a href="mailto:portal@camaranh.rs.gov.br" class="email">Fale Conosco</a>
+			<span class="org"><strong>{% nome_camara %}</strong></span><br>
+			<span class="street-address">{% endereco_camara %}</span><br>
+			<span class="postal-code">CEP: {% cep_camara %}</span> |
+			<span>Telefone: {% telefone_camara %}</span> <br>
+			<a href="{% site_camara %}" class="url">Site</a> | <a href="mailto:{% email_camara %}" class="email">Fale Conosco</a>
                 </small>
               </address>
-              
             </div>
           </div>
      </div>
