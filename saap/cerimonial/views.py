@@ -138,6 +138,7 @@ class ContatoCrud(DetailMasterCrud):
                 self, request, *args, **kwargs)
 
         def get_queryset(self):
+
             queryset = DetailMasterCrud.ListView.get_queryset(self)
 
             sexo = self.request.GET.get('sexo', '')
@@ -145,19 +146,22 @@ class ContatoCrud(DetailMasterCrud):
             tem_filhos = self.request.GET.get('tem_filhos', '')
             ativo = self.request.GET.get('ativo', '')
             endereco = self.request.GET.get('endereco', '')
+            num_endereco = self.request.GET.get('num_endereco', '')
             cep = self.request.GET.get('cep', '')
             telefone = self.request.GET.get('telefone', '')
             bairro = self.request.GET.getlist('bairro', '')
             municipio = self.request.GET.getlist('municipio', '')
             estado_civil = self.request.GET.get('estado_civil', '')
             nivel_instrucao = self.request.GET.get('nivel_instrucao', '')
-            profissao = self.request.GET.get('profissao', '')
+            cargo = self.request.GET.get('cargo', '')
             dependente = self.request.GET.get('dependente', '')
             data_inicial = self.request.GET.get('data_inicial', '')
             data_final = self.request.GET.get('data_final', '')
             nasc_inicial = self.request.GET.get('nasc_inicial', '')
             nasc_final = self.request.GET.get('nasc_final', '')
             grupos = self.request.GET.getlist('grupos', '')
+            dados_nulos = self.request.GET.getlist('dados_nulos', '')
+            tipo_autoridade = self.request.GET.getlist('tipo_autoridade', '')
             documentos = self.request.GET.get('documentos','')
 
             if sexo:
@@ -195,12 +199,31 @@ class ContatoCrud(DetailMasterCrud):
                     for item in query:
                         if not item:
                             continue
+                        # Remove acentos dos campos que estão no banco
                         q = q & (Q(endereco_set__endereco__unaccent__icontains=item) | 
                                  Q(endereco_set__ponto_referencia__unaccent__icontains=item) |
                                  Q(endereco_set__complemento__unaccent__icontains=item))
                     if q:
                         queryset = queryset.filter(q)
 
+            if dados_nulos:
+
+                for opcao in dados_nulos:
+                    if(opcao == 'DTN'):
+                        queryset = queryset.exclude(data_nascimento__isnull=False)
+                    elif(opcao == 'END'):
+                        queryset = queryset.exclude(endereco_set__isnull=False)
+                    elif(opcao == 'TEL'):
+                        queryset = queryset.exclude(telefone_set__isnull=False)
+                    elif(opcao == 'EML'):
+                       queryset = queryset.exclude(email_set__isnull=False)
+                    elif(opcao == 'SEX'):
+                       queryset = queryset.filter(sexo='')
+                    elif(opcao == 'ECV'):
+                       queryset = queryset.exclude(estado_civil__isnull=False)
+                    elif(opcao == 'GRP'):
+                       queryset = queryset.exclude(grupodecontatos_set__isnull=False)
+ 
             if documentos:
 
                 q = Q()
@@ -218,11 +241,13 @@ class ContatoCrud(DetailMasterCrud):
                 queryset = queryset.filter(endereco_set__bairro__in=bairro)
 
             if municipio:
-                print(municipio)
                 queryset = queryset.filter(endereco_set__municipio__in=municipio)
 
             if cep:
                 queryset = queryset.filter(endereco_set__cep=cep)
+
+            if num_endereco:
+                queryset = queryset.filter(endereco_set__numero=num_endereco)
 
             if telefone:
                 queryset = queryset.filter(telefone_set__telefone=telefone)
@@ -232,9 +257,13 @@ class ContatoCrud(DetailMasterCrud):
 
             if nivel_instrucao:
                 queryset = queryset.filter(nivel_instrucao=nivel_instrucao)
+            
+            if tipo_autoridade:
+                if tipo_autoridade[0] != '':
+                    queryset = queryset.filter(tipo_autoridade=tipo_autoridade[0])
 
-            if profissao:
-                query = normalize(profissao)
+            if cargo:
+                query = normalize(cargo)
 
                 query = query.split(' ')
                 if query:
@@ -242,7 +271,9 @@ class ContatoCrud(DetailMasterCrud):
                     for item in query:
                         if not item:
                             continue
-                        q = q & (Q(profissao__unaccent__icontains=item))
+                        # Remove acentos dos campos que estão no banco
+                        q = q & (Q(cargo__unaccent__icontains=item) |
+                                 Q(profissao__unaccent__icontains=item))
 
                     if q:
                         queryset = queryset.filter(q)
@@ -256,6 +287,7 @@ class ContatoCrud(DetailMasterCrud):
                     for item in query:
                         if not item:
                             continue
+                        # Remove acentos dos campos que estão no banco
                         q = q & (Q(dependente_set__unaccent__icontains=item))
 
                     if q:
@@ -631,6 +663,7 @@ class ProcessoMasterCrud(DetailMasterCrud):
                     for item in query:
                         if not item:
                             continue
+                        # Remove acentos dos campos que estão no banco
                         q = q & Q(rua__unaccent__icontains=item)
                     if q:
                         queryset = queryset.filter(q)
@@ -695,6 +728,7 @@ class ProcessoMasterCrud(DetailMasterCrud):
                     for item in query:
                         if not item:
                             continue
+                        # Remove acentos dos campos que estão no banco
                         q = q & (Q(contatos__nome__unaccent__icontains=item) |
                                  Q(contatos__nome_social__unaccent__icontains=item) |
                                  Q(contatos__apelido__unaccent__icontains=item))

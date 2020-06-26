@@ -100,3 +100,5 @@ whoosh_index/
 
 *.pyc
 .gitignore
+novidades.html
+gunicorn_conf
