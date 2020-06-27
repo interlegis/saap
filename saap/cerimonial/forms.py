@@ -33,9 +33,6 @@ from saap.core.forms import ListWithSearchForm
 from saap.core.models import Trecho, ImpressoEnderecamento, Bairro, NivelInstrucao
 from saap.utils import normalize, YES_NO_CHOICES, NONE_YES_NO_CHOICES
 
-nosso_estado = Estado.objects.get(sigla=settings.DADOS_UF)
-nosso_municipio = Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=nosso_estado.pk)
-
 class ListTextWidget(forms.TextInput):
 
     def __init__(self, data_list, name, *args, **kwargs):
@@ -1017,8 +1014,8 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + nosso_municipio.nome),
-        queryset=Bairro.objects.filter(municipio=nosso_municipio.pk))
+        label=_('Bairro de ' + Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).nome),
+        queryset=Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk))
 
     cep = MethodFilter(label=_('CEP'))
     
@@ -1028,8 +1025,8 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
     municipio = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Município do ' + nosso_estado.nome),
-        queryset=Municipio.objects.filter(estado=nosso_estado.pk))
+        label=_('Município do ' + Estado.objects.get(sigla=settings.DADOS_UF).nome),
+        queryset=Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk))
 
     impresso = ModelChoiceFilter(
         required=False,
@@ -1406,9 +1403,9 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
         self.form.fields['grupo'].queryset = GrupoDeContatos.objects.filter(workspace=workspace)
 
-        self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=nosso_municipio.pk)
+        self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk)
         
-        self.form.fields['municipio'].queryset = Municipio.objects.filter(estado=nosso_estado.pk)
+        self.form.fields['municipio'].queryset = Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk)
 
 class ProcessoIndividualFilterSet(FilterSet):
 
@@ -1464,8 +1461,8 @@ class ProcessoIndividualFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + nosso_municipio.nome),
-        queryset=Bairro.objects.filter(municipio=nosso_municipio.pk))
+        label=_('Bairro de ' + Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).nome),
+        queryset=Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk))
 
     urgente = BooleanFilter()
 
@@ -1821,12 +1818,12 @@ class ProcessoIndividualFilterSet(FilterSet):
                     'filter',
                     value=_('Filtrar'),
                     css_class='btn-default pull-right',
-                    type='submit'),1),
+                    type='submit'),2),
                 (SubmitFilterPrint(
                     'print',
                     value=_('Imprimir'),
                     css_class='btn-primary pull-right',
-                    type='submit'),1)
+                    type='submit'),2)
             ])), 12),])
 
         self.form.helper = FormHelper()
@@ -1917,8 +1914,8 @@ class ProcessosFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + nosso_municipio.nome),
-        queryset=Bairro.objects.filter(municipio=nosso_municipio.pk))
+        label=_('Bairro de ' + Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).nome),
+        queryset=Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk))
 
     urgente = BooleanFilter()
 
@@ -2381,8 +2378,8 @@ class ContatoIndividualFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + nosso_municipio.nome),
-        queryset=Bairro.objects.filter(municipio=nosso_municipio.pk))
+        label=_('Bairro de ' + Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).nome),
+        queryset=Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk))
 
     cep = MethodFilter(label=_('CEP'))
     
@@ -2390,8 +2387,8 @@ class ContatoIndividualFilterSet(FilterSet):
 
     municipio = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Município do ' + nosso_estado.nome),
-        queryset=Municipio.objects.filter(estado=nosso_estado.pk))
+        label=_('Município do ' + Estado.objects.get(sigla=settings.DADOS_UF).nome),
+        queryset=Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk))
 
     def filter_grupo(self, queryset, value):
         if value:
@@ -2661,12 +2658,12 @@ class ContatoIndividualFilterSet(FilterSet):
                     'filter',
                     value=_('Filtrar'),
                     css_class='btn-default pull-right',
-                    type='submit'),1),
+                    type='submit'),2),
                 (SubmitFilterPrint(
                     'print',
                     value=_('Imprimir'),
                     css_class='btn-primary pull-right',
-                    type='submit'),1)
+                    type='submit'),2)
             ])), 12),])
 
         self.form.helper = FormHelper()
@@ -2687,8 +2684,8 @@ class ContatoIndividualFilterSet(FilterSet):
 
         self.form.fields['grupo'].queryset = GrupoDeContatos.objects.filter(workspace=workspace)
 
-        self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=nosso_municipio.pk)
-        self.form.fields['municipio'].queryset = Municipio.objects.filter(estado=nosso_estado.pk)
+        self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk)
+        self.form.fields['municipio'].queryset = Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk)
 
 class ContatosFilterSet(FilterSet):
 
@@ -2793,15 +2790,15 @@ class ContatosFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + nosso_municipio.nome),
-        queryset=Bairro.objects.filter(municipio=nosso_municipio.pk))
+        label=_('Bairro de ' + Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).nome),
+        queryset=Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk))
 
     cep = MethodFilter(label=_('CEP'))
 
     municipio = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Município do ' + nosso_estado.nome),
-        queryset=Municipio.objects.filter(estado=nosso_estado.pk))
+        label=_('Município do ' + Estado.objects.get(sigla=settings.DADOS_UF).nome),
+        queryset=Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk))
 
     def filter_grupo(self, queryset, value):
         if value:
@@ -3104,8 +3101,8 @@ class ContatosFilterSet(FilterSet):
         self.form.fields['ocultar_sem_email'].label = _('<font color=red>Ocultar sem e-mail?</font>')
 
         self.form.fields['grupo'].queryset = GrupoDeContatos.objects.filter(workspace=workspace)
-        self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=nosso_municipio.pk)
-        self.form.fields['municipio'].queryset = Municipio.objects.filter(estado=nosso_estado.pk)
+        self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk)
+        self.form.fields['municipio'].queryset = Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk)
 
 class ListWithSearchProcessoForm(ListWithSearchForm):
 
@@ -3195,8 +3192,8 @@ class ListWithSearchProcessoForm(ListWithSearchForm):
 
     bairros = forms.ModelMultipleChoiceField(
         required=False,
-        label=_('Bairro de ' + nosso_municipio.nome),
-        queryset=Bairro.objects.filter(municipio=nosso_municipio.pk))
+        label=_('Bairro de ' + Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).nome),
+        queryset=Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk))
 
     urgente = forms.NullBooleanField(
         required=False,
@@ -3356,8 +3353,8 @@ class ListWithSearchContatoForm(ListWithSearchForm):
 
     bairro = forms.ModelMultipleChoiceField(
         required=False,
-        label=_('Bairro de ' + nosso_municipio.nome),
-        queryset=Bairro.objects.filter(municipio=nosso_municipio.pk))
+        label=_('Bairro de ' + Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).nome),
+        queryset=Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk))
 
     tipo_autoridade = forms.ModelChoiceField(
         required=False,
@@ -3374,8 +3371,8 @@ class ListWithSearchContatoForm(ListWithSearchForm):
 
     municipio = forms.ModelMultipleChoiceField(
         required=False,
-        label=_('Município do ' + nosso_estado.nome),
-        queryset=Municipio.objects.filter(estado=nosso_estado.pk))
+        label=_('Município do ' + Estado.objects.get(sigla=settings.DADOS_UF).nome),
+        queryset=Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk))
 
     grupos = forms.ModelMultipleChoiceField(
         required=False,

@@ -18,7 +18,8 @@ USER=`whoami`                                   # the user to run as (*)
 GROUP=`whoami`                                  # the group to run as (*)
 NUM_WORKERS=3                                   # how many worker processes should Gunicorn spawn (*)
                                                 # NUM_WORKERS = 2 * CPUS + 1
-TIMEOUT=960
+
+TIMEOUT=960 					# A long time that's enough for any sort of report.
 #GRACEFUL_TIMEOUT=480
 MAX_REQUESTS=100                                # number of requests before restarting worker
 DJANGO_SETTINGS_MODULE=saap.settings            # which settings file should Django use (*)

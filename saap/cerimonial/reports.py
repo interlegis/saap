@@ -1467,7 +1467,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
             if(p.quantos_filhos > 0):
                 line = []
                 line.append(Paragraph("Quantos filhos?", legenda))
-                line.append(Paragraph(p.quantos_filhos, conteudo))
+                line.append(Paragraph(str(p.quantos_filhos), conteudo))
                 data.append(line)
 
         if(p.nome_pai):
