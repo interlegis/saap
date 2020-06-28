@@ -1014,8 +1014,8 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).nome),
-        queryset=Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk))
+        label=_('Bairro de ' + settings.DADOS_MUNICIPIO),
+        queryset=None) # Será carregado no final do código
 
     cep = MethodFilter(label=_('CEP'))
     
@@ -1025,8 +1025,8 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
     municipio = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Município do ' + Estado.objects.get(sigla=settings.DADOS_UF).nome),
-        queryset=Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk))
+        label=_('Município do ' + settings.DADOS_UF), 
+        queryset=None) # Será carregado no final do código
 
     impresso = ModelChoiceFilter(
         required=False,
@@ -1461,8 +1461,8 @@ class ProcessoIndividualFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).nome),
-        queryset=Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk))
+        label=_('Bairro de ' + settings.DADOS_MUNICIPIO),
+        queryset=None) # Será carregado no final do código
 
     urgente = BooleanFilter()
 
@@ -1839,6 +1839,8 @@ class ProcessoIndividualFilterSet(FilterSet):
         self.form.fields['search_numeros'].label = _('Matéria, protocolo ou ofício')
         self.form.fields['search_endereco'].label = _('Endereço')
         self.form.fields['search_envolvidos'].label = _('Órgão ou instituição')
+        
+        self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk)
        
 class ProcessosFilterSet(FilterSet):
 
@@ -1914,8 +1916,8 @@ class ProcessosFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).nome),
-        queryset=Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk))
+        label=_('Bairro de ' + settings.DADOS_MUNICIPIO),
+        queryset=None) # Será carregado no final do código
 
     urgente = BooleanFilter()
 
@@ -2301,6 +2303,9 @@ class ProcessosFilterSet(FilterSet):
         self.form.fields['agrupamento'].label = _('Agrupamento')
         self.form.fields['agrupamento'].widget = forms.RadioSelect()
 
+        self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk)
+
+
 class ContatoIndividualFilterSet(FilterSet):
 
     filter_overrides = {models.DateField: {
@@ -2378,8 +2383,8 @@ class ContatoIndividualFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).nome),
-        queryset=Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk))
+        label=_('Bairro de ' + settings.DADOS_MUNICIPIO),
+        queryset=None) # Será carregado no final do código
 
     cep = MethodFilter(label=_('CEP'))
     
@@ -2387,8 +2392,8 @@ class ContatoIndividualFilterSet(FilterSet):
 
     municipio = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Município do ' + Estado.objects.get(sigla=settings.DADOS_UF).nome),
-        queryset=Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk))
+        label=_('Município do ' + settings.DADOS_UF),
+        queryset=None) # Será carregado no final do código
 
     def filter_grupo(self, queryset, value):
         if value:
@@ -2790,15 +2795,15 @@ class ContatosFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).nome),
-        queryset=Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk))
+        label=_('Bairro de ' + settings.DADOS_MUNICIPIO),
+        queryset=None) # Será carregado no final do código
 
     cep = MethodFilter(label=_('CEP'))
 
     municipio = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Município do ' + Estado.objects.get(sigla=settings.DADOS_UF).nome),
-        queryset=Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk))
+        label=_('Município do ' + settings.DADOS_UF),
+        queryset=None) # Será carregado no final do código
 
     def filter_grupo(self, queryset, value):
         if value:
@@ -3192,8 +3197,8 @@ class ListWithSearchProcessoForm(ListWithSearchForm):
 
     bairros = forms.ModelMultipleChoiceField(
         required=False,
-        label=_('Bairro de ' + Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).nome),
-        queryset=Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk))
+        label=_('Bairro de ' + settings.DADOS_MUNICIPIO),
+        queryset=Bairro.objects.all()) # Será carregado no final do código
 
     urgente = forms.NullBooleanField(
         required=False,
@@ -3277,6 +3282,8 @@ class ListWithSearchProcessoForm(ListWithSearchForm):
         #workspace = kwargs.pop('workspace')
 
         self.fields['q'].label = _('Título, histórico, observações ou solução')
+        
+        self.fields['bairros'].queryset = Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk)
 
 class ListWithSearchContatoForm(ListWithSearchForm):
    
@@ -3353,8 +3360,8 @@ class ListWithSearchContatoForm(ListWithSearchForm):
 
     bairro = forms.ModelMultipleChoiceField(
         required=False,
-        label=_('Bairro de ' + Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).nome),
-        queryset=Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk))
+        label=_('Bairro de ' + settings.DADOS_MUNICIPIO),
+        queryset=Bairro.objects.all()) # Será carregado no final do código
 
     tipo_autoridade = forms.ModelChoiceField(
         required=False,
@@ -3371,8 +3378,8 @@ class ListWithSearchContatoForm(ListWithSearchForm):
 
     municipio = forms.ModelMultipleChoiceField(
         required=False,
-        label=_('Município do ' + Estado.objects.get(sigla=settings.DADOS_UF).nome),
-        queryset=Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk))
+        label=_('Município do ' + settings.DADOS_UF),
+        queryset=Municipio.objects.all()) # Será carregado no final do código
 
     grupos = forms.ModelMultipleChoiceField(
         required=False,
@@ -3480,3 +3487,5 @@ class ListWithSearchContatoForm(ListWithSearchForm):
         self.fields['q'].label = _('Nome, nome social ou apelido')
         self.fields['cep'].widget.attrs['class'] = 'cep'
         self.fields['grupos'].queryset = GrupoDeContatos.objects.filter(workspace=workspace)
+        self.fields['bairro'].queryset = Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk)
+        self.fields['municipio'].queryset = Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk)

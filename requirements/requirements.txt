@@ -36,5 +36,5 @@ pyjwkest
 psycopg2-binary
 bootstrap-admin
 django-easy-audit
-sqlparse==0.9
+sqlparse==0.1.9
 django-debug-toolbar==1.4

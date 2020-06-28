@@ -36,7 +36,6 @@ def site_camara():
 
 @register.simple_tag() 
 def brasao_sistema():
-    print(settings.BRASAO_PROPRIO)
     if settings.BRASAO_PROPRIO == 'True':
         return 'img/brasao-camara.png'
     else:

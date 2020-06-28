@@ -38,7 +38,7 @@ Instale o NGINX:
 
 ::
 
-    sudo apt-get install nginx
+    sudo apt-get install nginx -y
 
 Em seguida, instale o Gunicorn:
 
@@ -50,7 +50,7 @@ Por fim, instale o Supervisor:
 
 ::
 
-    sudo apt-get install supervisor
+    sudo apt-get install supervisor -y
 
 
 3) Preparar o NGINX
@@ -60,46 +60,47 @@ Crie o arquivo de configuração:
 
 ::
 
-    sudo vim /etc/nginx/sites-available/sapl.conf
+    sudo vim /etc/nginx/sites-available/saap.conf
 
 Seu conteúdo deve ser o seguinte:
 
 ::
 
     server {
-      listen 80;
-      access_log /var/log/saap/access.log;
-      error_log /var/log/saap/error.log;
+        listen 80;
+        access_log /var/log/nginx-access.log;
+        error_log /var/log/nginx-error.log;
 
-      server_name [SERVERNAME];
+        server_name [SERVERNAME];
 
-      location / {
-         proxy_pass http://127.0.0.1:8000; 
+        location / {
+            proxy_pass http://127.0.0.1:8000;
 
-         # As proximas linhas passam o IP real para o Gunicorn nao achar que são acessos locais
-         proxy_pass_header Server;
-         proxy_set_header X-Forwarded-Host $server_name;
-         proxy_set_header X-Real-IP $remote_addr;
-         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-         proxy_set_header Host $http_host;
-      }
+            # As proximas linhas passam o IP real para o Gunicorn nao achar que são acessos locais
+            proxy_pass_header Server;
+            proxy_set_header X-Forwarded-Host $server_name;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $http_host;
+         }
 
-      location /static {
-         alias /var/interlegis/saap/collected_static;
-      }
+         location /static {
+             alias /var/interlegis/saap/collected_static;
+         }
 
     }
 
-Onde:
+Onde você deve preencher o nome do servidor no lugar de [SERVERNAME]
 
-    * Você deve preencher o nome do servidor no lugar de [SERVERNAME]
-    * Tanto a porta em ``listen`` quanto as localizações de ``access_log`` e ``error_log`` podem ser alteradas, ao seu critério.
-
-Lembre-se de criar a pasta onde ficarão os logs do SAAP:
+Lembre-se de criar a pasta onde ficarão os logs do SAAP e dar as permissões:
 
 ::
 
     sudo mkdir /var/log/saap
+    sudo touch /var/log/saap/access.log
+    sudo touch /var/log/saap/error.log
+    sudo chown $USER:$USER /var/log/saap/*
+    sudo chmod 755 /var/log/saap/*
 
 Em seguida, é necessário criar o link simbólico para este arquivo que criamos. Antes, porém, é necessário excluir o arquivo ``default``, para que o SAAP seja o único site do NGINX. Salientando, novamente, que você pode configurar o NGINX da forma que preferir - este é apenas a forma básica pra termos nosso servidor pronto.
 
@@ -108,12 +109,6 @@ Em seguida, é necessário criar o link simbólico para este arquivo que criamos
     sudo rm /etc/nginx/sites-enabled/default
    
     sudo ln -s /etc/nginx/sites-available/saap.conf /etc/nginx/sites-enabled/saap
-
-Por fim, reinicie o servidor:
-
-::
-  
-    sudo service nginx restart
 
 4) Preparar o Gunicorn
 ----------------------------------------------------------------------------------------   
@@ -140,8 +135,28 @@ Em seguida, edite o arquivo ``/var/interlegis/saap/gunicorn_start.sh`` e altere 
     NUM_WORKERS=[WORKERS]
     TIMEOUT=960
 
-4) Preparar o Supervisor
+4) Testar o servidor
 ---------------------------------------------------------------------------------------- 
+
+Reinicie o servidor:
+
+::
+  
+    sudo service nginx restart
+
+Dentro da pasta ``/var/interlegis/saap``, execute o comando:
+
+::
+
+    ./gunicorn_start.sh
+
+O SAAP deverá estar funcionando em ``http://[ENDERECO_SITE]`` ou em ``http://localhost``
+
+
+5) Preparar o Supervisor
+---------------------------------------------------------------------------------------- 
+
+Como você deve ter percebido, o servidor só funciona enquanto o arquivo ``gunicorn_start.sh`` está em execução. Para não precisar disto, e pro NGINX + Gunicorn funcionar automaticamente ao ligar o servidor, usaremos o Gunicorn.
 
 Crie o arquivo de configuração relacionado ao Gunicorn:
 
@@ -153,6 +168,7 @@ Insira o seguinte conteúdo:
 
 ::
 
+    [program:gunicorn]
     command=/var/interlegis/.virtualenvs/saap/bin/gunicorn saap.wsgi:application -c /var/interlegis/saap/gunicorn_conf
     directory=/var/interlegis/saap
     autostart=true
@@ -172,14 +188,4 @@ Por fim, reinicie o Supervisor, para iniciar o sistema
 
     sudo supervisorctl restart all
 
-Para acessar o SAAP:
-
-::
-
-    http://nome-do-servidor/
-
-O painel de administração está disponível ao adicionar ``/admin`` no final do endereço:
-
-::
-
-    http://nome-do-servidor/admin
+O SAAP deverá estar funcionando em ``http://[ENDERECO_SITE]`` ou em ``http://localhost``

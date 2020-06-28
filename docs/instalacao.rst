@@ -2,7 +2,7 @@
 Instalação do Ambiente de Desenvolvimento
 ***********************************************
 
-Procedimento testado no ``Debian Buster x64``. Entretanto, quando do desenvolvimento, o SO era o `Debian Jessie x64`.
+Procedimento testado no ``Debian Buster x64`` e ``Ubuntu 18.04 Bionic Beaver x64``. Além disto, quando do desenvolvimento em 2018, o SO utilizado o ``Debian Jessie x64``.
 
 Para a instalação, foi utilizado o usuário de sistema ``saap``, que deve ter as devidas permissões para instalação e configuração.
 
@@ -13,7 +13,7 @@ Atualize o sistema:
 
 :: 
 
-    apt-get update && apt-get upgrade
+    sudo apt-get update && sudo apt-get upgrade
 
 Instale os pacotes:
 
@@ -58,6 +58,7 @@ Ajuste as permissões:
 ::
 
     sudo chown -R $USER:$USER /var/interlegis/
+    sudo chown -R $USER:$USER /home/$USER/
     
 
 Edite o arquivo ``.bashrc`` e adicione ao seu final as configurações abaixo para o ``virtualenvwrapper``:
@@ -122,7 +123,7 @@ Crie o usuário ``saap`` que será usado no banco. Caso você queira alterar a s
 
 ::
 
-    sudo -u postgres psql -c "CREATE ROLE saap LOGIN ENCRYPTED PASSWORD 'saap' NOSUPERUSER INHERIT CREATEDB NOCREATEROLE NOREPLICATION;"
+    sudo -u postgres psql -c "CREATE ROLE saap LOGIN ENCRYPTED PASSWORD 'saap' SUPERUSER INHERIT CREATEDB NOCREATEROLE NOREPLICATION;"
 
     sudo -u postgres psql -c "ALTER ROLE saap VALID UNTIL 'infinity';"
 
@@ -333,10 +334,11 @@ Após isto, é necessário fazer a carga de dados básicos. Para isto, rode os c
     ./manage.py loaddata config/initial_data/saap_core_municipio.json
     ./manage.py loaddata config/initial_data/saap_core_bairro.json
     ./manage.py loaddata config/initial_data/saap_core_distrito.json
+    ./manage.py loaddata config/initial_data/saap_core_regiaomunicipal.json
     ./manage.py loaddata config/initial_data/saap_core_cep.json
-    ./manage.py loaddata config/initial_data/saap_core_trecho.json
     ./manage.py loaddata config/initial_data/saap_core_tipologradouro.json
     ./manage.py loaddata config/initial_data/saap_core_logradouro.json
+    ./manage.py loaddata config/initial_data/saap_core_trecho.json
     ./manage.py loaddata config/initial_data/saap_core_impressoenderecamento.json
     ./manage.py loaddata config/initial_data/saap_core_nivelinstrucao.json
     ./manage.py loaddata config/initial_data/saap_core_situacaomilitar.json
