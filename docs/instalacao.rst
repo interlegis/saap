@@ -13,7 +13,7 @@ Atualize o sistema:
 
 :: 
 
-    sudo apt-get update && sudo apt-get upgrade
+    sudo apt-get update && sudo apt-get upgrade -y
 
 Instale os pacotes:
 
@@ -61,7 +61,13 @@ Ajuste as permissões:
     sudo chown -R $USER:$USER /home/$USER/
     
 
-Edite o arquivo ``.bashrc`` e adicione ao seu final as configurações abaixo para o ``virtualenvwrapper``:
+Edite o arquivo ``.bashrc``:
+
+::
+
+    vim /home/$USER/.bashrc
+
+Adicione ao seu final as configurações abaixo para o ``virtualenvwrapper``:
 
 ::
 

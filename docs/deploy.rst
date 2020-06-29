@@ -66,31 +66,33 @@ Seu conteúdo deve ser o seguinte:
 
 ::
 
+    upstream [ENDERECO_SITE] {
+        server unix:/var/interlegis/saap/run/gunicorn.sock fail_timeout=0;
+    }
+
     server {
         listen 80;
+        server_name [NOME_SERVIDOR];
+
+        client_max_body_size 4G;
+
         access_log /var/log/nginx-access.log;
         error_log /var/log/nginx-error.log;
 
-        server_name [SERVERNAME];
-
         location / {
             proxy_pass http://127.0.0.1:8000;
-
-            # As proximas linhas passam o IP real para o Gunicorn nao achar que são acessos locais
-            proxy_pass_header Server;
-            proxy_set_header X-Forwarded-Host $server_name;
-            proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header Host $http_host;
-         }
+            proxy_redirect off;
+        }
 
-         location /static {
-             alias /var/interlegis/saap/collected_static;
-         }
+        location /static {
+            alias /var/interlegis/saap/collected_static/;
+        }
 
     }
 
-Onde você deve preencher o nome do servidor no lugar de [SERVERNAME]
+Onde você deve preencher o nome do servidor no lugar de [NOME_SERVIDOR] e o endereço de acesso no [ENDERECO_SITE]
 
 Lembre-se de criar a pasta onde ficarão os logs do SAAP e dar as permissões:
 
@@ -188,4 +190,4 @@ Por fim, reinicie o Supervisor, para iniciar o sistema
 
     sudo supervisorctl restart all
 
-O SAAP deverá estar funcionando em ``http://[ENDERECO_SITE]`` ou em ``http://localhost``
+O SAAP deverá estar funcionando em ``http://[ENDERECO_SITE]``.
