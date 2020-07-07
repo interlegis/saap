@@ -376,18 +376,18 @@ Subir o servidor
 
 ::
   
-    ./manage.py runserver localhost:8000
+    ./manage.py runserver nome-do-servidor:8000
 
-Fique à vontade para informar o nome do host ou a porta que deseja. 
+Fique à vontade para informar o nome do host/endereço IP, ou a porta que deseja. 
 
 Para acessar o SAAP:
 
 ::
 
-    http://localhost:8000/
+    http://nome-do-servidor:8000/
 
 O painel de administração está disponível ao adicionar ``/admin`` no final do endereço:
 
 ::
 
-    http://localhost:8000/admin
+    http://nome-do-servidor:8000/admin
