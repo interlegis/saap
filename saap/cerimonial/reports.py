@@ -59,6 +59,7 @@ class RelatorioProcessosView(PermissionRequiredMixin, FilterView):
 
     def __init__(self):
         super().__init__()
+        self.MAX_TITULO = 80
         self.ctx_title = 'Relatório de Processos'
         self.relat_title = 'Relatório de Processos'
         self.nome_objeto = 'Processo'
