@@ -137,22 +137,11 @@ Em seguida, edite o arquivo ``/var/interlegis/saap/gunicorn_start.sh`` e altere 
     NUM_WORKERS=[WORKERS]
     TIMEOUT=960
 
-4) Testar o servidor
----------------------------------------------------------------------------------------- 
-
 Reinicie o servidor:
 
 ::
   
     sudo service nginx restart
-
-Dentro da pasta ``/var/interlegis/saap``, execute o comando:
-
-::
-
-    ./gunicorn_start.sh
-
-O SAAP deverá estar funcionando em ``http://nome-do-servidor``
 
 
 5) Preparar o Supervisor

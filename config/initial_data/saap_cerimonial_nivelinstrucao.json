@@ -1,44 +1,44 @@
 [
 {
-  "model": "cerimonial.nivelinstrucao",
-  "pk": 4,
-  "fields": {
-    "descricao": "Ensino Fundamental completo"
-  }
+    "model": "cerimonial.nivelinstrucao",
+    "pk": 4,
+    "fields": {
+        "descricao": "Ensino Fundamental completo"
+    }
 },
 {
-  "model": "cerimonial.nivelinstrucao",
-  "pk": 5,
-  "fields": {
-    "descricao": "Ensino Fundamental incompleto"
-  }
+    "model": "cerimonial.nivelinstrucao",
+    "pk": 5,
+    "fields": {
+        "descricao": "Ensino Fundamental incompleto"
+    }
 },
 {
-  "model": "cerimonial.nivelinstrucao",
-  "pk": 6,
-  "fields": {
-    "descricao": "Ensino M\u00e9dio incompleto"
-  }
+    "model": "cerimonial.nivelinstrucao",
+    "pk": 6,
+    "fields": {
+        "descricao": "Ensino M\u00e9dio incompleto"
+    }
 },
 {
-  "model": "cerimonial.nivelinstrucao",
-  "pk": 7,
-  "fields": {
-    "descricao": "Ensino Superior incompleto"
-  }
+    "model": "cerimonial.nivelinstrucao",
+    "pk": 7,
+    "fields": {
+        "descricao": "Ensino Superior incompleto"
+    }
 },
 {
-  "model": "cerimonial.nivelinstrucao",
-  "pk": 8,
-  "fields": {
-    "descricao": "Ensino M\u00e9dio completo"
-  }
+    "model": "cerimonial.nivelinstrucao",
+    "pk": 8,
+    "fields": {
+        "descricao": "Ensino M\u00e9dio completo"
+    }
 },
 {
-  "model": "cerimonial.nivelinstrucao",
-  "pk": 9,
-  "fields": {
-    "descricao": "Ensino Superior completo"
-  }
+    "model": "cerimonial.nivelinstrucao",
+    "pk": 9,
+    "fields": {
+        "descricao": "Ensino Superior completo"
+    }
 }
 ]

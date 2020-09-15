@@ -141,29 +141,33 @@ Altere também a senha do usuário ``postgres``:
 
     sudo -u postgres psql -c "ALTER ROLE postgres WITH ENCRYPTED PASSWORD 'postgres';"
 
-Crie a função ``unaccent``, que será usada em diversas consultas dentro do SAAP:
 
-::
-
-    sudo -u postgres psql -c "CREATE EXTENSION unaccent;"
-    sudo -u saap psql -c "CREATE EXTENSION unaccent;"
-
-Para concluir, é necessário editar o arquivo ``/etc/postgresql/[VERSÃO]/main/pg_hba.conf`` e alterar nas linhas finais a opção ``peer`` para ``md5``. 
+Em seguida, é necessário editar o arquivo ``/etc/postgresql/[VERSÃO]/main/pg_hba.conf`` e alterar nas linhas finais a opção ``peer`` para ``md5``. 
 
 ::
 
     sudo vim /etc/postgresql/[VERSÃO]/main/pg_hba.conf
 
 
-Em seguida, reinicie o servidor:
+Então, reinicie o servidor:
 
 ::
 
     sudo /etc/init.d/postgresql restart
 
+Para concluir, crie a função ``unaccent``, que será usada em diversas consultas dentro do SAAP:
+
+::
+
+    psql -U saap
+    
+    CREATE EXTENSION unaccent;
+
+    exit;
+
 No ambiente de desenvolvimento, a role deve ter permissão para criar outro banco. Isso é usado pelos testes automatizados.
 
-Caso você já possua uma instalação do PostgreSQL anterior ao processo de instalação do ambiente de desenvolvimento do SAAP em sua máquina ou em outro servidor, e saiba como fazer, esteja livre para proceder como desejar. Porém, ao configurar o arquivo ``.env``a seguir, as mesmas definições deverão ser usadas
+Caso você já possua uma instalação do PostgreSQL anterior ao processo de instalação do ambiente de desenvolvimento do SAAP em sua máquina ou em outro servidor, e saiba como fazer, esteja livre para proceder como desejar. Porém, ao configurar o arquivo ``.env`` a seguir, as mesmas definições deverão ser usadas
 
 6) Configurar permissões e arquivo de configuração
 -----------------------------------------------------
@@ -322,7 +326,7 @@ Após isto, é necessário fazer a carga de dados básicos. Para isto, rode os c
     ./manage.py loaddata config/initial_data/saap_cerimonial_assuntoprocesso.json
     ./manage.py loaddata config/initial_data/saap_cerimonial_classificacaoprocesso.json
     ./manage.py loaddata config/initial_data/saap_cerimonial_estadocivil.json
-    ./manage.py loaddata config/initial_data/saap_cerimonial_estadocivil.json
+    ./manage.py loaddata config/initial_data/saap_cerimonial_nivelinstrucao.json
     ./manage.py loaddata config/initial_data/saap_cerimonial_operadoratelefonia.json
     ./manage.py loaddata config/initial_data/saap_cerimonial_parentesco.json
     ./manage.py loaddata config/initial_data/saap_cerimonial_pronometratamento.json
@@ -346,7 +350,6 @@ Após isto, é necessário fazer a carga de dados básicos. Para isto, rode os c
     ./manage.py loaddata config/initial_data/saap_core_logradouro.json
     ./manage.py loaddata config/initial_data/saap_core_trecho.json
     ./manage.py loaddata config/initial_data/saap_core_impressoenderecamento.json
-    ./manage.py loaddata config/initial_data/saap_core_nivelinstrucao.json
     ./manage.py loaddata config/initial_data/saap_core_situacaomilitar.json
     ./manage.py loaddata config/initial_data/saap_core_partido.json
 

@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.deletion import SET_NULL, PROTECT, CASCADE
 from django.utils.translation import ugettext_lazy as _
 
+from saap import settings
 from saap.core.models import Municipio, Estado, Partido
 from saap.core.models import Trecho, Distrito, RegiaoMunicipal,\
     SaapAuditoriaModelMixin, SaapSearchMixin, AreaTrabalho, Bairro
@@ -247,7 +248,8 @@ class Contato(SaapSearchMixin, SaapAuditoriaModelMixin):
 
     estado = models.ForeignKey(
         Estado,
-        blank=True, null=True, default=21,
+        blank=True, null=True,
+        default=Estado.objects.get(sigla=settings.DADOS_UF).pk,
         related_name='contato_set',
         verbose_name=_('Estado de nascimento'))
 
@@ -581,14 +583,14 @@ class LocalTrabalho(SaapAuditoriaModelMixin):
         Estado,
         verbose_name=_('Estado'),
         related_name='localtrabalho_set',
-        blank=True, null=True, default=21)
+        blank=True, null=True,
+        default=Estado.objects.get(sigla=settings.DADOS_UF).pk)
 
     municipio = ChainedForeignKey(
         Municipio,
         chained_field="estado",
         chained_model_field="estado",
         null=True, blank=True,
-        default=4891,
         show_all=False,
         auto_choose=True,
         sort=True,
@@ -700,7 +702,7 @@ class Endereco(SaapAuditoriaModelMixin):
     estado = models.ForeignKey(
         Estado,
         verbose_name=_('Estado'), 
-        default=21,
+        default=Estado.objects.get(sigla=settings.DADOS_UF).pk,
         related_name='endereco_set',
         blank=False, null=False)
 
@@ -713,7 +715,6 @@ class Endereco(SaapAuditoriaModelMixin):
         show_all=False,
         auto_choose=True,
         sort=True,
-        default=4891,
         verbose_name=_('Município'))
 
     bairro = ChainedForeignKey(

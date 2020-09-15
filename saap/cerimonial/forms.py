@@ -1014,7 +1014,7 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + settings.DADOS_MUNICIPIO),
+        label=_('Bairro (' + settings.DADOS_MUNICIPIO + ')'),
         queryset=None) # Será carregado no final do código
 
     cep = MethodFilter(label=_('CEP'))
@@ -1025,7 +1025,7 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
     municipio = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Município do ' + settings.DADOS_UF), 
+        label=_('Município (' + settings.DADOS_UF + ')'), 
         queryset=None) # Será carregado no final do código
 
     impresso = ModelChoiceFilter(
@@ -1461,7 +1461,7 @@ class ProcessoIndividualFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + settings.DADOS_MUNICIPIO),
+        label=_('Bairro (' + settings.DADOS_MUNICIPIO + ')'),
         queryset=None) # Será carregado no final do código
 
     urgente = BooleanFilter()
@@ -1916,7 +1916,7 @@ class ProcessosFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + settings.DADOS_MUNICIPIO),
+        label=_('Bairro (' + settings.DADOS_MUNICIPIO + ')'),
         queryset=None) # Será carregado no final do código
 
     urgente = BooleanFilter()
@@ -2383,7 +2383,7 @@ class ContatoIndividualFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + settings.DADOS_MUNICIPIO),
+        label=_('Bairro (' + settings.DADOS_MUNICIPIO + ')'),
         queryset=None) # Será carregado no final do código
 
     cep = MethodFilter(label=_('CEP'))
@@ -2392,7 +2392,7 @@ class ContatoIndividualFilterSet(FilterSet):
 
     municipio = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Município do ' + settings.DADOS_UF),
+        label=_('Município (' + settings.DADOS_UF + ')'), 
         queryset=None) # Será carregado no final do código
 
     def filter_grupo(self, queryset, value):
@@ -2795,14 +2795,14 @@ class ContatosFilterSet(FilterSet):
 
     bairro = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Bairro de ' + settings.DADOS_MUNICIPIO),
+        label=_('Bairro (' + settings.DADOS_MUNICIPIO + ')'),
         queryset=None) # Será carregado no final do código
 
     cep = MethodFilter(label=_('CEP'))
 
     municipio = MethodModelMultipleChoiceFilter(
         required=False,
-        label=_('Município do ' + settings.DADOS_UF),
+        label=_('Município (' + settings.DADOS_UF + ')'), 
         queryset=None) # Será carregado no final do código
 
     def filter_grupo(self, queryset, value):
@@ -3197,7 +3197,7 @@ class ListWithSearchProcessoForm(ListWithSearchForm):
 
     bairros = forms.ModelMultipleChoiceField(
         required=False,
-        label=_('Bairro de ' + settings.DADOS_MUNICIPIO),
+        label=_('Bairro (' + settings.DADOS_MUNICIPIO + ')'),
         queryset=Bairro.objects.all()) # Será carregado no final do código
 
     urgente = forms.NullBooleanField(
@@ -3360,7 +3360,7 @@ class ListWithSearchContatoForm(ListWithSearchForm):
 
     bairro = forms.ModelMultipleChoiceField(
         required=False,
-        label=_('Bairro de ' + settings.DADOS_MUNICIPIO),
+        label=_('Bairro (' + settings.DADOS_MUNICIPIO + ')'),
         queryset=Bairro.objects.all()) # Será carregado no final do código
 
     tipo_autoridade = forms.ModelChoiceField(
@@ -3378,7 +3378,7 @@ class ListWithSearchContatoForm(ListWithSearchForm):
 
     municipio = forms.ModelMultipleChoiceField(
         required=False,
-        label=_('Município do ' + settings.DADOS_UF),
+        label=_('Município (' + settings.DADOS_UF + ')'), 
         queryset=Municipio.objects.all()) # Será carregado no final do código
 
     grupos = forms.ModelMultipleChoiceField(
