@@ -1,7 +1,7 @@
 from django.conf.urls import url, include
 
 from saap.cerimonial.reports import ImpressoEnderecamentoView,\
-    RelatorioProcessosView, RelatorioContatosView,\
+    RelatorioProcessosView, RelatorioContatosView, RelatorioContatosExportaView, \
     RelatorioContatoIndividualView, RelatorioProcessoIndividualView
 from saap.cerimonial.views import ContatoCrud, TelefoneCrud, EmailCrud,\
     DependenteCrud, LocalTrabalhoCrud, EnderecoCrud, FiliacaoPartidariaCrud,\
@@ -68,6 +68,10 @@ urlpatterns = [
     url(r'^relatorios/contatos',
         RelatorioContatosView.as_view(),
         name='print_rel_contatos'),
+
+    url(r'^relatorios/exporta/contatos',
+        RelatorioContatosExportaView.as_view(),
+        name='print_rel_contatosexporta'),
 
     url(r'^relatorios/individual/contato',
         RelatorioContatoIndividualView.as_view(),

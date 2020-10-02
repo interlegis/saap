@@ -27,13 +27,13 @@ from reportlab.platypus.tables import TableStyle, LongTable
 from reportlab.lib.units import mm
 
 from saap.cerimonial.forms import ImpressoEnderecamentoFilterSet,\
-    ProcessosFilterSet, ContatosFilterSet, ProcessoIndividualFilterSet, ContatoIndividualFilterSet
-from saap.cerimonial.models import Contato, Processo, Telefone, Email, GrupoDeContatos, Endereco, AssuntoProcesso, TopicoProcesso, LocalTrabalho, Dependente, FiliacaoPartidaria, IMPORTANCIA_CHOICE
+    ProcessosFilterSet, ContatosFilterSet, ContatosExportaFilterSet, ProcessoIndividualFilterSet, ContatoIndividualFilterSet
+from saap.cerimonial.models import Contato, Processo, Telefone, Email, GrupoDeContatos, Endereco, AssuntoProcesso, TopicoProcesso, LocalTrabalho, Dependente, FiliacaoPartidaria, Municipio, Estado, IMPORTANCIA_CHOICE
 from saap.core.models import AreaTrabalho
 from saap.crud.base import make_pagination
-from saap.utils import strip_tags
+from saap.utils import strip_tags, calcularIdade
 
-import time, datetime
+import time, datetime, xlwt
 
 #
 #
@@ -1795,6 +1795,710 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
 #
 #
 #
+
+class RelatorioContatosExportaView(RelatorioProcessosView):
+    #permission_required = 'cerimonial.print_rel_contatos'
+    permission_required = 'core.menu_contatos'
+    filterset_class = ContatosExportaFilterSet
+    model = Contato
+    template_name = 'cerimonial/filter_contatoexporta.html'
+    container_field = 'workspace__operadores'
+
+    def __init__(self):
+        super().__init__()
+        self.ctx_title = 'Exportação de Contatos'
+        self.relat_title = 'Exportação de Contatos'
+        self.nome_objeto = 'Contato'
+        self.filename = 'Exporta_Contatos'
+
+    def get(self, request, *args, **kwargs):
+        filterset_class = self.get_filterset_class()
+        self.filterset = self.get_filterset(filterset_class)
+        self.object_list = self.filterset.qs
+
+        if len(request.GET) and not len(self.filterset.form.errors)\
+                and not self.object_list.exists():
+            messages.error(request, _('Não existe contato com as '
+                                      'condições definidas na busca!'))
+        
+        if 'print' in request.GET and self.object_list.exists():
+              filename = "Planilha_Contatos_"\
+                     + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
+
+              response = HttpResponse(content_type='application/ms-excel')
+              content = 'attachment; filename="%s.xls"' % filename
+              response['Content-Disposition'] = content
+              self.build_xls(response)
+              return response
+
+        context = self.get_context_data(filter=self.filterset,
+                                        object_list=self.object_list)
+        
+        return self.render_to_response(context)
+
+    def get_filterset(self, filterset_class):
+        kwargs = self.get_filterset_kwargs(filterset_class)
+        try:
+            kwargs['workspace'] = AreaTrabalho.objects.filter(
+                operadores=self.request.user.pk)[0]
+        except:
+            raise PermissionDenied(_('Sem permissão de acesso!'))
+
+        return filterset_class(**kwargs)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        kwargs = {}
+        if self.container_field:
+            kwargs[self.container_field] = self.request.user.pk
+
+        return qs.filter(**kwargs)
+
+    def get_context_data(self, **kwargs):
+        count = self.object_list.count()
+        context = super(RelatorioContatosExportaView,
+                        self).get_context_data(**kwargs)
+
+        context['count'] = count
+        context['title'] = _(self.ctx_title)
+
+        paginator = context['paginator']
+        page_obj = context['page_obj']
+
+        context['page_range'] = make_pagination(
+            page_obj.number, paginator.num_pages)
+
+        qr = self.request.GET.copy()
+        if 'page' in qr:
+            del qr['page']
+        context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
+
+        for contato in context['page_obj']:            
+            endpref = contato.endereco_set.filter(permite_contato=True).first()
+            
+            if endpref:
+                contato.endereco = endpref.endereco if endpref.endereco else ''
+                contato.municipio = '%s/%s' % (endpref.municipio.nome, endpref.estado.sigla)
+            else:
+                contato.endereco = ''
+                contato.municipio = ''
+
+            if contato.sexo != '':
+                if contato.sexo == 'M':
+                    contato.sexo = 'Masculino'
+                elif contato.sexo == 'F':
+                    contato.sexo = 'Feminino'
+
+            contato.grupo = contato.grupodecontatos_set.all()
+
+        return context
+
+    def build_xls(self, response):
+
+        CONTATO = 0
+        ENDERECOS = 1
+        TELEFONES = 2
+        EMAILS = 3
+        GRUPOS = 4
+        NATURALIDADE = 5
+
+        ID = 0
+        NOME = 1
+        STATUS = 2
+        NASCIMENTO = 3
+        #NATURALIDADE = 4
+        #NATURALIDADE_ESTADO = 5
+        SEXO = 6
+        ESTADO_CIVIL = 7
+        TEM_FILHOS = 8
+        QUANTOS_FILHOS = 9
+        NIVEL_INSTRUCAO = 10
+        PROFISSAO = 11
+        CARGO = 12
+        TIPO_AUTORIDADE = 13
+        CPF = 14
+        RG = 15
+        RG_ORGAO = 16
+        RG_DATA = 17
+        TITULO_ELEITOR = 18
+        NUMERO_SUS = 19
+        CNPJ = 20
+        IE = 21
+
+        col_codigo = -1
+        col_status = -1
+        col_nascimento = -1
+        col_naturalidade = -1
+        col_idade = -1
+        col_sexo = -1
+        col_estadocivil = -1
+        col_filhos = -1
+        col_enderecos = -1
+        col_telefones = -1
+        col_emails = -1
+        col_grupos = -1
+        col_nivelinstrucao = -1
+        col_cargo = -1
+        col_documentosp = -1
+        col_documentose = -1
+        
+        campos_exportados = self.filterset.form.cleaned_data['campos_exportados']
+        tipo_dado_contato = self.filterset.form.cleaned_data['tipo_dado_contato']
+
+        colunas = ['Nome']
+        col_nome = 0
+
+        if campos_exportados:
+            qtde_campos_adicionais = 0;
+            for opcao in campos_exportados:
+                if(opcao == 'COD'):
+                   colunas = ['Código', 'Nome']
+                   qtde_campos_adicionais += 1
+                   col_codigo = 0 # Se não houver código, a primeira coluna será a do nome.
+                   col_nome = 1   # Do contrário, a primeira será a do código
+                elif(opcao == 'STA'):
+                   colunas = colunas + ['Ativo?']
+                   qtde_campos_adicionais += 1
+                   col_status = qtde_campos_adicionais 
+                elif(opcao == 'NAS'):
+                   colunas = colunas + ['Nascimento']
+                   qtde_campos_adicionais += 1
+                   col_nascimento = qtde_campos_adicionais 
+                elif(opcao == 'NAT'):
+                    colunas = colunas + ['Naturalidade']
+                    qtde_campos_adicionais += 1
+                    col_naturalidade = qtde_campos_adicionais 
+                elif(opcao == 'IDA'):
+                    colunas = colunas + ['Idade']
+                    qtde_campos_adicionais += 1
+                    col_idade = qtde_campos_adicionais 
+                elif(opcao == 'SEX'):
+                    colunas = colunas + ['Sexo']
+                    qtde_campos_adicionais += 1
+                    col_sexo = qtde_campos_adicionais 
+                elif(opcao == 'EST'):
+                    colunas = colunas + ['Estado civil']
+                    qtde_campos_adicionais += 1
+                    col_estadocivil = qtde_campos_adicionais 
+                elif(opcao == 'FIL'):
+                    colunas = colunas + ['Filhos']
+                    qtde_campos_adicionais += 1
+                    col_filhos = qtde_campos_adicionais 
+                elif(opcao == 'END'):
+                    if(tipo_dado_contato == 'P'):
+                        colunas = colunas + ['Endereço principal', 'Cidade (Principal)', 'CEP (Principal)']
+                        qtde_campos_adicionais += 3
+                        col_enderecos = qtde_campos_adicionais 
+                    elif(tipo_dado_contato == 'C'):
+                        colunas = colunas + ['Endereço para contato', 'Cidade (Contato)', 'CEP (Contato)']
+                        qtde_campos_adicionais += 3
+                        col_enderecos = qtde_campos_adicionais 
+                    elif(tipo_dado_contato == 'T'):
+                        colunas = colunas + ['Endereço principal', 'Cidade (Principal)', 'CEP (Principal)', 
+                                             'Endereço para contato', 'Cidade (Contato)', 'CEP (Contato)',
+                                             'Outros endereços', 'Cidade (Outros)', 'CEP (Outros)']
+                        qtde_campos_adicionais += 9
+                        col_enderecos = qtde_campos_adicionais 
+                elif(opcao == 'TEL'):
+                    if(tipo_dado_contato == 'P'):
+                        colunas = colunas + ['Telefone principal']
+                        qtde_campos_adicionais += 1
+                        col_telefones = qtde_campos_adicionais 
+                    elif(tipo_dado_contato == 'C'):
+                        colunas = colunas + ['Telefone para contato']
+                        qtde_campos_adicionais += 1
+                        col_telefones = qtde_campos_adicionais 
+                    elif(tipo_dado_contato == 'T'):
+                        colunas = colunas + ['Telefone principal', 'Telefone para contato', 'Outros telefones']
+                        qtde_campos_adicionais += 3
+                        col_telefones = qtde_campos_adicionais 
+                elif(opcao == 'EMA'):
+                    if(tipo_dado_contato == 'P'):
+                        colunas = colunas + ['E-mail principal']
+                        qtde_campos_adicionais += 1
+                        col_emails = qtde_campos_adicionais 
+                    elif(tipo_dado_contato == 'C'):
+                        colunas = colunas + ['E-mail para contato']
+                        qtde_campos_adicionais += 1
+                        col_emails = qtde_campos_adicionais 
+                    elif(tipo_dado_contato == 'T'):
+                        colunas = colunas + ['E-mail principal', 'E-mail para contato', 'Outros e-mails']
+                        qtde_campos_adicionais += 3
+                        col_emails = qtde_campos_adicionais 
+                elif(opcao == 'GRU'):
+                    colunas = colunas + ['Grupos']
+                    qtde_campos_adicionais += 1
+                    col_grupos = qtde_campos_adicionais 
+                elif(opcao == 'NIV'):
+                    colunas = colunas + ['Nível de instrução']
+                    qtde_campos_adicionais += 1
+                    col_nivelinstrucao = qtde_campos_adicionais 
+                elif(opcao == 'AUT'):
+                    colunas = colunas + ['Profissão', 'Cargo/Função', 'Tipo de autoridade']
+                    qtde_campos_adicionais += 3
+                    col_cargo = qtde_campos_adicionais 
+                elif(opcao == 'DOC'):
+                    colunas = colunas + ['CPF', 'RG', 'Órgão expedidor', 'Data de expedição', 'Título de eleitor', 'Número do SUS']
+                    qtde_campos_adicionais += 6
+                    col_documentosp = qtde_campos_adicionais 
+                elif(opcao == 'DOE'):
+                    colunas = colunas + ['CNPJ', 'IE']
+                    qtde_campos_adicionais += 2
+                    col_documentose = qtde_campos_adicionais 
+
+        registros = self.get_data()
+
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet('Contatos')
+
+        # Fonte do cabeçalho
+        font_style = xlwt.XFStyle()
+        font_style.font.bold = True
+
+        lin_num = 0
+        col_num = 0
+
+        # Cria as colunas
+        for coluna in colunas:
+            ws.write(lin_num, col_num, colunas[col_num], font_style)
+            col_num += 1
+
+        # Fonte do corpo
+        font_style = xlwt.XFStyle()
+
+        # Cria os registros
+        for dados in registros:
+            col_num = 0
+            lin_num += 1
+            tam_linha = 1
+              
+            # Nome
+            ws.write(lin_num, col_nome, dados[CONTATO][NOME], font_style)
+            ws.col(col_nome).width = 12000
+
+            # Código 
+            if(col_codigo != -1):
+                ws.write(lin_num, col_codigo, dados[CONTATO][ID], font_style)
+                ws.col(col_codigo).width = 2500
+      
+            # Status
+            if(col_status != -1):
+                if (dados[CONTATO][STATUS] == 1):
+                    ativo = "Sim"
+                else:
+                    ativo = "Não"
+
+                ws.write(lin_num, col_status, ativo, font_style)
+                ws.col(col_status).width = 1700
+
+            # Nascimento
+            if(col_nascimento != -1):
+                if(dados[CONTATO][NASCIMENTO] != '' and dados[CONTATO][NASCIMENTO] != None):
+                    nascimento = dados[CONTATO][NASCIMENTO].strftime('%d/%m/%Y')
+                else:
+                    nascimento = ""
+                    
+                ws.write(lin_num, col_nascimento, nascimento, font_style)
+                ws.col(col_nascimento).width = 2900
+
+            # Naturalidade
+            if(col_naturalidade != -1):
+                if(dados[NATURALIDADE] != '' and dados[NATURALIDADE] != None):
+                    naturalidade = dados[NATURALIDADE]
+                else:
+                    naturalidade = ""
+
+                ws.write(lin_num, col_naturalidade, naturalidade, font_style)
+                ws.col(col_naturalidade).width = 7000
+
+            # Idade
+            if(col_idade != -1):
+                if(dados[CONTATO][NASCIMENTO] != '' and dados[CONTATO][NASCIMENTO] != None):
+                    idade = calcularIdade(dados[CONTATO][NASCIMENTO])
+                else:
+                    idade = ""
+                    
+                ws.write(lin_num, col_idade, idade, font_style)
+                ws.col(col_idade).width = 1800
+
+            # Sexo
+            if(col_sexo != -1):
+                if(dados[CONTATO][SEXO] != '' and dados[CONTATO][SEXO] != None):
+                    if dados[CONTATO][SEXO] == 'M':
+                        sexo = 'Masculino'
+                    elif dados[CONTATO][SEXO] == 'F':
+                        sexo = 'Feminino'
+
+                    ws.write(lin_num, col_sexo, sexo, font_style)
+                    ws.col(col_sexo).width = 2600
+
+            # Estado civil
+            if(col_estadocivil != -1):
+                if(dados[CONTATO][ESTADO_CIVIL] != '' and dados[CONTATO][ESTADO_CIVIL] != None):
+                    estado_civil = dados[CONTATO][ESTADO_CIVIL]
+                else:
+                    estado_civil = ""
+                    
+                ws.write(lin_num, col_estadocivil, estado_civil, font_style)
+                ws.col(col_estadocivil).width = 3000
+
+            # Filhos
+            if(col_filhos != -1):
+                if(dados[CONTATO][TEM_FILHOS] != '' and dados[CONTATO][TEM_FILHOS] != None):
+                    filhos = "Sim (" + str(dados[CONTATO][QUANTOS_FILHOS]) + ")"
+                else:
+                    filhos = "Não"
+
+                ws.write(lin_num, col_filhos, filhos, font_style)
+                ws.col(col_filhos).width = 2200
+
+            # Endereços
+            if(col_enderecos != -1):
+
+                endereco_principal = ''
+                endereco_contato = ''
+                outros_enderecos = ''
+                municipio_principal = ''
+                municipio_contato = ''
+                municipio_outros = ''
+                cep_principal = ''
+                cep_contato = ''
+                cep_outros = ''
+                
+                if(dados[ENDERECOS] != None):
+                    i = 0
+                    primeiro_outros = True
+                    for endereco in dados[ENDERECOS]:
+
+                        endereco_completo = endereco.endereco
+    
+                        if(endereco.numero == None):
+                            endereco_completo += ", S/N"
+                        else: 
+                            if(endereco.numero > 0):
+                                endereco_completo += ", " + str(endereco.numero)
+                            else:
+                                endereco_completo += ", S/N"
+                
+                        if(endereco.complemento != '' and endereco.complemento != None):
+                            endereco_completo += " - " + endereco.complemento
+
+                        if(endereco.bairro != '' and endereco.bairro != None):
+                            endereco_completo += " - " + endereco.bairro.nome
+
+                        if (endereco.principal == True):
+                            endereco_principal = endereco_completo
+                            municipio_principal = '%s/%s' % (endereco.municipio.nome, endereco.estado.sigla)
+                            cep_principal = endereco.cep
+                        elif (endereco.permite_contato == True):
+                            endereco_contato = endereco_completo             
+                            municipio_contato = '%s/%s' % (endereco.municipio.nome, endereco.estado.sigla)
+                            cep_contato = endereco.cep
+                        else:
+                            i += 1
+                            if (primeiro_outros == True):
+                                primeiro_outros = False
+                            else:
+                                outros_enderecos += "\n"
+                                municipio_outros += "\n"
+                                cep_outros += "\n"
+
+                            outros_enderecos += endereco_completo
+                            municipio_outros = '%s/%s' % (endereco.municipio.nome, endereco.estado.sigla)
+                            cep_outros = endereco.cep
+
+                    if (tipo_dado_contato == 'P'):
+                        ws.write(lin_num, col_enderecos-2, endereco_principal, font_style)
+                        ws.write(lin_num, col_enderecos-1, municipio_principal, font_style)
+                        ws.write(lin_num, col_enderecos, cep_principal, font_style)
+                        ws.col(col_enderecos-2).width = 15000
+                        ws.col(col_enderecos-1).width = 6000
+                        ws.col(col_enderecos).width = 4000
+                    elif (tipo_dado_contato == 'C'):
+                        ws.write(lin_num, col_enderecos-2, endereco_contato, font_style)
+                        ws.write(lin_num, col_enderecos-1, municipio_contato, font_style)
+                        ws.write(lin_num, col_enderecos, cep_contato, font_style)
+                        ws.col(col_enderecos-2).width = 15000
+                        ws.col(col_enderecos-1).width = 6000
+                        ws.col(col_enderecos).width = 4000
+                    elif (tipo_dado_contato == 'T'):
+                        ws.write(lin_num, col_enderecos-8, endereco_principal, font_style)
+                        ws.write(lin_num, col_enderecos-7, municipio_principal, font_style)
+                        ws.write(lin_num, col_enderecos-6, cep_principal, font_style)
+                        ws.col(col_enderecos-8).width = 15000
+                        ws.col(col_enderecos-7).width = 6000
+                        ws.col(col_enderecos-6).width = 4000
+                        ws.write(lin_num, col_enderecos-5, endereco_contato, font_style)
+                        ws.write(lin_num, col_enderecos-4, municipio_contato, font_style)
+                        ws.write(lin_num, col_enderecos-3, cep_contato, font_style)
+                        ws.col(col_enderecos-5).width = 15000
+                        ws.col(col_enderecos-4).width = 6000
+                        ws.col(col_enderecos-3).width = 4000
+                        ws.write(lin_num, col_enderecos-2, outros_enderecos, font_style)
+                        ws.write(lin_num, col_enderecos-1, municipio_outros, font_style)
+                        ws.write(lin_num, col_enderecos, cep_outros, font_style)
+                        ws.col(col_enderecos-2).width = 15000
+                        ws.col(col_enderecos-1).width = 6000
+                        ws.col(col_enderecos).width = 4000
+                    if(tam_linha < i):
+                        tam_linha = i                
+           
+            # Telefones 
+            if(col_telefones != -1):
+
+                telefone_principal = ''
+                telefone_contato = ''
+                outros_telefones = ''
+
+                if(dados[TELEFONES] != None):
+                    i = 0
+                    primeiro_outros = True
+                    for telefone in dados[TELEFONES]:
+                        if (telefone.principal == True):
+                            telefone_principal = telefone.telefone
+                        elif (telefone.permite_contato == True):
+                            telefone_contato = telefone.telefone              
+                        else:
+                            i += 1
+                            if (primeiro_outros == True):
+                                primeiro_outros = False
+                            else:
+                                outros_telefones += "\n"
+
+                            outros_telefones += telefone.telefone
+
+                    if (tipo_dado_contato == 'P'):
+                        ws.write(lin_num, col_telefones, telefone_principal, font_style)
+                        ws.col(col_telefones).width = 5000
+                    elif (tipo_dado_contato == 'C'):
+                        ws.write(lin_num, col_telefones, telefone_contato, font_style)
+                        ws.col(col_telefones).width = 5000
+                    elif (tipo_dado_contato == 'T'):
+                        ws.write(lin_num, (col_telefones-2), telefone_principal, font_style)
+                        ws.write(lin_num, (col_telefones-1), telefone_contato, font_style)
+                        ws.write(lin_num, col_telefones, outros_telefones, font_style)
+                        ws.col(col_telefones-2).width = 5000
+                        ws.col(col_telefones-1).width = 5000
+                        ws.col(col_telefones).width = 5000
+                    if(tam_linha < i):
+                        tam_linha = i                
+
+            # E-mails  
+            if(col_emails != -1):
+
+                email_principal = ''
+                email_contato = ''
+                outros_emails = ''
+
+                if(dados[EMAILS] != None):
+                    i = 0
+                    primeiro_outros = True
+                    for email in dados[EMAILS]:
+                        if (email.principal == True):
+                            email_principal = email.email                         
+                        elif (email.permite_contato == True):
+                            email_contato = email.email                         
+                        else:
+                            i += 1
+                            if (primeiro_outros == True):
+                                primeiro_outros = False
+                            else:
+                                outros_emails += "\n"
+
+                            outros_emails += email.email
+
+                    if (tipo_dado_contato == 'P'):
+                        ws.write(lin_num, col_emails, email_principal, font_style)
+                        ws.col(col_emails).width = 9000
+                    elif (tipo_dado_contato == 'C'):
+                        ws.write(lin_num, col_emails, email_contato, font_style)
+                        ws.col(col_emails).width = 9000
+                    elif (tipo_dado_contato == 'T'):
+                        ws.write(lin_num, (col_emails-2), email_principal, font_style)
+                        ws.write(lin_num, (col_emails-1), email_contato, font_style)
+                        ws.write(lin_num, col_emails, outros_emails, font_style)
+                        ws.col(col_emails-2).width = 9000
+                        ws.col(col_emails-1).width = 9000
+                        ws.col(col_emails).width = 9000
+                    if(tam_linha < i):
+                        tam_linha = i                
+
+            # Grupos
+            if(col_grupos != -1):
+                grupos = ''
+                if(dados[GRUPOS] != None):
+                    i = 0
+                    for grupo in dados[GRUPOS]:
+                        grupos += grupo.nome
+                        i += 1
+                        if(i < len(dados[GRUPOS])):
+                            grupos += "\n"
+                    if(tam_linha < i):
+                        tam_linha = i                
+
+                ws.write(lin_num, col_grupos, grupos, font_style)
+                ws.col(col_grupos).width = 7000
+
+            if(col_nivelinstrucao != -1):
+                if(dados[CONTATO][NIVEL_INSTRUCAO] != '' and dados[CONTATO][NIVEL_INSTRUCAO] != None):
+                    nivel_instrucao = dados[CONTATO][NIVEL_INSTRUCAO]
+                else:
+                    nivel_instrucao = ""
+                    
+                ws.write(lin_num, col_nivelinstrucao, nivel_instrucao, font_style)
+                ws.col(col_nivelinstrucao).width = 8000
+
+            if(col_cargo != -1):
+                if(dados[CONTATO][PROFISSAO] != '' and dados[CONTATO][PROFISSAO] != None):
+                    profissao = dados[CONTATO][PROFISSAO]
+                else:
+                    profissao = ""
+ 
+                if(dados[CONTATO][CARGO] != '' and dados[CONTATO][CARGO] != None):
+                    cargo = dados[CONTATO][CARGO]
+                else:
+                    cargo = ""
+ 
+                if(dados[CONTATO][TIPO_AUTORIDADE] != '' and dados[CONTATO][TIPO_AUTORIDADE] != None):
+                    tipo_autoridade = dados[CONTATO][TIPO_AUTORIDADE]
+                else:
+                    tipo_autoridade = ""
+                    
+                ws.write(lin_num, col_cargo-2, profissao, font_style)
+                ws.write(lin_num, col_cargo-1, cargo, font_style)
+                ws.write(lin_num, col_cargo, tipo_autoridade, font_style)
+                ws.col(col_cargo-2).width = 8000
+                ws.col(col_cargo-1).width = 8000
+                ws.col(col_cargo).width = 8000
+
+            if(col_documentosp != -1):
+                if(dados[CONTATO][CPF] != '' and dados[CONTATO][CPF] != None):
+                    cpf = dados[CONTATO][CPF]
+                else:
+                    cpf = ""
+ 
+                if(dados[CONTATO][RG] != '' and dados[CONTATO][RG] != None):
+                    rg = dados[CONTATO][RG]
+                else:
+                    rg = ""
+ 
+                if(dados[CONTATO][RG_ORGAO] != '' and dados[CONTATO][RG_ORGAO] != None):
+                    rg_orgao = dados[CONTATO][RG_ORGAO]
+                else:
+                    rg_orgao = ""
+  
+                if(dados[CONTATO][RG_DATA] != '' and dados[CONTATO][RG_DATA] != None):
+                    rg_data = dados[CONTATO][RG_DATA].strftime('%d/%m/%Y')
+                else:
+                    rg_data = ""
+ 
+                if(dados[CONTATO][TITULO_ELEITOR] != '' and dados[CONTATO][TITULO_ELEITOR] != None):
+                    titulo_eleitor = dados[CONTATO][TITULO_ELEITOR]
+                else:
+                    titulo_eleitor = ""
+
+                if(dados[CONTATO][NUMERO_SUS] != '' and dados[CONTATO][NUMERO_SUS] != None):
+                    numero_sus = dados[CONTATO][NUMERO_SUS]
+                else:
+                    numero_sus = ""
+                    
+                ws.write(lin_num, col_documentosp-5, cpf, font_style)
+                ws.write(lin_num, col_documentosp-4, rg, font_style)
+                ws.write(lin_num, col_documentosp-3, rg_data, font_style)
+                ws.write(lin_num, col_documentosp-2, rg_orgao, font_style)
+                ws.write(lin_num, col_documentosp-1, titulo_eleitor, font_style)
+                ws.write(lin_num, col_documentosp, numero_sus, font_style)
+                ws.col(col_documentosp-5).width = 5000
+                ws.col(col_documentosp-4).width = 5000
+                ws.col(col_documentosp-3).width = 5000
+                ws.col(col_documentosp-2).width = 5000
+                ws.col(col_documentosp-1).width = 5000
+                ws.col(col_documentosp).width = 5000
+
+            if(col_documentose != -1):
+                if(dados[CONTATO][CNPJ] != '' and dados[CONTATO][CNPJ] != None):
+                    cnpj = dados[CONTATO][CNPJ]
+                else:
+                    cnpj = ""
+ 
+                if(dados[CONTATO][IE] != '' and dados[CONTATO][IE] != None):
+                    ie = dados[CONTATO][IE]
+                else:
+                    ie = ""
+                
+                ws.write(lin_num, col_documentose-1, cnpj, font_style)
+                ws.write(lin_num, col_documentose, ie, font_style)
+                ws.col(col_documentose-1).width = 5000
+                ws.col(col_documentose).width = 5000
+
+            if(tam_linha > 1): 
+                ws.row(lin_num).height = 250 * tam_linha
+
+        wb.save(response)
+
+        return response
+
+    def get_data(self):
+        contatos = []
+        consulta_agregada = self.object_list.order_by('nome',)
+        consulta_agregada = consulta_agregada.values_list(
+            'id',
+            'nome',
+            'ativo',
+            'data_nascimento',
+            'naturalidade_id',
+            'estado_id',
+            'sexo',
+            'estado_civil__descricao',
+            'tem_filhos',
+            'quantos_filhos',
+            'nivel_instrucao__descricao',
+            'profissao',
+            'cargo',
+            'tipo_autoridade__descricao',
+            'cpf',
+            'rg',
+            'rg_orgao_expedidor',
+            'rg_data_expedicao',
+            'titulo_eleitor',
+            'numero_sus',
+            'cnpj',
+            'ie'
+        )
+
+        for contato in consulta_agregada.all():
+            query = (Q(contato__id=contato[0]))
+
+            endereco = Endereco.objects.filter(query)
+            telefone = Telefone.objects.filter(query)
+            email = Email.objects.filter(query)
+            grupos = GrupoDeContatos.objects.filter(contatos__id=contato[0])[:2]
+
+            if(contato[4] != '' and contato[4] != None):
+                naturalidade = Municipio.objects.get(id=contato[4], estado_id=contato[5]).nome + "/" + Estado.objects.get(id=contato[5]).sigla
+            else:
+                naturalidade = ""
+
+            contatos.append((contato, endereco, telefone, email, grupos, naturalidade))
+
+        return contatos
+
+    def validate_data(self):
+        contatos = []
+        consulta_agregada = self.object_list.order_by('nome',)
+        consulta_agregada = consulta_agregada.values_list(
+            'id',
+        )
+
+#
+#
+#
+#
+#
+#
+#
+#
+
 
 
 class RelatorioContatosView(RelatorioProcessosView):

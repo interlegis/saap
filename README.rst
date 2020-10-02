@@ -28,6 +28,10 @@ Implementação
    `Instruções para Implementação e Testes <https://github.com/ojonathacardoso/saap/blob/master/docs/implementacoes.rst>`_
 
 
+Atualização de release
+=========================================
+   `Instruções para Atualização <https://github.com/ojonathacardoso/saap/blob/master/docs/atualizacao.rst>`_
+
 
 Orientações gerais sobre o GitHub
 =========================================

@@ -101,6 +101,7 @@
 			<ul class="dropdown-menu menu-right">                        
 			{% if perms.core.menu_processos %}
                             <li><a href="{% url 'saap.cerimonial:print_impressoenderecamento' %}">{% trans "Etiquetas e envelopes" %}</a></li>
+                            <li><a href="{% url 'saap.cerimonial:print_rel_contatosexporta' %}">{% trans "Exportação de contatos" %}</a></li>
                             <li><a href="{% url 'saap.cerimonial:print_rel_contatos' %}">{% trans "Contatos" %}</a></li>
                             <li><a href="{% url 'saap.cerimonial:print_contato' %}">{% trans "Contato individual" %}</a></li>
                         {% endif %}
