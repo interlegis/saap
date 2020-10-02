@@ -161,6 +161,7 @@ class ContatoCrud(DetailMasterCrud):
             nasc_final = self.request.GET.get('nasc_final', '')
             grupos = self.request.GET.getlist('grupos', '')
             dados_nulos = self.request.GET.getlist('dados_nulos', '')
+            dados_nao_nulos = self.request.GET.getlist('dados_nao_nulos', '')
             tipo_autoridade = self.request.GET.getlist('tipo_autoridade', '')
             documentos = self.request.GET.get('documentos','')
 
@@ -223,6 +224,24 @@ class ContatoCrud(DetailMasterCrud):
                        queryset = queryset.exclude(estado_civil__isnull=False)
                     elif(opcao == 'GRP'):
                        queryset = queryset.exclude(grupodecontatos_set__isnull=False)
+ 
+            if dados_nao_nulos:
+
+                for opcao in dados_nao_nulos:
+                    if(opcao == 'DTN'):
+                        queryset = queryset.exclude(data_nascimento__isnull=True)
+                    elif(opcao == 'END'):
+                        queryset = queryset.exclude(endereco_set__isnull=True)
+                    elif(opcao == 'TEL'):
+                        queryset = queryset.exclude(telefone_set__isnull=True)
+                    elif(opcao == 'EML'):
+                       queryset = queryset.exclude(email_set__isnull=True)
+                    elif(opcao == 'SEX'):
+                       queryset = queryset.filter(Q(sexo='M') | Q(sexo='F'))
+                    elif(opcao == 'ECV'):
+                       queryset = queryset.exclude(estado_civil__isnull=True)
+                    elif(opcao == 'GRP'):
+                       queryset = queryset.exclude(grupodecontatos_set__isnull=True)
  
             if documentos:
 

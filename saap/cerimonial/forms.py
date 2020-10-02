@@ -3812,7 +3812,7 @@ class ListWithSearchContatoForm(ListWithSearchForm):
         label=_('Contatos que NÃO possuem:'),
         choices=NULL_DATA_CHOICE)
 
-    dados_nao_nulos = MethodMultipleChoiceFilter(
+    dados_nao_nulos = forms.MultipleChoiceField(
         required=False,
         label=_('Contatos que possuem:'),
         choices=NULL_DATA_CHOICE)

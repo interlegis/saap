@@ -38,3 +38,4 @@ bootstrap-admin
 django-easy-audit
 sqlparse==0.1.9
 django-debug-toolbar==1.4
+xlwt
