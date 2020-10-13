@@ -1,0 +1,51 @@
+{% extends "sistema.html" %}
+{% load i18n crispy_forms_tags common_tags %}
+
+{% block base_content %}
+
+  <fieldset>
+  <legend><h1>{% trans "Relatórios" %}</h2></legend>
+
+    {% if perms.core.menu_contatos %}
+    <h2>Contatos</h2>
+    <table class="table">
+    <tbody>
+        <tr>
+          <td width="30%"><a href="{% url 'saap.cerimonial:print_rel_contatos' %}">{% trans "Listagem" %}</a></td>
+          <td> Lista completa de contatos, em PDF, contendo algumas informações.</td>
+        </tr>
+        <tr>
+          <td><a href="{% url 'saap.cerimonial:print_contato' %}">{% trans "Dados detalhados" %}</a></td>
+          <td> Ficha completa, com todos os dados de um contato.</td>
+        </tr>
+        <tr>
+          <td><a href="{% url 'saap.cerimonial:print_impressoenderecamento' %}">{% trans "Envelopes e etiquetas" %}</a></td>
+          <td> Criação de envelopes ou etiquetas, a partir dos dados dos contatos.</td>
+        </tr>
+        <tr>
+          <td><a href="{% url 'saap.cerimonial:print_rel_contatosexporta' %}">{% trans "Exportação para planilha" %}</a></td>
+          <td> Planilha gerada, contendo os dados dos contatos.</td>
+        </tr>
+    </tbody>
+    </table>
+    {% endif %}
+
+    {% if perms.core.menu_processos %}
+    <h2>Processos</h2>
+    <table class="table">
+    <tbody>
+        <tr>
+          <td width="30%"><a href="{% url 'saap.cerimonial:print_rel_processos' %}">{% trans "Listagem" %}</a></td>
+          <td> Lista completa de processos, em PDF, contendo algumas informações.</td>
+        </tr>
+        <tr>
+          <td><a href="{% url 'saap.cerimonial:print_processo' %}">{% trans "Dados detalhados" %}</a></td>
+          <td> Ficha completa, com todos os dados de um processo.</td>
+        </tr>
+    </tbody>
+    </table>
+    {% endif %}
+
+  </fieldset>
+
+{% endblock base_content %}

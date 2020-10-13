@@ -651,7 +651,7 @@ class ProcessoForm(ModelForm):
         self.fields['urgente'].widget = forms.RadioSelect()
         self.fields['urgente'].inline_class = True
 
-        self.fields['bairro'].queryset = Bairro.objects.filter(municipio=4891)
+        self.fields['bairro'].queryset = Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk)
 
         self.fields['contatos'].widget = forms.CheckboxSelectMultiple()
         self.fields['contatos'].queryset = Contato.objects.all()
@@ -715,7 +715,7 @@ class ProcessoContatoForm(ModelForm):
         self.fields['importancia'].inline_class = True
         self.fields['importancia'].choices = IMPORTANCIA_CHOICE
 
-        self.fields['bairro'].queryset = Bairro.objects.filter(municipio=4891)
+        self.fields['bairro'].queryset = Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk)
 
         #self.fields['status'].widget = forms.RadioSelect()
         # self.fields['status'].inline_class = True

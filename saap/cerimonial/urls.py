@@ -18,6 +18,7 @@ from saap.cerimonial.views import ContatoCrud, TelefoneCrud, EmailCrud,\
 
 from .apps import AppConfig
 
+from django.views.generic.base import TemplateView
 
 app_name = AppConfig.name
 
@@ -109,5 +110,10 @@ urlpatterns = [
         include(NivelInstrucaoCrud.get_urls())),
     url(r'^sistema/pronometratamento/',
         include(PronomeTratamentoCrud.get_urls())),
+
+    url(r'^relatorios/$', (
+        TemplateView.as_view(template_name='relatorios.html')),
+        name="relatorios"),
+
 
 ]

@@ -60,7 +60,7 @@ class RelatorioProcessosView(PermissionRequiredMixin, FilterView):
     def __init__(self):
         super().__init__()
         self.MAX_TITULO = 80
-        self.ctx_title = 'Relatório de Processos'
+        self.ctx_title = 'Listagem de processos em PDF'
         self.relat_title = 'Relatório de Processos'
         self.nome_objeto = 'Processo'
         self.filename = 'Relatorio_Processos'
@@ -611,8 +611,8 @@ class RelatorioProcessoIndividualView(PermissionRequiredMixin, FilterView):
 
     def __init__(self):
         super().__init__()
-        self.ctx_title = 'Detalhamento de Processo'
-        self.relat_title = 'Detalhamento de Processo'
+        self.ctx_title = 'Relatório detalhado de um processo'
+        self.relat_title = 'Detalhamento de Informações do Processo'
         self.nome_objeto = 'Processo'
         self.filename = 'Detalhamento_Processo'
 
@@ -1120,8 +1120,8 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
 
     def __init__(self):
         super().__init__()
-        self.ctx_title = 'Detalhamento de Contato'
-        self.relat_title = 'Detalhamento de Contato'
+        self.ctx_title = 'Relatório detalhado de um contato'
+        self.relat_title = 'Detalhamento de Informações do Contato'
         self.nome_objeto = 'Contato'
         self.filename = 'Detalhamento_Contato'
 
@@ -1806,7 +1806,7 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
 
     def __init__(self):
         super().__init__()
-        self.ctx_title = 'Exportação de Contatos'
+        self.ctx_title = 'Exportação de contatos em planilha'
         self.relat_title = 'Exportação de Contatos'
         self.nome_objeto = 'Contato'
         self.filename = 'Exporta_Contatos'
@@ -2511,7 +2511,7 @@ class RelatorioContatosView(RelatorioProcessosView):
 
     def __init__(self):
         super().__init__()
-        self.ctx_title = 'Relatório de Contatos'
+        self.ctx_title = 'Listagem de contatos em PDF'
         self.relat_title = 'Relatório de Contatos'
         self.nome_objeto = 'Contato'
         self.filename = 'Relatorio_Contatos'
