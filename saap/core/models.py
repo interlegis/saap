@@ -13,14 +13,12 @@ from django.utils.translation import ugettext_lazy as _
 from image_cropping import ImageCropField, ImageRatioField
 
 from smart_selects.db_fields import ChainedForeignKey
-
 from saap.core.rules import SEARCH_TRECHO
 from saap.globalrules.globalrules import rules, GROUP_SOCIAL_USERS
 from saap.utils import get_settings_auth_user_model, normalize
 from saap.utils import YES_NO_CHOICES, restringe_tipos_de_arquivo_img
 
 from .rules import MENU_PERMS_FOR_USERS
-
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
@@ -294,7 +292,7 @@ class Municipio(models.Model):
     
     estado = models.ForeignKey(
         Estado,
-        blank=False, null=False, default=4891,
+        blank=False, null=False,
         related_name='municipios_set',
         verbose_name=_('Estado'))
 
@@ -535,22 +533,15 @@ class RegiaoMunicipal(models.Model):
     nome = models.CharField(
         max_length=254, verbose_name=_('Região municipal'))
     
-    #municipio = models.ForeignKey(
-    #    Municipio,
-    #    blank=False, null=False, default=4891,
-    #    related_name='regioes_municipais_set',
-    #    verbose_name=_('Município'))
-
     estado = models.ForeignKey(
         Estado,
-        blank=False, null=False, default=21,
+        blank=False, null=False, 
         verbose_name=_('Estado'))
 
     municipio = ChainedForeignKey(
         Municipio,
         chained_field="estado",
         chained_model_field="estado",
-        default=4891,
         show_all=False,
         auto_choose=True,
         sort=True,
@@ -579,24 +570,17 @@ class Distrito(models.Model):
 
     estado = models.ForeignKey(
         Estado,
-        blank=False, null=False, default=21,
+        blank=False, null=False, 
         verbose_name=_('Estado'))
 
     municipio = ChainedForeignKey(
         Municipio,
         chained_field="estado",
         chained_model_field="estado",
-        default=4891,
         show_all=False,
         auto_choose=True,
         sort=True,
         verbose_name=_('Município'))
-
-    #municipio = models.ForeignKey(
-    #    Municipio,
-    #    blank=False, null=False, default=4891,
-    #    related_name='distritos_set',
-    #    verbose_name=_('Município'))
 
     class Meta:
         verbose_name = _('Distrito')
@@ -615,14 +599,13 @@ class Bairro(models.Model):
 
     estado = models.ForeignKey(
         Estado,
-        blank=False, null=False, default=21,
+        blank=False, null=False, 
         verbose_name=_('Estado'))
 
     municipio = ChainedForeignKey(
         Municipio,
         chained_field="estado",
         chained_model_field="estado",
-        default=4891,
         show_all=False,
         auto_choose=True,
         sort=True,

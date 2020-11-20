@@ -273,15 +273,16 @@ class ContatoForm(ModelForm):
             elif tem_filhos == True and quantos_filhos < 1: 
                 self._errors['quantos_filhos'] = [_('Se o contato tem filhos, informe mais que 0 no campo "Quantos filhos?".')]
 
-        contato = Contato.objects.filter(workspace=self.initial['workspace'],nome=self.cleaned_data['nome'])
+        if('nome' in self.cleaned_data):
+            contato = Contato.objects.filter(workspace=self.initial['workspace'],nome=self.cleaned_data['nome'])
 
-        if contato.count() > 0:
-            # Inclusão - Se não tiver instância
-            if self.instance.nome == '':
-                self._errors['nome'] = [_('Já existe um contato com esse nome.')]
-            # Edição - Se tiver instância, verifica o contato do banco. Se tiver e o nome for diferente do nome da instância, é porque o usuário está tentando alterar o nome para um já existente.
-            elif contato != None and self.instance.nome != contato.first().nome:
-                self._errors['nome'] = [_('Já existe um contato com esse nome.')]
+            if contato.count() > 0:
+                # Inclusão - Se não tiver instância
+                if self.instance.nome == '':
+                    self._errors['nome'] = [_('Já existe um contato com esse nome.')]
+                # Edição - Se tiver instância, verifica o contato do banco. Se tiver e o nome for diferente do nome da instância, é porque o usuário está tentando alterar o nome para um já existente.
+                elif contato != None and self.instance.nome != contato.first().nome:
+                    self._errors['nome'] = [_('Já existe um contato com esse nome.')]
 
 class PerfilForm(ModelForm):
 

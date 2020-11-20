@@ -325,6 +325,8 @@ class RelatorioProcessosView(PermissionRequiredMixin, FilterView):
         corpo_relatorio.append([])
         #lbl_group = self.label_agrupamento
 
+        paragrafo = ""
+
         if registro_principal:
             if(self.agrupamento == 'importancia'):
                 if(registro_principal == 'B'):
@@ -338,6 +340,9 @@ class RelatorioProcessosView(PermissionRequiredMixin, FilterView):
                 paragrafo=IMPORTANCIA_CHOICE[opcao][1]
             else:
                 paragrafo = str(registro_principal)
+        else:
+            paragrafo = "Não consta"
+
         corpo_relatorio.append([Paragraph(paragrafo, self.h4)])
 
         corpo_relatorio.append(self.cabec)
@@ -437,8 +442,15 @@ class RelatorioProcessosView(PermissionRequiredMixin, FilterView):
 
                     item.append(Paragraph(datas, estilo))
 
-                    item.append(Paragraph(str(ps.classificacao), estilo))
-                    item.append(Paragraph(str(ps.status), estilo))
+                    if(ps.classificacao):
+                        item.append(Paragraph(str(ps.classificacao), estilo))
+                    else:
+                        item.append(Paragraph("Não informada", estilo))
+
+                    if(ps.status):
+                        item.append(Paragraph(str(ps.status), estilo))
+                    else:
+                        item.append(Paragraph("Não informado", estilo))
 
                     assuntos_set = AssuntoProcesso.objects.filter(processo_set__id=ps.id)
                     topicos_set = TopicoProcesso.objects.filter(processo_set__id=ps.id)
@@ -903,8 +915,14 @@ class RelatorioProcessoIndividualView(PermissionRequiredMixin, FilterView):
             line = []
             line.append(Paragraph("Tópicos:", legenda))
             topicos = ""
+            primeiro = True
             for topico in topicos_set:
-                topicos += topico.descricao + "<br/>"
+                if(primeiro):
+                    primeiro = False
+                else:
+                    topicos += "<br/>"
+
+                topicos += topico.descricao
 
             line.append(Paragraph(topicos, conteudo))
             data.append(line)
@@ -914,8 +932,14 @@ class RelatorioProcessoIndividualView(PermissionRequiredMixin, FilterView):
             line = []
             line.append(Paragraph("Assuntos:", legenda))
             assuntos = ""
+            primeiro = True
             for assunto in assuntos_set:
-                assuntos += assunto.descricao + "<br/>"
+                if(primeiro):
+                    primeiro = False
+                else:
+                    assuntos += "<br/>"
+
+                assuntos += assunto.descricao
             
             line.append(Paragraph(assuntos, conteudo))
             data.append(line)
@@ -1086,10 +1110,8 @@ class RelatorioProcessoIndividualView(PermissionRequiredMixin, FilterView):
                 if(contatos != ''):
                     contatos += "<br/>-----<br/>"
 
-                #print(contato.nome)
                 contatos += strip_tags(contato.nome)
                 contatos += "%s %s %s" % (endereco, municipio, telefone)
-                #contatos += "%s" % "Teste"
 
             line.append(Paragraph(contatos, conteudo))
             data.append(line)
@@ -1681,24 +1703,27 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
                 if(trabalho.cargo):
                     locais_trabalho += ("<br/>Cargo/função: %s" % trabalho.cargo)
 
-                locais_trabalho += ("<br/>->Endereço: %s" % trabalho.endereco)
-                if(trabalho.numero == None):
-                    locais_trabalho += ", S/N"
-                else: 
-                    if(trabalho.numero > 0):
-                        locais_trabalho += ", " + str(trabalho.numero)
-                    else:
+                if(trabalho.endereco):
+                    locais_trabalho += ("<br/>->Endereço: %s" % trabalho.endereco)
+                    if(trabalho.numero == None):
                         locais_trabalho += ", S/N"
+                    else: 
+                        if(trabalho.numero > 0):
+                            locais_trabalho += ", " + str(trabalho.numero)
+                        else:
+                            locais_trabalho += ", S/N"
             
                 if(trabalho.complemento != '' and trabalho.complemento != None):
                     locais_trabalho += " - " + trabalho.complemento
  
                 if(trabalho.bairro): 
                     locais_trabalho += ' - Bairro %s' % trabalho.bairro.nome
-            
-                locais_trabalho += '<br/>->CEP %s' % trabalho.cep
+    
+                if(trabalho.cep):
+                    locais_trabalho += '<br/>->CEP %s' % trabalho.cep
 
-                locais_trabalho += '<br/>->Município: %s/%s' % (trabalho.municipio.nome, trabalho.estado.sigla)
+                if(trabalho.municipio):
+                    locais_trabalho += '<br/>->Município: %s/%s' % (trabalho.municipio.nome, trabalho.estado.sigla)
 
                 line = []
                 line.append(Paragraph(legenda_trabalho, legenda))
@@ -1716,7 +1741,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
                 dependentes = ""
 
                 dependentes += ("Nome: %s" % dependente.nome)
-                dependentes += ("Parentesco: %s" % dependente.parentesco)
+                dependentes += ("<br/>Parentesco: %s" % dependente.parentesco)
 
                 if(dependente.data_nascimento):
                     dependentes += ("<br/>Data de nascimento: %s" % dependente.data_nascimento.strftime('%d/%m/%Y'))
@@ -1744,21 +1769,29 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
                 line.append(Paragraph(dependentes, conteudo))
                 data.append(line)
 
-        partidos_set = FiliacaoPartidaria.objects.filter(contato__id=p.id).order_by('partido')
+        partidos_set = FiliacaoPartidaria.objects.filter(contato__id=p.id).order_by('data_filiacao').reverse()
         if(partidos_set):
             line = []
             line.append(Paragraph("<br/>", conteudo))
             line.append(Paragraph("<br/>", conteudo))
             data.append(line)
 
+            primeiro = True;
             partidos = ""
             for partido in partidos_set:
+
+                if(primeiro):
+                    primeiro = False
+                else:
+                    partidos += ("<br/>")
+
                 partidos += "%s (%s)" % (partido.partido.nome, partido.partido.sigla)
 
                 if(partido.data_desfiliacao):
                     partidos += (" (Filiado de %s a %s)" % ( partido.data_filiacao.strftime('%d/%m/%Y'), partido.data_desfiliacao.strftime('%d/%m/%Y') ) )
                 else:
                     partidos += (" (Filiado em %s)" % partido.data_filiacao.strftime('%d/%m/%Y') )
+
 
             line = []
             line.append(Paragraph("Filiação partidária:", legenda))
