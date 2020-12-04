@@ -4,7 +4,7 @@ Instalação do Ambiente de Desenvolvimento
 
 Procedimento testado no ``Debian Buster x64`` e ``Ubuntu 18.04 Bionic Beaver x64``. Além disto, quando do desenvolvimento em 2018, o SO utilizado o ``Debian Jessie x64``.
 
-Para a instalação, foi utilizado o usuário de sistema ``saap``, que deve ter as devidas permissões para instalação e configuração.
+Você pode escolher qualquer usuário de sistema para esse processo - todas as referências para ``$USER`` devem ser substituídas por esse usuário. O mesmo deve ter as devidas permissões para instalação e configuração. 
 
 1) Instalar dependências do sistema
 ----------------------------------------------------------------------------------------
@@ -20,7 +20,7 @@ Instale os pacotes:
 ::
 
     sudo apt-get install -y git python3-dev libpq-dev graphviz-dev graphviz \
-    pkg-config postgresql postgresql-contrib pgadmin3 python-psycopg2 \
+    pkg-config postgresql postgresql-contrib pgadmin3 python3-psycopg2 \
     software-properties-common build-essential libxml2-dev libjpeg-dev \
     libssl-dev libffi-dev libxslt1-dev python3-setuptools \
     python3-pip poppler-utils antiword default-jre python3-venv \
@@ -38,7 +38,7 @@ Instale o Node.js e o Bower
 
 ::  
 
-    sudo npm install -g bower 
+    sudo npm install bower -g
 
 2) Instalar o virtualenv usando Python 3 para o projeto
 -----------------------------------------------------
