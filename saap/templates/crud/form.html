@@ -4,3 +4,9 @@
 {% block base_content %}
   {% crispy form %}
 {% endblock %}
+
+{% block extra_js %}
+  <script type="text/javascript">
+    initTinymce();
+  </script>
+{% endblock %}

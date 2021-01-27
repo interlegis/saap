@@ -1,0 +1,23 @@
+[
+{
+  "model": "cerimonial.tipotelefone",
+  "pk": 1,
+  "fields": {
+    "descricao": "Residencial"
+  }
+},
+{
+  "model": "cerimonial.tipotelefone",
+  "pk": 2,
+  "fields": {
+    "descricao": "Comercial"
+  }
+},
+{
+  "model": "cerimonial.tipotelefone",
+  "pk": 3,
+  "fields": {
+    "descricao": "Celular"
+  }
+}
+]

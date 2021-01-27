@@ -1,0 +1,51 @@
+[
+{
+    "model": "cerimonial.tipolocaltrabalho",
+    "pk": 1,
+    "fields": {
+        "descricao": "Agricultura"
+    }
+},
+{
+    "model": "cerimonial.tipolocaltrabalho",
+    "pk": 2,
+    "fields": {
+        "descricao": "Pecu\u00e1ria"
+    }
+},
+{
+    "model": "cerimonial.tipolocaltrabalho",
+    "pk": 3,
+    "fields": {
+        "descricao": "Extrativismo"
+    }
+},
+{
+    "model": "cerimonial.tipolocaltrabalho",
+    "pk": 4,
+    "fields": {
+        "descricao": "Ind\u00fastria"
+    }
+},
+{
+    "model": "cerimonial.tipolocaltrabalho",
+    "pk": 5,
+    "fields": {
+        "descricao": "Com\u00e9rcio"
+    }
+},
+{
+    "model": "cerimonial.tipolocaltrabalho",
+    "pk": 6,
+    "fields": {
+        "descricao": "Servi\u00e7os"
+    }
+},
+{
+    "model": "cerimonial.tipolocaltrabalho",
+    "pk": 7,
+    "fields": {
+        "descricao": "Setor p\u00fablico"
+    }
+}
+]

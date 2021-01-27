@@ -1,0 +1,44 @@
+[
+{
+  "model": "cerimonial.classificacaoprocesso",
+  "pk": 11,
+  "fields": {
+    "descricao": "Problema (Indica\u00e7\u00e3o ou Pedido de provid\u00eancia)"
+  }
+},
+{
+  "model": "cerimonial.classificacaoprocesso",
+  "pk": 12,
+  "fields": {
+    "descricao": "Sugest\u00e3o (Indica\u00e7\u00e3o ou Pedido de provid\u00eancia)"
+  }
+},
+{
+  "model": "cerimonial.classificacaoprocesso",
+  "pk": 13,
+  "fields": {
+    "descricao": "Solicita\u00e7\u00e3o de informa\u00e7\u00f5es (Requerimento)"
+  }
+},
+{
+  "model": "cerimonial.classificacaoprocesso",
+  "pk": 14,
+  "fields": {
+    "descricao": "Den\u00fancia"
+  }
+},
+{
+  "model": "cerimonial.classificacaoprocesso",
+  "pk": 15,
+  "fields": {
+    "descricao": "Visita ao gabinete"
+  }
+},
+{
+  "model": "cerimonial.classificacaoprocesso",
+  "pk": 17,
+  "fields": {
+    "descricao": "Visita externa"
+  }
+}
+]

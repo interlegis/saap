@@ -1,0 +1,65 @@
+[
+{
+  "model": "cerimonial.statusprocesso",
+  "pk": 1,
+  "fields": {
+    "descricao": "Aguardando encaminhamento"
+  }
+},
+{
+  "model": "cerimonial.statusprocesso",
+  "pk": 2,
+  "fields": {
+    "descricao": "Encaminhado para a Prefeitura"
+  }
+},
+{
+  "model": "cerimonial.statusprocesso",
+  "pk": 3,
+  "fields": {
+    "descricao": "Encaminhado para a prestadora de servi\u00e7os"
+  }
+},
+{
+  "model": "cerimonial.statusprocesso",
+  "pk": 4,
+  "fields": {
+    "descricao": "Em tramita\u00e7\u00e3o na C\u00e2mara"
+  }
+},
+{
+  "model": "cerimonial.statusprocesso",
+  "pk": 5,
+  "fields": {
+    "descricao": "Resposta da Prefeitura"
+  }
+},
+{
+  "model": "cerimonial.statusprocesso",
+  "pk": 6,
+  "fields": {
+    "descricao": "Resposta da prestadora de servi\u00e7os"
+  }
+},
+{
+  "model": "cerimonial.statusprocesso",
+  "pk": 7,
+  "fields": {
+    "descricao": "Solucionado"
+  }
+},
+{
+  "model": "cerimonial.statusprocesso",
+  "pk": 8,
+  "fields": {
+    "descricao": "N\u00e3o solucionado"
+  }
+},
+{
+  "model": "cerimonial.statusprocesso",
+  "pk": 9,
+  "fields": {
+    "descricao": "Arquivado ou indeferido"
+  }
+}
+]

@@ -69,15 +69,15 @@ rules_group_workspace_oper_processos = (
             menu_processos,
             menu_dados_auxiliares,
             menu_relatorios]),
-        (AssuntoProcesso, [LIST, ADD, DETAIL, CHANGE, DELETE]),
+        #(AssuntoProcesso, [LIST, ADD, DETAIL, CHANGE, DELETE]),
         (Processo, [LIST, ADD, DETAIL, CHANGE, DELETE]),
         (ProcessoContato, [LIST, ADD, DETAIL, CHANGE, DELETE]),
     ]
 )
 rules_patterns = [
-    rules_group_social_users,
-    rules_group_workspace_managers,
-    rules_group_workspace_oper_contatos,
-    rules_group_workspace_oper_grupo_contatos,
-    rules_group_workspace_oper_processos,
+    #rules_group_social_users,
+    #rules_group_workspace_managers,
+    #rules_group_workspace_oper_contatos,
+    #rules_group_workspace_oper_grupo_contatos,
+    #rules_group_workspace_oper_processos,
 ]

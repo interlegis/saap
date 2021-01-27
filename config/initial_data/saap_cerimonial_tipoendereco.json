@@ -1,0 +1,23 @@
+[
+{
+  "model": "cerimonial.tipoendereco",
+  "pk": 1,
+  "fields": {
+    "descricao": "Residencial"
+  }
+},
+{
+  "model": "cerimonial.tipoendereco",
+  "pk": 2,
+  "fields": {
+    "descricao": "Comercial"
+  }
+},
+{
+  "model": "cerimonial.tipoendereco",
+  "pk": 3,
+  "fields": {
+    "descricao": "Profissional"
+  }
+}
+]

@@ -1,0 +1,42 @@
+[
+{
+  "model": "core.impressoenderecamento",
+  "pk": 1,
+  "fields": {
+    "nome": "Etiquetas",
+    "tipo": "ET",
+    "largura_pagina": "21.60",
+    "altura_pagina": "27.94",
+    "margem_esquerda": "0.45",
+    "margem_superior": "2.14",
+    "colunasfolha": 2,
+    "linhasfolha": 7,
+    "larguraetiqueta": "10.20",
+    "alturaetiqueta": "3.39",
+    "entre_colunas": "0.30",
+    "entre_linhas": "0.00",
+    "fontsize": "12.00",
+    "rotate": false
+  }
+},
+{
+  "model": "core.impressoenderecamento",
+  "pk": 2,
+  "fields": {
+    "nome": "Envelopes",
+    "tipo": "EV",
+    "largura_pagina": "11.33",
+    "altura_pagina": "22.87",
+    "margem_esquerda": "2.00",
+    "margem_superior": "6.00",
+    "colunasfolha": 1,
+    "linhasfolha": 1,
+    "larguraetiqueta": "20.00",
+    "alturaetiqueta": "15.00",
+    "entre_colunas": "0.00",
+    "entre_linhas": "0.00",
+    "fontsize": "14.00",
+    "rotate": true
+  }
+}
+]

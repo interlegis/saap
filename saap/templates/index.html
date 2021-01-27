@@ -1,39 +1,95 @@
 {% extends "base.html" %}
-{% load staticfiles%}
+{% load staticfiles %}
 {% load i18n %}
 
 {% block title %}
-<div align="center"><h1>Bem-vindo ao SAAP!</h1></div>
 {% endblock %}
 
 {% block base_content %}
-<div class="grid" align="center">
-  <div class="col-1-2">
-     <image class="module">
-        <img src="{% static 'img/index_agenda.png' %}">
-     </image>
-  </div>
-  <div class="col-1-2">
-    <image class="module">
-        <img src="{% static 'img/index_contatos.png' %}">
-    </image>
-  </div>
+
+{% if user and not user.is_anonymous %}
+     {% include "novidades.html" %}
+{% endif %}
+
+<div id="conteudo" style="min-height: 60px">
+  <div id="homeIndex">
+    <div class="homeBlock">
+        <div class="homeFront">
+            <div class="homeIcon">
+                <img src="{% static 'img/index_contatos.png' %}" alt="Contatos">
+            </div>
+            <h2>Contatos</h2>
+        </div>
+        <div class="homeContent">
+            <div class="homeTitle">
+                <img src="{% static 'img/index_contatos.png' %}">
+                <h2>Contatos</h2>
+            </div>
+            <p>
+		Lista de pessoas e contatos cadastrados no sistema. Apenas são exibidos os contatos relacionados ao vereador ao qual o usuário é ligado. Várias informações são armazenadas, incluindo dados completos, endereços, telefones, filiação partidária, processos relacionados, entre outras. 
+            </p>
+        </div>
+        <a href="{% url 'saap.cerimonial:contato_list' %}"></a>
+    </div>
+
+    
+    <div class="homeBlock">
+        <div class="homeFront">
+            <div class="homeIcon">
+                <img src="{% static 'img/index_documentos.png' %}" alt="Processos">
+            </div>
+            <h2>Processos</h2>
+        </div>
+        <div class="homeContent">
+            <div class="homeTitle">
+                <img src="{% static 'img/index_documentos.png' %}">
+                <h2>Processos</h2>
+            </div>
+            <p>
+                Cadastro de todos os processos relacionados ao gabinete. Eles incluem solicitações e demandas da população, visitas ao gabinete, indicações e pedidos de providência, protocolos na Câmara, Prefeitura ou outro órgão, entre outros, podendo realizar o monitoramento e alteração conforme o andamento.
+            </p>
+        </div>
+        <a href="{% url 'saap.cerimonial:processo_list' %}"></a>
+    </div>
+
+    <div class="homeBlock">
+        <div class="homeFront">
+            <div class="homeIcon">
+                <img src="{% static 'img/index_etiquetas.png' %}" alt="Impressos">
+            </div>
+            <h2>Envelopes e etiquetas</h2>
+        </div>
+        <div class="homeContent">
+            <div class="homeTitle">
+                <img src="{% static 'img/index_etiquetas.png' %}">
+                <h2>Envelopes e etiquetas</h2>
+            </div>
+            <p>
+                Ferramenta para gerar envelopes e etiquetas dos contatos selecionados, conforme busca e filtros selecionados.
+		</p>
+        </div>
+        <a href="{% url 'saap.cerimonial:print_impressoenderecamento' %}"></a>
+    </div>
+
+    <div class="homeBlock">
+        <div class="homeFront">
+            <div class="homeIcon">
+                <img src="{% static 'img/index_relatorios.png' %}" alt="Impressos">
+            </div>
+            <h2>Relatório de contatos</h2>
+        </div>
+        <div class="homeContent">
+            <div class="homeTitle">
+                <img src="{% static 'img/index_relatorios.png' %}">
+                <h2>Relatório de contatos</h2>
+            </div>
+            <p>
+                Ferramenta para gerar relatórios com todos os contatos, junto de alguns dados de contato, conforme busca e filtros selecionados.
+		</p>
+        </div>
+        <a href="{% url 'saap.cerimonial:print_rel_contatos' %}"></a>
+    </div>
+
 </div>
-<div class="grid" align="center">
-  <div class="col-1-3">
-     <image class="module">
-        <img src="{% static 'img/index_reuniao.png' %}">
-     </image>
-  </div>
-  <div class="col-1-3">
-    <image class="module">
-        <img src="{% static 'img/index_etiquetas.png' %}">
-    </image>
-  </div>
-  <div class="col-1-3">
-     <image class="module">
-        <img src="{% static 'img/index_documentos.png' %}">
-     </image>
-  </div>
-</div>
+
 {% endblock %}

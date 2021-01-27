@@ -17,7 +17,7 @@ ModelName:
   - equalA  equalB  equalC
   - highlander '''
 
-    with mock.patch('sapl.crispy_layout_mixin.read_yaml_from_file') as ryff:
+    with mock.patch('saap.crispy_layout_mixin.read_yaml_from_file') as ryff:
         ryff.return_value = rtyaml.load(stub_content)
         assert read_layout_from_yaml('....', 'ModelName') == [
             ['Cool Legend',

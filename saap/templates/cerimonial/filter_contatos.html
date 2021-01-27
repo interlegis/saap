@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load i18n common_tags crispy_forms_tags%}
+
+{% block base_content %}
+  <div class="context-actions clearfix">
+      {% if filter.form %}
+        {% crispy filter.form %}
+      {% endif %}
+  </div>
+  {% block extra_content %} {% endblock %}
+  <div class="container-table">
+    <div class="result-count">{% blocktrans with verbose_name_plural=view.verbose_name_plural %}Total de {{ verbose_name_plural }} selecionados: <strong>{{count}}</strong>{% endblocktrans %}</div>
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th><center>Código</center></th>
+          <th>Nome</th>
+          <th>E-mail para contato</th>
+          <th>Bairro</th>
+          <th>Município</th>
+          <th>Telefone</th>
+          <th>Grupo</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for obj in page_obj %}
+        <tr>
+          <td>
+              <center><a href="{% url 'saap.cerimonial:contato_list' %}{{obj.pk|safe}}">{{ obj.pk|safe }}</a></center>
+          </td> 
+          {% if obj.email == '' %}
+              <td class='erro'><b>{{ obj.nome|safe }}</b></td>
+          {% else %}
+              <td><b>{{ obj.nome|safe }}</b></td>
+          {% endif %}
+          <td>
+              {{ obj.email|safe }}
+          </td>
+          <td>
+              {{ obj.bairro|safe }}
+          </td>
+          <td>
+              {{ obj.municipio|safe }}
+          </td>
+          <td>
+              {{ obj.telefone|safe }}
+          </td>
+         <td>
+              {% for grupo in obj.grupodecontatos_set.all%}
+                {% if forloop.first %}
+                  <ul>
+                {% endif %}
+                  <li>{{grupo.nome}}</li>
+                {% if forloop.last %}
+                  </ul>
+                {% endif %}
+              {% endfor %}
+              {{ obj.grupocontato_set.all}}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    </table>
+  </div>
+  {% include "paginacao.html" %}
+{% endblock %}
+
+{% block extra_js %}
+  <script type="text/javascript">
+    $(document).on("keypress", "form", function(event) {
+        return event.keyCode != 13;
+    });
+
+    var change_formato = function() {
+      var orientacao = $('[name="orientacao"]');
+      var tipo_dado_contato = $('[name="tipo_dado_contato"]');
+      var ocultar_sem_email = $('[name="ocultar_sem_email"]');
+      var _this = this;
+      if ($('[name="formato"]').val() == "PDF") {
+        orientacao.removeAttr("disabled");
+        orientacao.closest('.form-group').removeClass("disabled");
+        tipo_dado_contato.removeAttr("disabled");
+        tipo_dado_contato.closest('.form-group').removeClass("disabled");
+        ocultar_sem_email.attr("disabled", "disabled");
+        ocultar_sem_email.closest('.form-group').addClass("disabled");
+      }
+      else {
+        orientacao.attr("disabled", "disabled");
+        orientacao.closest('.form-group').addClass("disabled");
+        tipo_dado_contato.attr("disabled", "disabled");
+        tipo_dado_contato.closest('.form-group').addClass("disabled");
+        ocultar_sem_email.removeAttr("disabled");
+        ocultar_sem_email.closest('.form-group').removeClass("disabled");
+      }
+    }
+
+    $('[name="formato"]').on('change', change_formato);
+    $('[name="formato"]').trigger('change');
+
+  </script>
+{% endblock %}

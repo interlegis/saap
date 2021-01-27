@@ -1,0 +1,23 @@
+[
+{
+  "model": "core.situacaomilitar",
+  "pk": 1,
+  "fields": {
+    "descricao": "Reservista"
+  }
+},
+{
+  "model": "core.situacaomilitar",
+  "pk": 2,
+  "fields": {
+    "descricao": "Dispensado por excesso de contingente"
+  }
+},
+{
+  "model": "core.situacaomilitar",
+  "pk": 4,
+  "fields": {
+    "descricao": "N\u00e3o se aplica"
+  }
+}
+]

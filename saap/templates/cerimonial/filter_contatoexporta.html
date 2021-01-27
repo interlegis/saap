@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load i18n common_tags crispy_forms_tags%}
+
+{% block base_content %}
+  <div class="context-actions clearfix">
+      {% if filter.form %}
+        {% crispy filter.form %}
+      {% endif %}
+  </div>
+  {% block extra_content %} {% endblock %}
+  <div class="container-table">
+    <div class="result-count">{% blocktrans with verbose_name_plural=view.verbose_name_plural %}Total de {{ verbose_name_plural }} selecionados: <strong>{{count}}</strong>{% endblocktrans %}</div>
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th><center>Código</center></th>
+          <th>Nome</th>
+          <th>Endereço</th>
+          <th>Município</th>
+          <th>Sexo<br></th>
+          <th>Data de nascimento<br><small>Idade</small></th>
+          <th>Grupos</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for obj in page_obj %}
+        <tr>
+          <td>
+              <center><a href="{% url 'saap.cerimonial:contato_list' %}{{obj.pk|safe}}">{{ obj.pk|safe }}</a></center>
+          </td>
+          <td> 
+              <b>{{ obj.nome|safe }}</b>
+          </td>
+          <td>
+              {{ obj.endereco|safe }}
+          </td>
+          <td>
+              {{ obj.municipio|safe }}
+          </td>
+          <td>
+              {% if obj.sexo == '' %}
+                  <font>Sexo N/I</font>
+              {% else %}
+                  {{ obj.sexo }}
+              {% endif %}
+          </td>
+          <td>
+              {% if obj.data_nascimento != None %}
+                  {{ obj.data_nascimento }}<br>
+                  <small>{{obj.data_nascimento|age }}</small>
+              {% else %}
+                  Não informada
+              {% endif %}
+
+          </td>
+          <td>
+              <ul>
+              {% for grupo in obj.grupo %}
+                  <li>{{ grupo.nome|safe }}</li>
+              {% endfor %}
+              </ul>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "paginacao.html" %}
+{% endblock %}

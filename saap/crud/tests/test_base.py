@@ -139,13 +139,13 @@ def test_layout_detail_fieldsets():
 
 
 def test_reverse():
-    assert '/country/' == reverse('sapl.stub_app:country_list')
-    assert '/country/create' == reverse('sapl.stub_app:country_create')
-    assert '/country/2' == reverse('sapl.stub_app:country_detail', args=(2,))
+    assert '/country/' == reverse('saap.stub_app:country_list')
+    assert '/country/create' == reverse('saap.stub_app:country_create')
+    assert '/country/2' == reverse('saap.stub_app:country_detail', args=(2,))
     assert '/country/2/edit' == reverse(
-        'sapl.stub_app:country_update', args=(2,))
+        'saap.stub_app:country_update', args=(2,))
     assert '/country/2/delete' == reverse(
-        'sapl.stub_app:country_delete', args=(2,))
+        'saap.stub_app:country_delete', args=(2,))
 
 
 def assert_h1(res, title):

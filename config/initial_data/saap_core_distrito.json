@@ -1,0 +1,965 @@
+[
+{
+  "model": "core.distrito",
+  "pk": 1,
+  "fields": {
+    "nome": "1\u00ba Distrito \u2013 Sede",
+    "estado": 21,
+    "municipio": 4977
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 2,
+  "fields": {
+    "nome": "2\u00ba Distrito \u2013 Miraguaia",
+    "estado": 21,
+    "municipio": 4977
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 3,
+  "fields": {
+    "nome": "3\u00ba Distrito \u2013 Catanduva Grande",
+    "estado": 21,
+    "municipio": 4977
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 4,
+  "fields": {
+    "nome": "4\u00ba Distrito \u2013 Pinheirinhos",
+    "estado": 21,
+    "municipio": 4977
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 5,
+  "fields": {
+    "nome": "5\u00ba Distrito \u2013 Evaristo",
+    "estado": 21,
+    "municipio": 4977
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 6,
+  "fields": {
+    "nome": "6\u00ba Distrito \u2013 Chico Loma",
+    "estado": 21,
+    "municipio": 4977
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 7,
+  "fields": {
+    "nome": "Barra da Lagoa",
+    "estado": 21,
+    "municipio": 4399
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 8,
+  "fields": {
+    "nome": "Cachoeira do Bom Jesus",
+    "estado": 21,
+    "municipio": 4399
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 9,
+  "fields": {
+    "nome": "Campeche",
+    "estado": 21,
+    "municipio": 4399
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 10,
+  "fields": {
+    "nome": "Canasvieiras",
+    "estado": 21,
+    "municipio": 4399
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 11,
+  "fields": {
+    "nome": "Ingleses do Rio Vermelho",
+    "estado": 21,
+    "municipio": 4399
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 12,
+  "fields": {
+    "nome": "Lagoa da Concei\u00e7\u00e3o",
+    "estado": 21,
+    "municipio": 4399
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 13,
+  "fields": {
+    "nome": "P\u00e2ntano do Sul",
+    "estado": 21,
+    "municipio": 4399
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 14,
+  "fields": {
+    "nome": "Ratones",
+    "estado": 21,
+    "municipio": 4399
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 15,
+  "fields": {
+    "nome": "Ribeir\u00e3o da Ilha",
+    "estado": 21,
+    "municipio": 4399
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 16,
+  "fields": {
+    "nome": "Santo Ant\u00f4nio de Lisboa",
+    "estado": 21,
+    "municipio": 4399
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 17,
+  "fields": {
+    "nome": "S\u00e3o Jo\u00e3o do Rio Vermelho",
+    "estado": 21,
+    "municipio": 4399
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 18,
+  "fields": {
+    "nome": "Sede",
+    "estado": 21,
+    "municipio": 4399
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 19,
+  "fields": {
+    "nome": "Sede",
+    "estado": 21,
+    "municipio": 4968
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 20,
+  "fields": {
+    "nome": "S\u00e3o Valentim",
+    "estado": 21,
+    "municipio": 4968
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 21,
+  "fields": {
+    "nome": "Pains",
+    "estado": 21,
+    "municipio": 4968
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 22,
+  "fields": {
+    "nome": "Arroio Grande",
+    "estado": 21,
+    "municipio": 4968
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 23,
+  "fields": {
+    "nome": "Arroio do S\u00f3",
+    "estado": 21,
+    "municipio": 4968
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 24,
+  "fields": {
+    "nome": "Passo do Verde",
+    "estado": 21,
+    "municipio": 4968
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 25,
+  "fields": {
+    "nome": "Boca do Monte",
+    "estado": 21,
+    "municipio": 4968
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 26,
+  "fields": {
+    "nome": "Palma",
+    "estado": 21,
+    "municipio": 4968
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 27,
+  "fields": {
+    "nome": "Santa Flora",
+    "estado": 21,
+    "municipio": 4968
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 28,
+  "fields": {
+    "nome": "Santo Ant\u00e3o",
+    "estado": 21,
+    "municipio": 4968
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 29,
+  "fields": {
+    "nome": "Sede",
+    "estado": 21,
+    "municipio": 5045
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 30,
+  "fields": {
+    "nome": "Amoras",
+    "estado": 21,
+    "municipio": 5045
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 31,
+  "fields": {
+    "nome": "Costa Serra",
+    "estado": 21,
+    "municipio": 4862
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 32,
+  "fields": {
+    "nome": "Fortaleza",
+    "estado": 21,
+    "municipio": 4862
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 33,
+  "fields": {
+    "nome": "Montenegro",
+    "estado": 21,
+    "municipio": 4862
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 34,
+  "fields": {
+    "nome": "Pesqueiro",
+    "estado": 21,
+    "municipio": 4862
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 35,
+  "fields": {
+    "nome": "Santos Reis",
+    "estado": 21,
+    "municipio": 4862
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 36,
+  "fields": {
+    "nome": "Vendinha",
+    "estado": 21,
+    "municipio": 4862
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 37,
+  "fields": {
+    "nome": "S\u00e3o Roque",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 38,
+  "fields": {
+    "nome": "Linha Nova",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 39,
+  "fields": {
+    "nome": "Pedra Branca da Linha Nova",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 40,
+  "fields": {
+    "nome": "Pedra Branca da Linha Furna",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 41,
+  "fields": {
+    "nome": "Lajeana",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 42,
+  "fields": {
+    "nome": "Linha Furna",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 43,
+  "fields": {
+    "nome": "Arroio Forquilha",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 44,
+  "fields": {
+    "nome": "Caracol",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 45,
+  "fields": {
+    "nome": "Linha 15 de Novembro",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 46,
+  "fields": {
+    "nome": "Mato Queimado",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 47,
+  "fields": {
+    "nome": "Parque dos Pinheiros",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 48,
+  "fields": {
+    "nome": "Linha 28",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 49,
+  "fields": {
+    "nome": "Linha \u00c1vila Alta",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 50,
+  "fields": {
+    "nome": "Linha Bonita Italiana",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 51,
+  "fields": {
+    "nome": "Linha \u00c1vila Baixa",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 52,
+  "fields": {
+    "nome": "Forqueta",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 53,
+  "fields": {
+    "nome": "Linha Bonita Alem\u00e3",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 54,
+  "fields": {
+    "nome": "Linha Araripe B",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 55,
+  "fields": {
+    "nome": "Linha Araripe A",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 56,
+  "fields": {
+    "nome": "Campestre do Tigre",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 57,
+  "fields": {
+    "nome": "Carazal",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 58,
+  "fields": {
+    "nome": "Linha Marcondes B",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 59,
+  "fields": {
+    "nome": "Linha Marcondes A",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 60,
+  "fields": {
+    "nome": "Tapera Italiana",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 61,
+  "fields": {
+    "nome": "Tapera Alem\u00e3",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 62,
+  "fields": {
+    "nome": "Tapera Alta",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 63,
+  "fields": {
+    "nome": "Nova Ren\u00e2nia",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 64,
+  "fields": {
+    "nome": "Varzea Grande Pizeta",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 65,
+  "fields": {
+    "nome": "Varzea Grande S\u00e3o Luiz",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 66,
+  "fields": {
+    "nome": "Fundos Belvedere",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 67,
+  "fields": {
+    "nome": "Moreira",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 68,
+  "fields": {
+    "nome": "Carah\u00e1",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 69,
+  "fields": {
+    "nome": "Moro do Arame Quilombo Baixo",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 70,
+  "fields": {
+    "nome": "Serra Grande Moro Agudo",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 71,
+  "fields": {
+    "nome": "Serra Grande Italiana",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 72,
+  "fields": {
+    "nome": "Serra Grande Alem\u00e3",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 73,
+  "fields": {
+    "nome": "Gambelo",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 74,
+  "fields": {
+    "nome": "Linha H\u00f6rlle",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 75,
+  "fields": {
+    "nome": "Caboclo",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 76,
+  "fields": {
+    "nome": "Moleque",
+    "estado": 21,
+    "municipio": 4785
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 89,
+  "fields": {
+    "nome": "Santa Cristina do Pinhal",
+    "estado": 21,
+    "municipio": 4905
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 90,
+  "fields": {
+    "nome": "Po\u00e7o Fundo",
+    "estado": 21,
+    "municipio": 4905
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 91,
+  "fields": {
+    "nome": "Arroio do Padre",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 92,
+  "fields": {
+    "nome": "Cascata",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 93,
+  "fields": {
+    "nome": "Cerrito Alegre",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 94,
+  "fields": {
+    "nome": "Col\u00f4nia Z3",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 95,
+  "fields": {
+    "nome": "Monte Bonito",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 96,
+  "fields": {
+    "nome": "Quilombo",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 97,
+  "fields": {
+    "nome": "Rinc\u00e3o da Cruz",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 98,
+  "fields": {
+    "nome": "Santa Silvana ",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 99,
+  "fields": {
+    "nome": "Col\u00f4nia Corrientes",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 100,
+  "fields": {
+    "nome": "Ponte Cordeiro de Farias",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 101,
+  "fields": {
+    "nome": "Vila Nova",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 102,
+  "fields": {
+    "nome": "Triunfo",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 103,
+  "fields": {
+    "nome": "Bachini",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 104,
+  "fields": {
+    "nome": "Cascalho",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 105,
+  "fields": {
+    "nome": "Colonia Arroio Moreira",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 106,
+  "fields": {
+    "nome": "Colonia Maciel",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 107,
+  "fields": {
+    "nome": "Colonia Municipal",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 108,
+  "fields": {
+    "nome": "Colonia Os\u00f3rio",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 109,
+  "fields": {
+    "nome": "Colonia Passo do Pil\u00e3o",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 110,
+  "fields": {
+    "nome": "Colonia Santa \u00c1urea",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 111,
+  "fields": {
+    "nome": "Colonia Santa Eul\u00e1lia",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 112,
+  "fields": {
+    "nome": "Galateia",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 113,
+  "fields": {
+    "nome": "Pedreiras",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 114,
+  "fields": {
+    "nome": "Posto Branco",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 115,
+  "fields": {
+    "nome": "Retiro",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 116,
+  "fields": {
+    "nome": "Santa Maria",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 117,
+  "fields": {
+    "nome": "Santo Ant\u00f4nio",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 118,
+  "fields": {
+    "nome": "Umbu",
+    "estado": 21,
+    "municipio": 4914
+  }
+},
+{
+  "model": "core.distrito",
+  "pk": 119,
+  "fields": {
+    "nome": "Vila Seca",
+    "estado": 21,
+    "municipio": 4914
+  }
+}
+]

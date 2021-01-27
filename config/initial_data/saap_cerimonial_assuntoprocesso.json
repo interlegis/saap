@@ -1,0 +1,429 @@
+[
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 173,
+  "fields": {
+    "descricao": "Bueiro entupido"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 174,
+  "fields": {
+    "descricao": "Bueiro sem tampa"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 175,
+  "fields": {
+    "descricao": "Esgoto a c\u00e9u aberto"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 176,
+  "fields": {
+    "descricao": "Esgoto obstru\u00eddo"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 177,
+  "fields": {
+    "descricao": "Falta de \u00e1gua"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 178,
+  "fields": {
+    "descricao": "Ponto de alagamento"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 179,
+  "fields": {
+    "descricao": "Vazamento de \u00e1gua"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 180,
+  "fields": {
+    "descricao": "Condi\u00e7\u00e3o sanit\u00e1ria irregular"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 181,
+  "fields": {
+    "descricao": "Emiss\u00e3o de fuma\u00e7a preta"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 182,
+  "fields": {
+    "descricao": "Estabelecimento com acessibilidade irregular"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 183,
+  "fields": {
+    "descricao": "Estabelecimento sem alvar\u00e1"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 184,
+  "fields": {
+    "descricao": "Estabelecimento sem sa\u00edda de emerg\u00eancia"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 185,
+  "fields": {
+    "descricao": "Ocupa\u00e7\u00e3o irregular de \u00e1rea p\u00fablica"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 186,
+  "fields": {
+    "descricao": "Polui\u00e7\u00e3o sonora"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 187,
+  "fields": {
+    "descricao": "Pre\u00e7o abusivo do combust\u00edvel"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 188,
+  "fields": {
+    "descricao": "Falta de energia"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 189,
+  "fields": {
+    "descricao": "Fia\u00e7\u00e3o irregular"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 190,
+  "fields": {
+    "descricao": "Ilumina\u00e7\u00e3o p\u00fablica irregular"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 191,
+  "fields": {
+    "descricao": "L\u00e2mpada acesa de dia"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 192,
+  "fields": {
+    "descricao": "L\u00e2mpada apagada \u00e0 noite"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 193,
+  "fields": {
+    "descricao": "Entulho na cal\u00e7ada ou via p\u00fablica"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 194,
+  "fields": {
+    "descricao": "Limpeza urbana"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 195,
+  "fields": {
+    "descricao": "Lixeira inexistente ou quebrada"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 196,
+  "fields": {
+    "descricao": "Mato alto"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 197,
+  "fields": {
+    "descricao": "Praia suja"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 198,
+  "fields": {
+    "descricao": "Aterro sanit\u00e1rio irregular"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 199,
+  "fields": {
+    "descricao": "Ca\u00e7a predat\u00f3ria"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 200,
+  "fields": {
+    "descricao": "Desmatamento irregular"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 201,
+  "fields": {
+    "descricao": "Maus tratos a animais"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 202,
+  "fields": {
+    "descricao": "Poda ou retirada de \u00e1rvore"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 203,
+  "fields": {
+    "descricao": "Queimada irregular"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 204,
+  "fields": {
+    "descricao": "Biciclet\u00e1rio danificado"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 205,
+  "fields": {
+    "descricao": "Cal\u00e7ada inexistente ou irregular"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 206,
+  "fields": {
+    "descricao": "Cal\u00e7ada danificada"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 207,
+  "fields": {
+    "descricao": "Ciclovia ou ciclofaixa mal sinalizada"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 208,
+  "fields": {
+    "descricao": "Faixa de pedestre inexistente"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 209,
+  "fields": {
+    "descricao": "Falta de rampa de acessibilidade"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 210,
+  "fields": {
+    "descricao": "Passarela irregular"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 211,
+  "fields": {
+    "descricao": "Emiss\u00e3o de fuma\u00e7a preta"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 212,
+  "fields": {
+    "descricao": "Foco de dengue"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 213,
+  "fields": {
+    "descricao": "Infesta\u00e7\u00e3o de roedores"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 214,
+  "fields": {
+    "descricao": "Polui\u00e7\u00e3o sonora"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 215,
+  "fields": {
+    "descricao": "Ponto de assalto ou roubo"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 216,
+  "fields": {
+    "descricao": "Ponto de prostitui\u00e7\u00e3o de menores"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 217,
+  "fields": {
+    "descricao": "Ponto de tr\u00e1fico de drogas"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 218,
+  "fields": {
+    "descricao": "Esta\u00e7\u00e3o/terminal de \u00f4nibus ou trem danificado"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 219,
+  "fields": {
+    "descricao": "\u00d4nibus ou trem danificado"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 220,
+  "fields": {
+    "descricao": "\u00d4nibus ou trem superlotado"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 221,
+  "fields": {
+    "descricao": "Ponto de \u00f4nibus ou trem inexistente ou danificado"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 222,
+  "fields": {
+    "descricao": "Outra irregularidade"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 223,
+  "fields": {
+    "descricao": "Equipamento p\u00fablico danificado"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 224,
+  "fields": {
+    "descricao": "Im\u00f3vel abandonado"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 225,
+  "fields": {
+    "descricao": "Patrim\u00f4nio hist\u00f3rico em risco"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 226,
+  "fields": {
+    "descricao": "Via bloqueada"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 227,
+  "fields": {
+    "descricao": "Via com buracos"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 228,
+  "fields": {
+    "descricao": "Via com pavimenta\u00e7\u00e3o irregular"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 229,
+  "fields": {
+    "descricao": "Estacionamento irregular"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 230,
+  "fields": {
+    "descricao": "Placa de sinaliza\u00e7\u00e3o inexistente ou quebrada"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 231,
+  "fields": {
+    "descricao": "Pintura inexistente ou desgastada"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 232,
+  "fields": {
+    "descricao": "Sem\u00e1foro inexistente ou quebrado"
+  }
+},
+{
+  "model": "cerimonial.assuntoprocesso",
+  "pk": 233,
+  "fields": {
+    "descricao": "Ve\u00edculo abandonado"
+  }
+}
+]

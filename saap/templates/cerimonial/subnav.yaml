@@ -1,17 +1,17 @@
 {% load i18n %}
-- title: {% trans 'Dados Básicos' %}
+- title: {% trans 'Dados básicos' %}
   url: contato_detail
 - title: {% trans 'Endereços' %}
   url: endereco_list
 - title: {% trans 'Telefones' %}
   url: telefone_list
-- title: {% trans "Email's" %}
+- title: {% trans "E-mails" %}
   url: email_list
-- title: {% trans "Locais de Trabalho" %}
+- title: {% trans "Locais de trabalho" %}
   url: localtrabalho_list
 - title: {% trans "Dependentes" %}
   url: dependente_list
-- title: {% trans "Filiação Partidária" %}
+- title: {% trans "Filiação partidária" %}
   url: filiacaopartidaria_list
 - title: {% trans "Processos" %}
   url: processocontato_list

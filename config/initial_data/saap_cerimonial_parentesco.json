@@ -1,0 +1,114 @@
+[
+{
+  "model": "cerimonial.parentesco",
+  "pk": 1,
+  "fields": {
+    "descricao": "Pai / M\u00e3e"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 2,
+  "fields": {
+    "descricao": "Sogro / Sogra"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 3,
+  "fields": {
+    "descricao": "Filho / Filha"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 4,
+  "fields": {
+    "descricao": "Av\u00f4 / Av\u00f3"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 5,
+  "fields": {
+    "descricao": "Bisav\u00f4 / Bisav\u00f3"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 6,
+  "fields": {
+    "descricao": "Trisav\u00f4 / Trisav\u00f3"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 7,
+  "fields": {
+    "descricao": "Neto / Neta"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 8,
+  "fields": {
+    "descricao": "Bisneto / Bisneta"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 9,
+  "fields": {
+    "descricao": "Trineto / Trineta"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 10,
+  "fields": {
+    "descricao": "Irm\u00e3o / Irm\u00e3"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 11,
+  "fields": {
+    "descricao": "Cunhado / Cunhada"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 12,
+  "fields": {
+    "descricao": "Tio / Tia"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 13,
+  "fields": {
+    "descricao": "Primo / Prima"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 14,
+  "fields": {
+    "descricao": "Genro / Nora"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 15,
+  "fields": {
+    "descricao": "Tio-av\u00f4 / Tia-av\u00f3"
+  }
+},
+{
+  "model": "cerimonial.parentesco",
+  "pk": 16,
+  "fields": {
+    "descricao": "Esposo / Esposa"
+  }
+}
+]

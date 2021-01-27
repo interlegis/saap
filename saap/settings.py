@@ -10,14 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
-from decouple import AutoConfig
+from decouple import config
 from dj_database_url import parse as db_url
 from easy_thumbnails.conf import Settings as thumbnail_settings
 from unipath import Path
 import os
-
-
-config = AutoConfig()
 
 BASE_DIR = Path(__file__).ancestor(1)
 PROJECT_DIR = Path(__file__).ancestor(2)
@@ -28,6 +25,12 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
+# Ativar ou desativar Django Toolbar
+ENABLE_DEBUG = config('DJANGO_TOOLBAR', default=False, cast=bool)
+
+SITE_NAME = config('SITE_NAME', default='', cast=str)
+SITE_DOMAIN = config('SITE_DOMAIN', default='', cast=str)
+
 ALLOWED_HOSTS = ['*']
 
 LOGIN_REDIRECT_URL = '/'
@@ -37,29 +40,39 @@ LOGIN_URL = '/login/?next='
 SAAP_APPS = (
     'saap.core',
     'saap.cerimonial',
-
-    # manter sempre como o último da lista de apps
-    'saap.globalrules'
+    'saap.globalrules'  # manter sempre como o último da lista de apps
 
 )
 
-INITIAL_VALUE_FORMS_UF = config('INITIAL_VALUE_FORMS_UF', default='DF')
-INITIAL_VALUE_FORMS_MUNICIPIO = config(
-    'INITIAL_VALUE_FORMS_MUNICIPIO', default='Brasília')
-INITIAL_VALUE_FORMS_CEP = config(
-    'INITIAL_VALUE_FORMS_CEP', default='71608-000')
+SITE_NAME = config('SITE_NAME');
+SITE_DOMAIN = config('SITE_DOMAIN');
+
+DADOS_NOME = config('DADOS_NOME');
+DADOS_ENDERECO = config('DADOS_ENDERECO');
+DADOS_MUNICIPIO = config('DADOS_MUNICIPIO'); 
+DADOS_UF = config('DADOS_UF');
+DADOS_CEP = config('DADOS_CEP');
+DADOS_EMAIL = config('DADOS_EMAIL');
+DADOS_TELEFONE = config('DADOS_TELEFONE');
+DADOS_SITE = config('DADOS_SITE');
+BRASAO_PROPRIO = config('BRASAO_PROPRIO');
 
 INSTALLED_APPS = (
-    'django_admin_bootstrapped',  # must come before django.contrib.admin
+    #'django_admin_bootstrapped',
+    'bootstrap_admin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'social.apps.django_app.default',
+    'django.contrib.postgres',
+    #'social.apps.django_app.default',
+    #'social_django',
 
     # more
+#    'import_export',
+    'smart_selects',
     'django_extensions',
     'djangobower',
     'bootstrap3',  # basically for django_admin_bootstrapped
@@ -73,8 +86,10 @@ INSTALLED_APPS = (
     # 'haystack',
     # "elasticstack",
 
+    'debug_toolbar',
     'taggit',
     'modelcluster',
+    'easyaudit',
 )
 
 INSTALLED_APPS = INSTALLED_APPS + SAAP_APPS
@@ -94,7 +109,36 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
 )
+
+if DEBUG:
+   INTERNAL_IPS = ('127.0.0.1', 'localhost', '172.27.80.68')
+   MIDDLEWARE_CLASSES += (
+       'debug_toolbar.middleware.DebugToolbarMiddleware',
+   )
+
+   DEBUG_TOOLBAR_PANELS = [
+       'debug_toolbar.panels.versions.VersionsPanel',
+       'debug_toolbar.panels.timer.TimerPanel',
+       'debug_toolbar.panels.settings.SettingsPanel',
+       'debug_toolbar.panels.headers.HeadersPanel',
+       'debug_toolbar.panels.request.RequestPanel',
+       'debug_toolbar.panels.sql.SQLPanel',
+       'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+       'debug_toolbar.panels.templates.TemplatesPanel',
+       'debug_toolbar.panels.cache.CachePanel',
+       'debug_toolbar.panels.signals.SignalsPanel',
+       'debug_toolbar.panels.logging.LoggingPanel',
+       'debug_toolbar.panels.redirects.RedirectsPanel',
+   ]
+
+   DEBUG_TOOLBAR_CONFIG = {
+       'INTERCEPT_REDIRECTS': False,
+   }
+
+
+
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -119,11 +163,11 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                "django.core.context_processors.media",
-                "django.core.context_processors.static",
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
                 'django.contrib.messages.context_processors.messages',
-                'social.apps.django_app.context_processors.backends',
-                'social.apps.django_app.context_processors.login_redirect',
+                #'social.apps.django_app.context_processors.backends',
+                #'social.apps.django_app.context_processors.login_redirect',
                 'saap.context_processors.areatrabalho',
             ],
             'debug': DEBUG,
@@ -150,13 +194,11 @@ DATABASES = {
 
 
 AUTHENTICATION_BACKENDS = (
-    'social.backends.facebook.FacebookOAuth2',
     'django.contrib.auth.backends.ModelBackend',
-    'social.backends.google.GoogleOAuth2',
 )
 
 """ 'social.backends.twitter.TwitterOAuth' """
-
+"""
 SOCIAL_AUTH_FACEBOOK_KEY = config(
     'SOCIAL_AUTH_FACEBOOK_KEY',
     default='',
@@ -183,8 +225,9 @@ SOCIAL_AUTH_TWITTER_SECRET = config(
     'SOCIAL_AUTH_TWITTER_SECRET',
     default='',
     cast=str)
-
+"""
 USER_FIELDS = ('email',)
+"""
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
@@ -203,10 +246,11 @@ SOCIAL_BACKEND_INFO = {
 }
 # twitter não está funcinando com a customização do auth.User,
 # ao menos localmente... testar em um domínio válido.
+"""
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
-LANGUAGE_CODE = 'pt-br'
+LANGUAGE_CODE = 'pt-BR'
 LANGUAGES = (
     ('pt-br', u'Português'),
 )
@@ -217,7 +261,7 @@ USE_L10N = False
 USE_TZ = True
 DATE_FORMAT = 'd/m/Y'
 SHORT_DATE_FORMAT = 'd/m/Y'
-DATE_INPUT_FORMATS = ('%d/%m/%Y', '%m-%d-%Y', '%Y-%m-%d')
+DATE_INPUT_FORMATS = ['%d/%m/%Y']
 
 LOCALE_PATHS = (
     BASE_DIR.child('locale'),
@@ -233,7 +277,7 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'djangobower.finders.BowerFinder',
-    'sass_processor.finders.CssFinder',
+#    'sass_processor.finders.CssFinder',
 )
 
 
@@ -277,7 +321,6 @@ SASS_PROCESSOR_INCLUDE_DIRS = (
 
 # FIXME update cripy-forms and remove this
 # hack to suppress many annoying warnings from crispy_forms
-# see sapl.temp_suppress_crispy_form_warnings
 
 # suprime texto de ajuda default do django-filter
 FILTERS_HELP_TEXT_FILTER = False
@@ -287,11 +330,19 @@ THUMBNAIL_PROCESSORS = (
     'image_cropping.thumbnail_processors.crop_corners',
 ) + thumbnail_settings.THUMBNAIL_PROCESSORS
 
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_HOST = config('EMAIL_HOST', default='', cast=str)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='', cast=str)
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='', cast=str)
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+EMAIL_PORT = config('EMAIL_PORT', cast=int, default=587)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=True)
+EMAIL_SEND_USER = config('EMAIL_SEND_USER', cast=str, default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', cast=str, default='')
+SERVER_EMAIL = config('SERVER_EMAIL', cast=str, default='')
 
 MAX_DOC_UPLOAD_SIZE = 5 * 1024 * 1024  # 5MB
 MAX_IMAGE_UPLOAD_SIZE = 2 * 1024 * 1024  # 2MB
@@ -327,3 +378,15 @@ HAYSTACK_CONNECTIONS = {
 
 # HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 # ELASTICSEARCH_DEFAULT_ANALYZER = "snowball"
+
+def show_toolbar(request):
+    return ENABLE_DEBUG
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK" : show_toolbar,
+}
+
+USE_DJANGO_JQUERY = True
+
+DJANGO_EASY_AUDIT_WATCH_MODEL_EVENTS = True
+DJANGO_EASY_AUDIT_WATCH_AUTH_EVENTS = True
+DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS = True

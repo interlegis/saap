@@ -1,0 +1,16 @@
+[
+{
+  "model": "cerimonial.tipoemail",
+  "pk": 1,
+  "fields": {
+    "descricao": "Particular"
+  }
+},
+{
+  "model": "cerimonial.tipoemail",
+  "pk": 2,
+  "fields": {
+    "descricao": "Corporativo"
+  }
+}
+]
