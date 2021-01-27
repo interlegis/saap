@@ -9,39 +9,39 @@ Isso significa que toda a informação aqui apresentada aplica-se apenas para a 
 
 Desenvolvimento
 =========================================
-   `Instalação do Ambiente de Desenvolvimento <https://github.com/ojonathacardoso/saap/blob/master/docs/instalacao.rst>`_
+   `Instalação do Ambiente de Desenvolvimento <https://github.com/interlegis/saap/blob/master/docs/instalacao.rst>`_
 
 
 Deploy
 =========================================
-   `Deploy SAAP com Nginx + Gunicorn <https://github.com/ojonathacardoso/saap/blob/master/docs/deploy.rst>`_
+   `Deploy SAAP com Nginx + Gunicorn <https://github.com/interlegis/saap/blob/master/docs/deploy.rst>`_
 
 
 Tradução
 =========================================
-   `Instruções para Tradução <https://github.com/ojonathacardoso/saap/blob/master/docs/traducao.rst>`_
+   `Instruções para Tradução <https://github.com/interlegis/saap/blob/master/docs/traducao.rst>`_
 
 
 
 Implementação
 =========================================
-   `Instruções para Implementação e Testes <https://github.com/ojonathacardoso/saap/blob/master/docs/implementacoes.rst>`_
+   `Instruções para Implementação e Testes <https://github.com/interlegis/saap/blob/master/docs/implementacoes.rst>`_
 
 
 Atualização de release
 =========================================
-   `Instruções para Atualização <https://github.com/ojonathacardoso/saap/blob/master/docs/atualizacao.rst>`_
+   `Instruções para Atualização <https://github.com/interlegis/saap/blob/master/docs/atualizacao.rst>`_
 
 
 Orientações gerais sobre o GitHub
 =========================================
-   `Instruções para GitHub <https://github.com/ojonathacardoso/saap/blob/master/docs/git.rst>`_
+   `Instruções para GitHub <https://github.com/interlegis/saap/blob/master/docs/git.rst>`_
 
 
 Issues
 =========================================
 
-* Abra todas as questões sobre o desenvolvimento atual no `GitHub Issue Tracker <https://github.com/ojonathacardoso/saap/issues>`_.
+* Abra todas as questões sobre o desenvolvimento atual no `GitHub Issue Tracker <https://github.com/interlegis/saap/issues>`_.
 
 * Você pode escrever suas ``issues`` em Português ou Inglês (ao menos por enquanto).
 
