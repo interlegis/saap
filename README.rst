@@ -49,6 +49,6 @@ Issues
 Referências
 =========================================
 
-Estes guias, o projeto e as configurações do ambiente foram extendidos por `Jonatha Cardoso <https://github.com/ojonathacardoso/saap>`_ (servidor na `Câmara Municipal de Novo Hamburgo <http://portal.camaranh.rs.gov.br>`_) - a partir do `Projeto SAAP do Interlegis <https://github.com/interlegis/saap>`_, que por sua vez teve grande participação da `Câmara Municpal de Jataí <https://github.com/cmjatai/cmj>`_
+Estes guias, o projeto e as configurações do ambiente foram desenvolvidos, corrigidos e aperfeiçoados a partir do fork de `Jonatha Cardoso <https://github.com/ojonathacardoso/saap>`_ (servidor na `Câmara Municipal de Novo Hamburgo/RS <http://portal.camaranh.rs.gov.br>`_). 
 
-Nesse repositório foram criadas modificações para o perfeito funcionamento do sistema, tendo sido implantado em 2018 e disponibilizado `aqui <http://saap.camaranh.rs.gov.br>`_.
+O mesmo teve como ponto de partida o projeto original do SAAP, desenvolvido em grande parte por  `Leandro Silva <https://github.com/cmjatai/cmj>`_ (servidor na `Câmara Municipal de Jataí/GO <https://www.jatai.go.leg.br>`_)
