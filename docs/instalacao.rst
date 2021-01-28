@@ -91,13 +91,13 @@ Carregue as configurações do virtualenvwrapper:
 
 ::
 
-    git clone git://github.com/ojonathacardoso/saap
+    git clone git://github.com/interlegis/saap
     
 
 Para fazer um fork e depois clonar, clique `aqui <https://help.github.com/articles/fork-a-repo>`_ e siga as instruções, que basicamente são:
 
     * Criar uma conta no GitHub - é gratuíto.
-    * Acessar https://github.com/ojonathacardoso/saap e clicar em Fork.
+    * Acessar https://github.com/interlegis/saap e clicar em Fork.
     * Copiar o domínio que será criado um domínio, pelo qual será possível clonar, corrigir, customizar, melhorar, contribuir, entre outros.
 
 ::
