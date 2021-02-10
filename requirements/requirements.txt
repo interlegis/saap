@@ -25,7 +25,7 @@ pyyaml==5.1
 rtyaml==0.0.2
 unipath==1.1
 python-magic==0.4.10
-gunicorn==19.4.5
+gunicorn==19.5.0
 python-social-auth
 git+git://github.com/interlegis/trml2pdf.git
 python-dateutil
