@@ -283,6 +283,12 @@ Lembrando, antes, que [PYTHON] deve ser trocada pela pasta com a versão do Pyth
 ::
 
     cp /var/interlegis/saap/config/reportlab/* /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/reportlab/platypus/
+    
+* Image Cropping
+
+::
+
+    cp /var/interlegis/saap/config/image_cropping/* /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/image_cropping/
 
 8) Gerar a chave secreta
 -----------------------------------------------------
