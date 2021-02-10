@@ -21,7 +21,7 @@ libsass==0.11.0
 psycopg2
 python-decouple==3.0
 pytz==2016.3
-pyyaml==3.11
+pyyaml==5.1
 rtyaml==0.0.2
 unipath==1.1
 python-magic==0.4.10
