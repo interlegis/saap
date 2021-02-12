@@ -51,4 +51,4 @@ Referências
 
 Estes guias, o projeto e as configurações do ambiente foram desenvolvidos, corrigidos e aperfeiçoados a partir do fork de `Jonatha Cardoso <https://github.com/ojonathacardoso/saap>`_ (servidor na `Câmara Municipal de Novo Hamburgo/RS <http://portal.camaranh.rs.gov.br>`_). 
 
-O mesmo teve como ponto de partida o projeto original do SAAP, desenvolvido em grande parte por  `Leandro Silva <https://github.com/cmjatai/cmj>`_ (servidor na `Câmara Municipal de Jataí/GO <https://www.jatai.go.leg.br>`_)
+O mesmo teve como ponto de partida o projeto original do SAAP, desenvolvido por  `Leandro Silva <https://github.com/cmjatai>`_ (servidor na `Câmara Municipal de Jataí/GO <https://www.jatai.go.leg.br>`_) e `Ramiro Luz <https://github.com/ramiroluz>`_ (servidor na `Câmara Municipal de Curitiba/PR <https://www.curitiba.pr.leg.br/>`_)
