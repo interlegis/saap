@@ -2,7 +2,7 @@
 Instalação do Ambiente de Desenvolvimento
 ***********************************************
 
-Procedimento testado no ``Debian Buster x64`` e ``Ubuntu 18.04 Bionic Beaver x64``. Além disto, quando do desenvolvimento em 2018, o SO utilizado o ``Debian Jessie x64``.
+Procedimento testado no ``Debian 10 Buster x64`` e ``Ubuntu 20.04 Focal Fossa x64``.
 
 Você pode escolher qualquer usuário de sistema para esse processo - todas as referências para ``$USER`` devem ser substituídas por esse usuário. O mesmo deve ter as devidas permissões para instalação e configuração. 
 
@@ -91,13 +91,13 @@ Carregue as configurações do virtualenvwrapper:
 
 ::
 
-    git clone git://github.com/ojonathacardoso/saap
+    git clone git://github.com/interlegis/saap
     
 
 Para fazer um fork e depois clonar, clique `aqui <https://help.github.com/articles/fork-a-repo>`_ e siga as instruções, que basicamente são:
 
     * Criar uma conta no GitHub - é gratuíto.
-    * Acessar https://github.com/ojonathacardoso/saap e clicar em Fork.
+    * Acessar https://github.com/interlegis/saap e clicar em Fork.
     * Copiar o domínio que será criado um domínio, pelo qual será possível clonar, corrigir, customizar, melhorar, contribuir, entre outros.
 
 ::
@@ -247,9 +247,23 @@ Como exemplo de arquivo ``.env``, veja:
 7) Corrigir problemas de configuração em alguns pacotes
 -----------------------------------------------------
 
-Após a instalação, foram detectados alguns problemas em pacotes como o Rest Framework, o Bootstrap, entre outros. Obviamente esses problemas exigem uma análise mais aprofundada e uma solução mais precisa. Porém, para que o sistema possa funcionar corretamente, os arquivos com as devidas correções estão dentro da pasta ``config``, e devem ser copiados com os seguintes comandos:
+Após a instalação, foram detectados alguns problemas em pacotes como o Django, Rest Framework, Bootstrap, entre outros. Obviamente esses problemas exigem uma análise mais aprofundada e uma solução mais precisa. Porém, para que o sistema possa funcionar corretamente, os arquivos com as devidas correções estão dentro da pasta ``config``, e devem ser copiados com os seguintes comandos:
 
 Lembrando, antes, que [PYTHON] deve ser trocada pela pasta com a versão do Python que foi instalada - por exemplo, o Python 3.7.
+
+* Django Models
+
+::
+
+    cp /var/interlegis/saap/config/django_db_models/base.py /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/django/db/models/
+
+
+* Django Core Management
+
+::
+
+    cp /var/interlegis/saap/config/django_core_management/base.py /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/django/core/management/
+
 
 * Rest Framework
 
@@ -265,13 +279,6 @@ Lembrando, antes, que [PYTHON] deve ser trocada pela pasta com a versão do Pyth
 
     cp /var/interlegis/saap/config/bootstrap_admin/filter.html /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/bootstrap_admin/templates/admin/ 
 
-* Django Core Management
-
-::
-
-    cp /var/interlegis/saap/config/django_core_management/base.py /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/django/core/management/
-
-
 * Smart Selects (usado para carregar os campos de Estado, Município, Bairro...)
 
 ::
@@ -283,6 +290,12 @@ Lembrando, antes, que [PYTHON] deve ser trocada pela pasta com a versão do Pyth
 ::
 
     cp /var/interlegis/saap/config/reportlab/* /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/reportlab/platypus/
+    
+* Image Cropping
+
+::
+
+    cp /var/interlegis/saap/config/image_cropping/* /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/image_cropping/
 
 8) Gerar a chave secreta
 -----------------------------------------------------
