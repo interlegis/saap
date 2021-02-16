@@ -102,14 +102,9 @@
 
                   {% if perms.core.menu_dados_auxiliares %}
                     <li class="dropdown">
-                      <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Dados auxiliares" %}<span class="caret"></span></a>
+                      <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Sistema" %}<span class="caret"></span></a>
                       <ul class="dropdown-menu menu-right">
-                        {% if perms.core.search_trecho %}<li><a href="{% url 'saap.core:trecho_list' %}">{% trans "CEPs e Endereços" %}</a></li>{% endif %}
-                        {% if perms.cerimonial.list_assuntoprocesso %}<li class="nav__sub-item"><a href="{% url 'saap.cerimonial:assuntoprocesso_list' %}">{% model_verbose_name_plural "saap.cerimonial.models.AssuntoProcesso"%}</a></li>{% endif %}
-
-                        {% if perms.core.menu_tabelas_auxiliares or perms.core.menu_area_trabalho or perms.core.menu_impresso_enderecamento%}
-                        {% endif %}
-                        {% if perms.core.menu_tabelas_auxiliares %}<li class="nav__sub-item"><a href="{% url 'saap.core:tabelas_auxiliares' %}">{% trans "Tabelas" %}</a></li>{% endif %}
+                        {% if perms.core.menu_tabelas_auxiliares %}<li class="nav__sub-item"><a href="{% url 'saap.core:tabelas_auxiliares' %}">{% trans "Tabelas auxiliares" %}</a></li>{% endif %}
                         {% if perms.core.menu_area_trabalho %}<li class="nav__sub-item"><a href="{% url 'saap.core:areatrabalho_list' %}">{% trans "&Aacute;reas de trabalho" %}</a></li>{% endif %}
                         {% if perms.core.menu_impresso_enderecamento %}<li class="nav__sub-item"><a href="{% url 'saap.core:impressoenderecamento_list' %}">{% trans "Impressos de endereçamento" %}</a></li>{% endif %}
 
