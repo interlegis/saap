@@ -279,7 +279,6 @@ Lembrando, antes, que [PYTHON] deve ser trocada pela pasta com a versão do Pyth
 
     cp /var/interlegis/saap/config/bootstrap_admin/filter.html /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/bootstrap_admin/templates/admin/ 
 
-
 * Smart Selects (usado para carregar os campos de Estado, Município, Bairro...)
 
 ::
