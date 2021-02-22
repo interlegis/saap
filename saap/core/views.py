@@ -4,9 +4,13 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.forms.utils import ErrorList
 from django.shortcuts import redirect
+from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from django_filters.views import FilterView
 from django.views.generic.edit import FormView
+from django.views.generic.base import TemplateView
+from django.template import TemplateDoesNotExist
+from django.template.loader import get_template
 from rest_framework import viewsets, mixins
 from rest_framework.authentication import SessionAuthentication,\
     BasicAuthentication
@@ -18,7 +22,7 @@ from saap.core.forms import OperadorAreaTrabalhoForm, ImpressoEnderecamentoForm,
     ListWithSearchForm
 from saap.core.models import Cep, TipoLogradouro, Logradouro, RegiaoMunicipal,\
     Distrito, Bairro, Municipio, Estado, Trecho, AreaTrabalho, OperadorAreaTrabalho,\
-    ImpressoEnderecamento
+    ImpressoEnderecamento, User
 from saap.core.rules import rules_patterns
 from saap.core.serializers import TrechoSearchSerializer, TrechoSerializer
 from saap.globalrules import globalrules
@@ -156,14 +160,16 @@ class AreaTrabalhoCrud(DetailMasterCrud):
 
     class BaseMixin(DetailMasterCrud.BaseMixin):
 
+        list_field_names = ['nome', 'parlamentar', 'descricao']
+
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
             context['subnav_template_name'] = 'core/subnav_areatrabalho.yaml'
+            context['headers'] = ['Usuário', 'Grupo associado']
             return context
 
     class DetailView(DetailMasterCrud.DetailView):
-        list_field_names_set = ['user_name', 'parlamentar']
-
+        list_field_names_set = ['user', 'grupos_associados']
 
 class OperadorAreaTrabalhoCrud(MasterDetailCrudPermission):
     parent_field = 'areatrabalho'
@@ -293,3 +299,16 @@ class ImpressoEnderecamentoCrud(DetailMasterCrud):
 
     class CreateView(DetailMasterCrud.CreateView):
         form_class = ImpressoEnderecamentoForm
+
+
+class HelpTopicView(TemplateView):
+
+    def get_template_names(self):
+
+        topico = self.kwargs['topic']
+        try:
+            get_template('ajuda/%s.html' % topico)
+        except TemplateDoesNotExist as e:
+            raise Http404()
+
+        return ['ajuda/%s.html' % topico]

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Dependentes</h1>
+
+<br />
+
+O quinto dado de um contato que pode ser gerenciado é o de <b>Dependentes</b>. Nele, é possível adicionar familiares do contato. Basta clicar no menu da barra superior. Para adicionar um novo local de trabalho, deve-se clicar em <b>Adicionar Dependente</b>. <br />
+
+<br />
+
+O formulário possui diversos campos, porém apenas aqueles que estão destacados em <span class="erro">vermelho</span> são obrigatórios. <br />
+
+<br />
+
+<ul>
+    <li><b>Parentesco</b>: Relação familiar entre o contato e o dependente
+    <li><b>Nome</b>
+    <li><b>Data de nascimento</b>: Ao clicar no campo, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Sexo biológico</b>: Masculino ou feminino
+    <li><b>Gênero</b>: Campo livre, caso o contato possua gênero específico
+    <li><b>Nome social</b>: Nome pelo qual pessoas transexuais, travestis ou outros preferem ser chamadas no dia a dia, ao invés de seu nome registrado em cartório, que não reflete a sua identidade de gênero. Diferente de apelido.
+    <li><b>Apelido</b>: Nome informal do contato.
+    <li><b>Nível de instrução</b>: Ensino fundamental, médio ou superior, completo ou incompleto.
+</ul>
+
+Após preencher os dados, basta clicar em <b>Salvar</b>. Caso algum dado tenha sido preenchido incorretamente, o formulário será recarregado e um alerta em <span class="erro">vermelho</span>, no alto, será exibido. O campo que estiver com problema será destacado em <span class="erro">vermelho</span>, e uma mensagem explicará qual o problema. <br />
+
+<br />
+
+Após isto, o dependente será salvo. Na tela, será possível, não apenas visualizar os dependentes cadastrados, como também <b>Editar</b> o dependente, <b>Excluir</b> o dependente, <b>Adicionar</b> um novo dependente ou retornar a <b>Lista</b> de dependentes desse contato. <br />
+
+
+<h2>Editar ou Excluir</h2>
+
+Ao clicar em <b>Editar</b>, o SAAP abrirá o mesmo formulário, porém com os dados preenchidos, sendo possível sua alteração. <br />
+
+<br />
+
+Ao clicar em <b>Excluir</b>, o SAAP perguntará se o usuário deseja mesmo excluir o contato. Basta clicar em <b>Confirmar</b> para excluir, ou <b>Cancelar</b> a exclusão. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'trabalho' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'filiacao' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

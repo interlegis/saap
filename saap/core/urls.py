@@ -8,7 +8,7 @@ from saap.core.forms import LoginForm, NewPasswordForm, ResetPasswordForm, Passw
 from saap.core.views import CepCrud, RegiaoMunicipalCrud, DistritoCrud,\
     BairroCrud, MunicipioCrud, EstadoCrud, TipoLogradouroCrud, LogradouroCrud, TrechoCrud, \
     TrechoJsonSearchView, TrechoJsonView, AreaTrabalhoCrud,\
-    OperadorAreaTrabalhoCrud, PartidoCrud, ImpressoEnderecamentoCrud
+    OperadorAreaTrabalhoCrud, PartidoCrud, ImpressoEnderecamentoCrud, HelpTopicView
 
 from .apps import AppConfig
 
@@ -48,6 +48,11 @@ urlpatterns = [
                                        }, name='password_reset_confirm'),
     url(r'^reset/done/$', v_auth.password_reset_complete, {'template_name':'core/password_reset_complete.html'}, name='password_reset_complete'),
 
+
+    url(r'^sistema/ajuda/(?P<topic>\w+)$',
+        HelpTopicView.as_view(), name='help_topic'),
+    url(r'^sistema/ajuda/$', TemplateView.as_view(template_name='ajuda.html'),
+        name='help'),
 
 #    url(r'^enderecos/', login_required(
 #       TrechoSearchView.as_view()), name='search_view'),

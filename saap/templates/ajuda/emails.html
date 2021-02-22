@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">E-mails</h1>
+
+<br />
+
+O terceiro dado de um contato que pode ser gerenciado é o de <b>E-mails</b>. Basta clicar no menu da barra superior. Para adicionar um novo e-mail, deve-se clicar em <b>Adicionar E-mail</b>. <br />
+
+<br />
+
+O formulário possui diversos campos, porém apenas aqueles que estão destacados em <span class="erro">vermelho</span> são obrigatórios. <br/>
+
+<br />
+
+<ul>
+    <li><b>E-mail</b>: Deve ser informado um endereço de e-mail válido.
+    <li><b>Tipo</b>: Corporativo ou particular
+    <li><b>Principal</b>: E-mail considerado como principal. Sim ou Não
+    <li><b>Contato</b>: E-mail a ser usado para contato. Sim ou Não
+</ul>
+
+Para entender o que é o e-mail principal e o e-mail de contato, digamos que uma pessoa possua um determinado e-mail, porém deseja que as mensagens sejam enviadas para outro e-mail. O e-mail que ela possui seria o "e-mail principal", porém o e-mail para ligações é o "e-mail de contato". <br />
+
+<br />
+
+Lembre-se que apenas um dos e-mails cadastrados pode ser definido como <b>Principal</b>, e apenas um deles pode ser de <b>Contato</b>. Isso significa que, se já houver um e-mail marcado <b>Sim</b> para principal, ao adicionar um novo e-mail também marcando <b>Sim</b>, o anterior passa a estar, automaticamente, como <b>Não</b>. <br />
+
+<br />
+
+Após preencher os dados, basta clicar em <b>Salvar</b>. Caso algum dado tenha sido preenchido incorretamente, o formulário será recarregado e um alerta em <span class="erro">vermelho</span>, no alto, será exibido. O campo que estiver com problema será destacado em <span class="erro">vermelho</span>, e uma mensagem explicará qual o problema. <br />
+
+<br />
+
+Após isto, o e-mail será salvo. Na tela, será possível, não apenas visualizar os e-mails cadastrados, como também <b>Editar</b> o e-mail, <b>Excluir</b> o e-mail, <b>Adicionar</b> um novo e-mail ou retornar a <b>Lista</b> de e-mails desse contato. <br />
+
+<h2>Editar ou Excluir</h2>
+
+Ao clicar em <b>Editar</b>, o SAAP abrirá o mesmo formulário, porém com os dados preenchidos, sendo possível sua alteração. <br />
+
+<br />
+
+Ao clicar em <b>Excluir</b>, o SAAP perguntará se o usuário deseja mesmo excluir o e-mail. Basta clicar em <b>Confirmar</b> para excluir, ou <b>Cancelar</b> a exclusão. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'telefones' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'trabalho' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

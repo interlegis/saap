@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Exportação para mala direta</h1>
+
+<br />
+
+O SAAP ainda não possui um sistema completo para envio de mala direta por e-mail. Porém, para auiliar nesse trabalho, há uma forma de copiar os e-mails para envio. <br />
+
+<br />
+
+Para acessar a tela de <b>Exportação para mala direta</b>, clique no menu <b>Correspondências</b> e, depois, na opção <b>Exportação para mala direta</b>.<br />
+
+<br />
+
+Esta tela permite gerar uma lista de e-mails dos contatos, que pode ser copiada para envio em outro sistema, como Webmail institucional ou e-mail comercial (Gmail, Outlook, entre outros. <br />
+
+<h2>Filtro de Contatos</h2>
+
+<ul>
+    <li><b>Código</b>: Número identificador do contato. Cada contato possui um código ou ID.
+    <li><b>Nome, nome social ou apelido</b>: Campo que permite pesquisar pelo nome do contato, pelo nome social ou ainda pelo apelido.
+    <li><b>Ativo?</b> Sim ou Não. A opção <b>Desconhecido</b> é o mesmo que "Ambos" (Sim e Não)
+    <li><b>Sexo</b>: Masculino, Feminino ou Ambos.
+    <li><b>Estado civil</b>
+    <li><b>Tem filhos?</b> Sim ou Não. A opção <b>Desconhecido</b> é o mesmo que "Ambos" (Sim e Não)
+    <li><b>RG, CPF, CNPJ ou IE</b>: Campo que permite pesquisar alguns documentos do contato. Recomenda-se digitar sem a pontuação, para facilitar a pesquisa.
+    <li><b>Período de aniversário</b>: Campos de data que permite pesquisar um período e retornar as pessoas que fizeram aniversário nesse período. Por exemplo, para obter todos os aniversariantes de janeiro, basta informar os dias 01/01 e 31/01 nos dois campos - recomenda-se usar o ano em que estamos. Ao clicar nos campos, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Idade entre</b>: Campos de data que permite pesquisar e retornar as pessoas que possuem idade completa naquela faixa. Por exemplo, pessoas que possuem entre 20 e 30 anos completos no dia do relatório - se uma pessoa vai completar 20 anos daqui a uma semana, ela não aparecerá.
+    <li><b>Endereço, complemento ou ponto de referência</b>: Não coloque aqui o número da rua.
+    <li><b>Número</b>: Número do endereço
+    <li><b>CEP</b>: Basta digitar os números, que automaticamente são colocados os sinais de pontuação.
+    <li><b>Bairro</b>: Permite selecionar um ou mais bairros da cidade. Para selecionar um bairro, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar.
+    <li><b>Município</b>: Permite selecionar um ou mais municípios do estado. Para selecionar um município, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar.
+    <li><b>Grupos de contatos</b>: Permite selecionar um ou mais grupos. Para selecionar um grupo, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar.
+    <li><b>Contatos que possuem</b>: Caso você precise listar os contatos que possuem um determinado dado, como data de nascimento, endereço, telefone, basta usar esse campo. Para selecionar uma das opções, basta clicar na mesma. Para selecionar mais de uma, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar.
+    <li><b>Contatos que NÃO possuem</b>: Caso você precise listar os contatos que não possuem um determinado dado, como data de nascimento, endereço, telefone, basta usar esse campo. Para selecionar uma das opções, basta clicar na mesma. Para selecionar mais de uma, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar.
+    <li><b>Telefone</b>: Deve ser informado com o DDD. Basta digitar os números, que automaticamente são colocados os sinais de pontuação.
+    <li><b>Tipo de autoridade</b>
+    <li><b>Cargo ou profissão</b>: Permite pesquisar tanto o campo de cargo/função, quanto o de profissão.
+</ul>
+
+<h2>Contatos sem e-mail</h2>
+
+Algumas vezes, não é possível ter o e-mail de todos os contatos, por algum motivo - por exemplo, não foi cadastrado. Ou também, pode acontecer que algum contato não tenha marcado o e-mail para contato. <br />
+
+<br />
+
+Para mitigar esses problemas, esse relatório possui um sistema de análise de e-mails. Isto já começa na própria listagem, onde os contatos que não possuem e-mail de contato cadastrado são destacados em <span class="erro">vermelho</span>. <br />
+
+<br />
+
+Mas, digamos que você acabe não vendo esse contato, ou você possua centenas ou milhares de contatos, e não consegue saber se há e quais estão com este problema. Existem duas formas de resolver isto. <br />
+
+<br />
+
+A primeira, para não ter dúvida, é marcar <b>Sim</b> na opção <b>Ocultar sem e-mail</b>. Desta forma, todos os contatos que estão sem e-mail serão automaticamente desconsiderados.<br />
+
+<br />
+
+A segunda é gerar o relatório normalmente. Caso haja algum contato com problema, a tela recarregará com uma mensagem no alto, informando quantos contatos possuem o problema. <br />
+
+<br />
+
+É importante tomar cuidado: caso você deseje que todos os seus contatos recebam o e-mail, é necessário revisar os e-mails, para não correr o risco de, posteriormente, saber que uma determinada pessoa não recebeu o contato. <br />
+
+<br />
+
+Após isto, clique em <b>Gerar</b>. A tela gerada possui todos os contatos de e-mail, conforme o filtro. Basta pressionar as teclas Ctrl + A para selecionar todos os e-mails, e Ctrl + V para copiá-los. <br />
+
+<br />
+
+Assim, você pode inserir esses contatos copiados no seu e-mail para envio. <br />
+
+<h2> Importante! </h2>
+
+O envio de uma grande quantidade de e-mails pode causar diversos problemas, como Spam, suspensão ou bloqueio da conta. Procure enviar em pequenas quantidades, como, por exemplo, a cada 50 ou 100 e-mails. <br />
+
+<br />
+
+Uma dica, para ajudar o combate ao Spam, é enviar no campo <b>Cco</b> (Cópia oculta), ao invés de usar o campo <b>Para</b>. Assim, todos receberão o e-mail mas não saberam para quem e quantos mais o e-mail foi enviado. <br />
+
+<br />
+
+Lembrando que esta é apenas uma solução paleativa ao problema, que pretendemos resolver e trabalhar assim que possível. <br />
+
+<br />
+
+É importante tomar cuidado: caso você deseje que todos os seus contatos recebam o e-mail, é necessário revisar os mesmos, para não correr o risco de, posteriormente, saber que uma determinada pessoa não recebeu o contato. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'envelopesetiquetas' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'relatorios' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

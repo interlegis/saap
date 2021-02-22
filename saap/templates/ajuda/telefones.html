@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Telefones</h1>
+
+<br />
+
+O segundo dado de um contato que pode ser gerenciado é o de <b>Telefones</b>. Basta clicar no menu da barra superior. Para adicionar um novo endereço, deve-se clicar em <b>Adicionar Telefone</b>. <br />
+
+<br />
+
+O formulário possui diversos campos, porém apenas aqueles que estão destacados em <span class="erro">vermelho</span> são obrigatórios.<br /> 
+
+<br />
+
+<ul>
+    <li><b>Telefone</b>: Basta digitar os números, que automaticamente são colocados os sinais de pontuação.
+    <li><b>Ramal</b>
+    <li><b>Tipo</b>: Celular, comercial ou residencial
+    <li><b>Operadora de telefonia</b>
+    <li><b>Possui WhatsApp?</b> Sim ou não
+    <li><b>Próprio?</b> Se o telefone é de propriedade do contato ou se é de outra pessoa. 
+    <li><b>De quem é?</b> Se o telefone for de outra pessoa (Próprio marcado como Não), pode-se escrever de quem é.
+    <li><b>Principal</b>: Telefone considerado como principal. Sim ou Não
+    <li><b>Contato</b>: Telefone a ser usado para contato. Sim ou Não
+</ul>
+
+Para entender o que é o telefone principal e o telefone de contato, digamos que uma pessoa possua um determinado telefone, porém deseja que as ligações sejam recebidas em outro telefone. O telefone que ela possui seria o "telefone principal", porém o telefone para ligações é o "telefone de contato". <br />
+
+<br />
+
+Lembre-se que apenas um dos telefones cadastrados pode ser definido como <b>Principal</b>, e apenas um deles pode ser de <b>Contato</b>. Isso significa que, se já houver um telefone marcado <b>Sim</b> para principal, ao adicionar um novo telefone também marcando <b>Sim</b>, o anterior passa a estar, automaticamente, como <b>Não</b>. <br />
+
+<br />
+
+Após preencher os dados, basta clicar em <b>Salvar</b>. Caso algum dado tenha sido preenchido incorretamente, o formulário será recarregado e um alerta em <span class="erro">vermelho</span>, no alto, será exibido. O campo que estiver com problema será destacado em <span class="erro">vermelho</span>, e uma mensagem explicará qual o problema. <br />
+
+<br />
+
+Após isto, o telefone será salvo. Na tela, será possível, não apenas visualizar os telefones cadastrados, como também <b>Editar</b> o telefone, <b>Excluir</b> o telefone, <b>Adicionar</b> um novo telefone ou retornar a <b>Lista</b> de telefones desse contato. <br />
+
+<h2>Editar ou Excluir</h2>
+
+Ao clicar em <b>Editar</b>, o SAAP abrirá o mesmo formulário, porém com os dados preenchidos, sendo possível sua alteração. <br />
+
+<br />
+
+Ao clicar em <b>Excluir</b>, o SAAP perguntará se o usuário deseja mesmo excluir o telefone. Basta clicar em <b>Confirmar</b> para excluir, ou <b>Cancelar</b> a exclusão. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'enderecos' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'emails' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

@@ -481,7 +481,7 @@ class OperadorAreaTrabalho(SaapAuditoriaModelMixin):
 
     user = models.ForeignKey(
         get_settings_auth_user_model(),
-        verbose_name=_('Operador da Área de Trabalho'),
+        verbose_name=_('Usuário'),
         related_name='operadorareatrabalho_set',
         on_delete=CASCADE)
 

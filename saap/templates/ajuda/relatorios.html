@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Relatórios</h1>
+
+<br />
+
+Para completar o uso do SAAP, ele possui várias ferramentas para gerar relatórios dos dados. São quatro tipos de relatórios, permitindo gerar diversas listagens de contatos e processos. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'maladireta' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'contatoslista' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

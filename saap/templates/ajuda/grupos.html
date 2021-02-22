@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Grupos de contatos</h1>
+
+Para gerenciar os <b>Grupos de contatos</b>, clique no menu <b>Contatos</b> e, depois, na opção <b>Grupos de contatos</b>. <br />
+
+<h2>Tela principal</h2>
+
+Para adicionar um novo grupo, basta clicar em <b>Adicionar Grupo de contatos</b>. Agora, se você quiser ver algum dos grupos, basta clicar no mesmo para abrir a listagem de contatos.<br />
+
+<br />
+
+Ao clicar para adicionar, deve-se preencher o nome do grupo. Além disto, é necessário fazer a seleção dos contatos - no mínimo um deve ser adicionado. Para pesquisar contatos a serem adicionados, você deve pesquisar pelo nome do contato no campo <b>Busca por Contatos</b>. Ao clicar em <b>Filtrar</b>, aparecerá uma lista de contatos. <br />
+
+<br />
+
+Para adicionar o contato, basta arrastar o contato desejado para o retângulo abaixo de Contatos do grupo. Se quiser remover um contato do grupo, basta desmarcá-lo na lista exibida em <b>Contatos do grupo</b>. <br />
+
+<br />
+
+Após isto, basta clicar em <b>Salvar</b>. Na tela, será possível, não apenas visualizar os grupos cadastrados, como também <b>Editar</b> o grupo, <b>Excluir</b> o grupo, <b>Adicionar</b> um novo grupo ou retornar a <b>Lista</b> de grupos. <br />
+
+<h2>Editar ou Excluir</h2>
+
+Ao clicar em <b>Editar</b>, o SAAP abrirá o mesmo formulário, porém com os dados preenchidos, sendo possível sua alteração. <br />
+
+<br />
+
+Ao clicar em <b>Excluir</b>, o SAAP perguntará se o usuário deseja mesmo excluir o dependente. Basta clicar em <b>Confirmar</b> para excluir, ou <b>Cancelar</b> a exclusão. Lembrando que excluir um grupo não significa excluir os contatos pertencentes ao mesmo. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'contatospesquisa' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'exportacao' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

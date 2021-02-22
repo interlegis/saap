@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Filiação partidária</h1>
+
+<br />
+
+O quinto dado de um contato que pode ser gerenciado é o de <b>Filiação partidária</b>. Seu objetivo é armazenar informações das filiações a partidos políticos do contato. Basta clicar no menu da barra superior. Para adicionar uma nova filiação, deve-se clicar em <b>Adicionar Filiação partidária</b>. <br />
+
+<br />
+
+O formulário possui diversos campos, porém apenas aqueles que estão destacados em <span class="erro">vermelho</span> são obrigatórios. <br />
+
+<ul>
+    <li><b>Partido</b>: Sigla partidária
+    <li><b>Data de filiação</b>: Início do vínculo. Ao clicar no campo, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Data de desfiliação</b>: Fim do vínculo. Se estiver em branco, indica que este é o partido atual. Ao clicar no campo, abre-se um mini calendário, permitindo a escolha da data.
+</ul>
+
+Após preencher os dados, basta clicar em <b>Salvar</b>. Caso algum dado tenha sido preenchido incorretamente, o formulário será recarregado e um alerta em <span class="erro">vermelho</span>, no alto, será exibido. O campo que estiver com problema será destacado em <span class="erro">vermelho</span>, e uma mensagem explicará qual o problema. <br />
+
+<br />
+
+Após isto, a filiação partidária será salva. Na tela, será possível, não apenas visualizar as filiações cadastradas, como também <b>Editar</b> a filiação, <b>Excluir</b> a filiação, <b>Adicionar</b> uma nova filiação ou retornar a <b>Lista</b> de filiações desse contato. <br />
+
+<h2>Editar ou Excluir</h2>
+
+Ao clicar em <b>Editar</b>, o SAAP abrirá o mesmo formulário, porém com os dados preenchidos, sendo possível sua alteração. <br />
+
+<br />
+
+Ao clicar em <b>Excluir</b>, o SAAP perguntará se o usuário deseja mesmo excluir a filiação. Basta clicar em <b>Confirmar</b> para excluir, ou <b>Cancelar</b> a exclusão. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'dependentes' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'contatospesquisa' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

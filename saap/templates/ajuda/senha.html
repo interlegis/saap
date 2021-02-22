@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Senha</h1>
+
+<br />
+
+<h2>Senha esquecida</h2>
+
+Caso você não se lembre da sua senha, é possível receber um e-mail para trocá-la. Basta clicar em <b>Esqueceu sua senha?</b>. Então, informe seu e-mail de acesso e clique em <b>Reinicializar minha senha</b>.<br />
+
+<br />
+
+Em poucos instantes, você receberá um e-mail possibilitando a troca. <br />
+
+<br />
+
+No e-mail, há um link para você clicar e escolher uma nova senha. Clique nele para fazer a substituição da senha. Na janela que abrir, basta informar duas vezes a nova senha e, então, clique em <b>Alterar minha senha</b>. <br />
+
+<br />
+
+Pronto! Sua senha está redefinida. <br />
+
+<h2>Trocar minha senha</h2>
+
+Se você deseja fazer a troca da senha, estando logado dentro do SAAP, basta clicar em seu nome (no alto da janela) e clique em <b>Alterar minha senha</b>. <br />
+
+<br />
+
+Basta informar sua senha atual, a senha nova duas vezes e clicar em <b>Alterar minha senha</b><br />
+
+<br />
+
+Pronto! Sua senha está alterada! <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'login' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'areatrabalho' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

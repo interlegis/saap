@@ -52,7 +52,7 @@
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right" id="autenticacao">
               {% if user and not user.is_anonymous %}
-                <li><a href="#"><img src="/static/img/manual.png"></a></li>
+                <li><a href="{% url 'saap.core:help' %}{{view.help_topic}}"><img src="/static/img/manual.png"></a></li>
                 <li class="dropdown">
                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                     {{ user.get_full_name|default:user.email }}
@@ -66,7 +66,7 @@
 
                 </li>
               {% else %}
-                <li><a href="#"><img src="/static/img/manual.png"></a></li>
+                <li><a href="{% url 'saap.core:help' %}{{view.help_topic}}"><img src="/static/img/manual.png"></a></li>
                 <li><a href="{% url 'saap.core:login' %}"><img src="/static/img/user.png"></a></li>              
                {% endif %}
                </ul>
@@ -83,18 +83,39 @@
                 <ul class="nav navbar-nav">
 
                   {% if perms.core.menu_contatos %}
-                    <li><a href="{% url 'saap.cerimonial:contato_list' %}">{% trans "Contatos" %}</a></li>
+                    <li class="dropdown">
+                      <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Contatos" %}<span class="caret"></span></a>
+                      <ul class="dropdown-menu menu-right">
+ 	                     <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:contato_list' %}">{% trans "Cadastro" %}</a></li>
+                         {% if perms.core.menu_grupocontatos %}
+                             <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:grupodecontatos_list' %}">{% trans "Grupos de contatos" %}</a></li>
+                         {% endif %}
+                         {% if perms.core.menu_relatorios %} {# Permissão temporária, deve ser criada uma específica no futuro #}
+                             <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:print_rel_contatosexporta' %}">{% trans "Exportação para planilha" %}</a></li>
+                         {% endif %}
+                      </ul>
+                    </li>
                   {% endif %}
-
-                  {% if perms.core.menu_grupocontatos %}
-                    <li><a href="{% url 'saap.cerimonial:grupodecontatos_list' %}">{% trans "Grupos de contatos" %}</a></li>
-                  {% endif %}
-
 
                   {% if perms.core.menu_processos %}
-                    <li><a href="{% url 'saap.cerimonial:processo_list' %}">{% trans "Processos" %}</a></li>
-                  {% endif %}
+                    <li class="dropdown">
+                      <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Processos" %}<span class="caret"></span></a>
+                      <ul class="dropdown-menu menu-right">
+                         <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:processo_list' %}">{% trans "Cadastro" %}</a></li>
+                      </ul>
                     </li>
+                  {% endif %}
+
+                  {% if perms.core.menu_contatos %}  {# Permissão temporária, deve ser criada uma específica no futuro #}
+                    <li class="dropdown">
+                      <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Correspondências" %}<span class="caret"></span></a>
+                      <ul class="dropdown-menu menu-right">
+ 	                 <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:print_impressoenderecamento' %}">{% trans "Envelopes e etiquetas" %}</a></li>
+ 	                 <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:print_maladireta' %}">{% trans "Exportação para mala direta" %}</a></li>
+                      </ul>
+                    <li>
+                  {% endif %}
+                      
 
                   {% if perms.core.menu_relatorios %}
                     <li><a href="{% url 'saap.cerimonial:relatorios' %}">{% trans "Relatórios" %}</a></li>
@@ -104,10 +125,9 @@
                     <li class="dropdown">
                       <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Sistema" %}<span class="caret"></span></a>
                       <ul class="dropdown-menu menu-right">
-                        {% if perms.core.menu_tabelas_auxiliares %}<li class="nav__sub-item"><a href="{% url 'saap.core:tabelas_auxiliares' %}">{% trans "Tabelas auxiliares" %}</a></li>{% endif %}
-                        {% if perms.core.menu_area_trabalho %}<li class="nav__sub-item"><a href="{% url 'saap.core:areatrabalho_list' %}">{% trans "&Aacute;reas de trabalho" %}</a></li>{% endif %}
-                        {% if perms.core.menu_impresso_enderecamento %}<li class="nav__sub-item"><a href="{% url 'saap.core:impressoenderecamento_list' %}">{% trans "Impressos de endereçamento" %}</a></li>{% endif %}
-
+ 	                 <li class="nav__sub-item"><a href="{% url 'saap.core:tabelas_auxiliares' %}">{% trans "Tabelas auxiliares" %}</a></li>
+                         <li class="nav__sub-item"><a href="{% url 'saap.core:areatrabalho_list' %}">{% trans "&Aacute;reas de trabalho e Operadores" %}</a></li>
+                         <li class="nav__sub-item"><a href="#">{% trans "Administração de Usuários" %}</a></li>
                       </ul>
                     </li>
                   {% endif %}
@@ -115,6 +135,7 @@
                 </ul>
 		
              {% block base_workspace %}
+                  {% if user and not user.is_anonymous %}
                   <nav class="btn-area-trabalho">
                     {% for at in areatrabalho %}
                       {% if forloop.first %}
@@ -126,6 +147,7 @@
                       {% endif %}
                     {% endfor %}
                   </nav>
+                  {% endif %}
               {% endblock base_workspace %}
 
 
@@ -208,7 +230,7 @@
                 <small>
                   Desenvolvido pelo <a href="http://www.interlegis.leg.br/">Interlegis</a> em software livre e aberto.
                 </small>
-                Release: 3.0.1
+                Release: 3.0.2
               </p>
             </div>
             <div class="col-1-3">

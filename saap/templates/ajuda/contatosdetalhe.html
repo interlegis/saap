@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Dados detalhados do contato</h1>
+
+<br />
+
+Para acessar o relatório de <b>Dados detalhados do contato</b>, clique no menu <b>Relatórios</b> e, depois, na opção <b>Dados detalhados</b> <br />
+
+<br />
+
+Esta tela permite gerar uma folha com os dados completos dos contatos selecionados. <br />
+
+<h2>Busca por Contato</h2>
+
+<ul>
+    <li><b>Código</b>: Número identificador do contato. Cada contato possui um código ou ID.
+    <li><b>Nome, nome social ou apelido</b>: Campo que permite pesquisar pelo nome do contato, pelo nome social ou ainda pelo apelido.
+    <li><b>Ativo?</b> Sim ou Não. A opção <b>Desconhecido</b> é o mesmo que "Ambos" (Sim e Não)
+    <li><b>Sexo</b>: Masculino, Feminino ou Ambos.
+    <li><b>Estado civil</b>
+    <li><b>Tem filhos?</b> Sim ou Não. A opção <b>Desconhecido</b> é o mesmo que "Ambos" (Sim e Não)
+    <li><b>RG, CPF, CNPJ ou IE</b>: Campo que permite pesquisar alguns documentos do contato. Recomenda-se digitar sem a pontuação, para facilitar a pesquisa.
+    <li><b>Período de aniversário</b>: Campos de data que permite pesquisar um período e retornar as pessoas que fizeram aniversário nesse período. Por exemplo, para obter todos os aniversariantes de janeiro, basta informar os dias 01/01 e 31/01 nos dois campos - recomenda-se usar o ano em que estamos. Ao clicar nos campos, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Idade entre</b>: Campos de data que permite pesquisar e retornar as pessoas que possuem idade completa naquela faixa. Por exemplo, pessoas que possuem entre 20 e 30 anos completos no dia do relatório - se uma pessoa vai completar 20 anos daqui a uma semana, ela não aparecerá. 
+    <li><b>Endereço, complemento ou ponto de referência</b>: Não coloque aqui o número da rua.
+    <li><b>Número</b>: Número do endereço
+    <li><b>CEP</b>: Basta digitar os números, que automaticamente são colocados os sinais de pontuação.
+    <li><b>Bairro</b>: Permite selecionar um ou mais bairros da cidade. Para selecionar um bairro, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Município</b>: Permite selecionar um ou mais municípios do estado. Para selecionar um município, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Grupos de contatos</b>: Permite selecionar um ou mais grupos. Para selecionar um grupo, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Contatos que possuem</b>: Caso você precise listar os contatos que possuem um determinado dado, como data de nascimento, endereço, telefone, basta usar esse campo. Para selecionar uma das opções, basta clicar na mesma. Para selecionar mais de uma, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Contatos que NÃO possuem</b>: Caso você precise listar os contatos que não possuem um determinado dado, como data de nascimento, endereço, telefone, basta usar esse campo. Para selecionar uma das opções, basta clicar na mesma. Para selecionar mais de uma, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Telefone</b>: Deve ser informado com o DDD. Basta digitar os números, que automaticamente são colocados os sinais de pontuação.
+    <li><b>Tipo de autoridade</b>
+    <li><b>Cargo ou profissão</b>: Permite pesquisar tanto o campo de cargo/função, quanto o de profissão.
+</ul>
+
+Após preencher os filtros, clique em <b>Filtrar</b>. Se você não fizer o filtro antes de <b>Imprimir</b> o relatório, ele será criado desconsiderando os filtros que você preencheu. Primeiro filtre, depois imprima.
+
+<h2>Imprimir relatório</h2>
+
+Feitos os filtros, precisamos selecionar quais os contatos que queremos gerar o relatório. À esquerda do código, há uma caixa onde é possível marcar/desmarcar o contato. Os contatos que forem marcados terão seus relatórios gerados. Para selecionar/desmarcar todos, basta clicar na caixa à esquerda de <b>Código</b>. <br />
+
+<br />
+
+Após selecionar os contatos, podemos gerar o relatório. Basta clicar em <b>Imprimir</b>. <br /> 
+
+<br />
+
+Recomendamos fortemente que, antes de imprimir, você baixe o arquivo, pois a impressão direto pelo navegador (Chrome, Firefox ou Edge) é mais lenta e acaba ficando com uma qualidade um pouco inferior. <br />
+
+<br />
+
+Escolha o local que deseja salvar, vá até o arquivo e, então, clique para abri-lo no programa leitor de PDF que você desejar ou utiliza. Para imprimir, basta clicar no ícone ou apertar as teclas Ctrl + P. A impressão é feita em tamanho A4. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'contatoslista' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'processoslista' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

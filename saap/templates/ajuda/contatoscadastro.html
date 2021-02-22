@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Cadastro de Contatos</h1>
+
+<br />
+
+Para cadastrar um novo contato, é necessário acessar o menu <b>Contatos</b>, ir em <b>Cadastro</b> e clicar em <b>Adicionar Contato</b> <br />
+
+<br />
+
+O formulário possui diversos campos, porém apenas aqueles que estão destacados em <span class='erro'>vermelho</span> são obrigatórios. No caso, os campos de <span class='erro'>Nome</span> e <span class='erro'>Sexo biológico</span>. <br />
+
+<h2>Dados básicos e Pais</h2>
+
+<ul>
+    <li><b>Nome</b>: Nome completo do contato
+    <li><b>Data de nascimento</b>: Data de nascimento do contato. Seu preenchmento não é obrigatório. Porém, nas pesquisas e relatórios, ao filtrar por data de nascimento ou idade, o contato sem data de nascimento não aparecerá. Ao clicar no campo, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Ativo</b>: Permite marcar um contato como ativo ou não. Ou seja, não é necessário excluir o contato, basta desativar.
+    <li><b>Estado de nascimento</b>
+    <li><b>Cidade de nascimento</b>: Exibe a lista de cidades do estado selecionado no campo anterior.
+    <li><b>Sexo biológico</b>: Masculino ou feminino
+    <li><b>Gênero</b>: Campo livre, caso o contato possua gênero específico
+    <li><b>Nome social</b>: Nome pelo qual pessoas transexuais, travestis ou outros preferem ser chamadas no dia a dia, ao invés de seu nome registrado em cartório, que não reflete a sua identidade de gênero. Diferente de apelido.
+    <li><b>Apelido</b>: Nome informal do contato.
+    <li><b>Estado civil</b>: Casado, solteiro, separado, viúvo ou divorciado
+    <li><b>Tem filhos</b>: Sim ou não
+    <li><b>Quantos filhos</b>: Caso o campo <b>Tem filhos</b> seja <b>Sim</b>, deve ser informada a quantidade de filhos.
+    <li><b>Nome do pai</b>
+    <li><b>Nome da mãe</b>
+</ul>
+
+<h2>Documentos pessoais e Cadastros empresariais</h2>
+
+<ul>
+    <li><b>Número do SUS</b>: Número da carteirinha do SUS
+    <li><b>CPF</b>: Basta digitar os números, que automaticamente são colocados os sinais de pontuação. Ao salvar, o sistema verifica se o número é válido.
+    <li><b>Título de eleitor</b>
+    <li><b>RG</b>
+    <li><b>Órgão expedidor</b>: Órgão que expediu o RG. Dois exemplos são SJS e SSP.
+    <li><b>Data de expedição</b>: Do RG. Ao clicar no campo, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>CNPJ</b>: Basta digitar os números, que automaticamente são colocados os sinais de pontuação. Ao salvar, o sistema verifica se o número é válido.
+    <li><b>Inscrição estadual</b>
+</ul>
+
+O porquê destes campos de cunho empresarial está na observação de cadastros de gabinetes, onde há muitas empresas cadastradas como contatos. <br />
+
+<h2>Ensino, profissão e pronomes</h2>
+
+<ul>
+    <li><b>Nível de instrução</b>: Ensino fundamental, médio ou superior, completo ou incompleto.
+    <li><b>Profissão</b>: Campo livre. Por exemplo, "Servidor Público Municipal"
+    <li><b>Cargo/Função</b>: Campo livre. Por exemplo, "Técnico em TI". O cargo ou função que for colocada aqui pode ser exibido nos envelopes ou etiquetas gerados naquele relatório.
+    <li><b>Tipo de autoridade</b>: Diversos tipos disponíveis, como Prefeito, Presidentes, Secretários e outros. 
+    <li><b>Pronome de tratamento</b>: Possui uma lista completa de pronomes de tratamento, vinculados ao tipo de autoridade. Ao seleconar um tipo de autoridade, automaticamente são exibidos os pronomes que podem ser atribuídos à ele, e deve ser escolhido um deles. Há também pronomes especiais, como "Aos colegas", "À direção", "Aos funcionários", "Aos professores", assim como pronomes de caráter pessoal (Ao ou À) ou impessoal (Para):
+</ul>
+
+<h2>Grupos e observações</h2>
+
+<ul>
+    <li><b>Grupos</b>: É possível escolher um ou mais grupos para o qual o contato deverá pertencer. Importante lembrar que não é possível criar um grupo aqui nesta tela - o grupo deverá ter sido previamente criado na tela de <b>Grupos de contatos</b>.
+    <li><b>Observações</b>: Campo livre. Sugerimos que relatos de visitas ou outras ocorrências sejam cadastradas como processos.
+</ul>
+
+Após preencher os dados, basta clicar em <b>Salvar</b>. Caso algum dado tenha sido preenchido incorretamente, o formulário será recarregado e um alerta em vermelho, no alto, será exibido. O campo que estiver com problema será destacado em <span class="erro">vermelho</span>, e uma mensagem explicará qual o problema. <br />
+
+<br />
+
+Após isto, o contato será salvo. Na tela, será possível, não apenas visualizar os dados cadastrados, como também <b>Editar</b> o contato, <b>Excluir</b> o contato, <b>Adicionar</b> um novo contato ou retornar a <b>Lista</b> de contatos. <br />
+
+<h2>Editar ou Excluir</h2>
+
+Ao clicar em <b>Editar</b>, o SAAP abrirá o mesmo formulário, porém com os dados preenchidos, sendo possível sua alteração. <br />
+
+<br />
+
+Ao clicar em <b>Excluir</b>, o SAAP perguntará se o usuário deseja mesmo excluir o contato. Basta clicar em <b>Confirmar</b> para excluir, ou <b>Cancelar</b> a exclusão. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'contatos' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'enderecos' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}
