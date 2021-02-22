@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Processos</h1>
+
+<br />
+
+Outra funcionalidade importante do SAAP é o cadastro de processos, ou seja, de toda e qualquer atividade/ocorrência que o gabinete ou parlamentar deseja monitorar ou acompanhar. É possível cadastrar diversos dados, como categorias, histórico, números e links para controle, entre outros. Além disto, o SAAP também permite fazer uma pesquisa completa no cadastro de processos. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'exportacao' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'processoscadastro' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

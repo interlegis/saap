@@ -31,6 +31,23 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6
   font-family: "Helvetica Neue",Arial,"Noto Sans", "sans-serif","Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
 }
 
+.btn {
+   text-transform: none;
+   color: #008800;
+}
+
+.btn-success {
+  background-color: #28a745
+}
+
+.btn-inverse, .btn-danger, .btn-success {
+   color: white;
+}
+
+h2, .h2 {
+   font-weight: normal;
+}
+
 .table > thead > tr > th
 {
   font-weight: bold;
@@ -62,6 +79,10 @@ a {
 
 .erro {
   color: #cc0c0c;
+}
+
+.paginacao {
+  color: #99ccff;
 }
 
 .has-error .help-block, .has-error .control-label, .has-error .radio, .has-error .checkbox, .has-error .radio-inline, .has-error .checkbox-inline, .has-error.radio label, .has-error.checkbox label, .has-error.radio-inline label, .has-error.checkbox-inline label {
@@ -275,7 +296,6 @@ main .btn-default.btn-excluir:hover {
 .table > thead > tr > th, .table > thead > tr > td, .table > tbody > tr > th, .table > tbody > tr > td, .table > tfoot > tr > th, .table > tfoot > tr > td {
   border-top-color: #e6e5d7;
   border-bottom-width: 0;
-  font-weight: normal;
   vertical-align: middle;
 }
 

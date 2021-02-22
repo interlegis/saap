@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Locais de trabalho</h1>
+
+<br />
+
+O quarto dado de um contato que pode ser gerenciado é o de <b>Locais de trabalho</b>. Seu objetivo é armazenar informações de onde o contato trabalha ou trabalhou. Basta clicar no menu da barra superior. Para adicionar um novo local de trabalho, deve-se clicar em <b>Adicionar Local de Trabalho</b>. <br />
+
+<br />
+
+O formulário possui diversos campos, porém apenas aqueles que estão destacados em <span class="erro">vermelho</span> são obrigatórios. <br />
+
+<h2>Dados básicos</h2>
+
+<ul>
+    <li><b>Nome/Razão social</b>: Nome devidamente registrado da empresa
+    <li><b>Nome fantasia</b>: Nome comercial com o que a empresa é reconhecida pelas pessoas.
+    <li><b>Principal</b>: Se a empresa é o trabalho principal do contato
+    <li><b>Início</b>: Data de início na empresa. Ao clicar no campo, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Fim</b>: Data de fim na empresa. Caso esteja em branco, indica o trabalho atual. Ao clicar no campo, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Cargo/Função</b>: Caso seja preenchido, e seja o trabalho atual do contato, o cargo/função preenchidos em Dados básicos é desconsiderado.
+    <li><b>Tipo do local de trabalho</b>: Agricultura, Comércio, Indústria, entre outros.
+</ul>
+
+<h2>Endereço</h2>
+
+<ul>
+    <li><b>Endereço</b>: Completo, sem o número. Há um limite de 35 caracteres, a fim de não prejudicar a impressão de etiquetas.
+    <li><b>Número</b>: Número do endereço. Se não tiver número, informar zero.
+    <li><b>Complemento</b>: Limite de 10 caracteres.
+    <li><b>CEP</b>: Basta digitar os números, que automaticamente são colocados os sinais de pontuação.
+    <li><b>Estado</b>: Selecionado por padrão o estado da Casa Legislativa.
+    <li><b>Cidade</b>: Exibe a lista de cidades do estado selecionado no campo anterior.
+    <li><b>Bairro</b>: Exibe a lista de bairros do município selecionado no campo anterior.
+    <li><b>Distrito</b>: Exibe a lista de distritos do município selecionado no campo anterior.
+    <li><b>Região municipal</b>: Exibe a lista de regiões do município selecionado no campo anterior.
+</ul>
+
+Após preencher os dados, basta clicar em <b>Salvar</b>. Caso algum dado tenha sido preenchido incorretamente, o formulário será recarregado e um alerta em <span class="erro">vermelho</span>, no alto, será exibido. O campo que estiver com problema será destacado em <span class="erro">vermelho</span>, e uma mensagem explicará qual o problema. <br />
+
+<br />
+
+Após isto, o local de trabalho será salvo. Na tela, será possível, não apenas visualizar os trabalhos cadastrados, como também <b>Editar</b> o trabalho, <b>Excluir</b> o trabalho, <b>Adicionar</b> um novo trabalho ou retornar a <b>Lista</b> de trabalhos desse contato. <br />
+
+<h2>Editar ou Excluir</h2>
+
+Ao clicar em <b>Editar</b>, o SAAP abrirá o mesmo formulário, porém com os dados preenchidos, sendo possível sua alteração. <br />
+
+<br />
+
+Ao clicar em <b>Excluir</b>, o SAAP perguntará se o usuário deseja mesmo excluir o trabalho. Basta clicar em <b>Confirmar</b> para excluir, ou <b>Cancelar</b> a exclusão. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'emails' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'dependentes' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

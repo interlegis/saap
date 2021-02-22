@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Vínculo entre processos e contatos</h1>
+
+<br />
+
+<h2>Adicionar e alterar contatos de um processo</h2>
+
+Ao adicionar ou editar o processo, é possível definir quais os contatos que tem relação/interesse com o mesmo. <br />
+
+<br />
+
+Para adicionar um contato ao processo, é necessário fazer a seleção dos contatos. Para pesquisar contatos a serem adicionados, você deve pesquisar pelo nome do contato no campo <b>Busca por Contatos</b>. Ao clicar em <b>Filtrar</b>, aparecerá uma lista de contatos. <br />
+
+<br />
+
+Para adicionar o contato, basta arrastar o contato desejado para o retângulo abaixo de <b>Contatos interessados no processo</b>. <br />
+
+<br />
+
+Se quiser remover um contato do processo, basta desmarcá-lo na lista exibida em <b>Contatos interessados no processo</b>. <br />
+
+<h2>Ver e gerenciar processos do contato</h2>
+
+Para ver quais os processos estão ligados a um contato, basta clicar na aba <b>Processos</b>, dentro do contato. <br />
+
+<br />
+
+Para visualizar um processo, basta clicar no <b>ID</b> (código) do processo, em verde. Para adicionar um processo específico deste contato, basta clicar em <b>Adicionar Processo do contato</b>. Importante salientar que, ao clicar nesse link, o formulário exibido sera o mesmo mencionado no capítulo anterior, porém sem a parte de seleção de contatos - até porque está se cadastrando um processo que pertence a esse determinado contato. <br />
+
+<br />
+
+Na tela, é possível, não apenas visualizar os processos ligados ao contato, como também <b>Editar</b> o processo, <b>Excluir</b> o processo, <b>Adicionar</b> um novo processo do contato ou retornar a <b>Lista</b> de processos do contato. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'processoscadastro' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'processospesquisa' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

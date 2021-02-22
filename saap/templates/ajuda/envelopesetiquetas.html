@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Envelopes e etiquetas</h1>
+
+<br />
+
+Para acessar a tela de geração de <b>Envelopes e etiquetas</b>, clique no menu <b>Correspondências</b> e, depois, na opção <b>Envelopes e etiquetas</b>. <br />
+
+<br />
+
+Esta tela permite gerar envelopes e etiquetas de endereçamento para o envio de correspondências. <br />
+
+<h2>Filtro de Contatos</h2>
+
+<ul>
+    <li><b>Código</b>: Número identificador do contato. Cada contato possui um código ou ID.
+    <li><b>Nome, nome social ou apelido</b>: Campo que permite pesquisar pelo nome do contato, pelo nome social ou ainda pelo apelido.
+    <li><b>Ativo?</b> Sim ou Não. A opção <b>Desconhecido</b> é o mesmo que "Ambos" (Sim e Não)
+    <li><b>Sexo</b>: Masculino, Feminino ou Ambos.
+    <li><b>Estado civil</b>
+    <li><b>Tem filhos?</b> Sim ou Não. A opção <b>Desconhecido</b> é o mesmo que "Ambos" (Sim e Não)
+    <li><b>RG, CPF, CNPJ ou IE</b>: Campo que permite pesquisar alguns documentos do contato. Recomenda-se digitar sem a pontuação, para facilitar a pesquisa.
+    <li><b>Período de aniversário</b>: Campos de data que permite pesquisar um período e retornar as pessoas que fizeram aniversário nesse período. Por exemplo, para obter todos os aniversariantes de janeiro, basta informar os dias 01/01 e 31/01 nos dois campos - recomenda-se usar o ano em que estamos. Ao clicar nos campos, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Idade entre</b>: Campos de data que permite pesquisar e retornar as pessoas que possuem idade completa naquela faixa. Por exemplo, pessoas que possuem entre 20 e 30 anos completos no dia do relatório - se uma pessoa vai completar 20 anos daqui a uma semana, ela não aparecerá. 
+    <li><b>Endereço, complemento ou ponto de referência</b>: Não coloque aqui o número da rua.
+    <li><b>Número</b>: Número do endereço
+    <li><b>CEP</b>: Basta digitar os números, que automaticamente são colocados os sinais de pontuação.
+    <li><b>Bairro</b>: Permite selecionar um ou mais bairros da cidade. Para selecionar um bairro, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Município</b>: Permite selecionar um ou mais municípios do estado. Para selecionar um município, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Grupos de contatos</b>: Permite selecionar um ou mais grupos. Para selecionar um grupo, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Contatos que possuem</b>: Caso você precise listar os contatos que possuem um determinado dado, como data de nascimento, endereço, telefone, basta usar esse campo. Para selecionar uma das opções, basta clicar na mesma. Para selecionar mais de uma, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Contatos que NÃO possuem</b>: Caso você precise listar os contatos que não possuem um determinado dado, como data de nascimento, endereço, telefone, basta usar esse campo. Para selecionar uma das opções, basta clicar na mesma. Para selecionar mais de uma, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Telefone</b>: Deve ser informado com o DDD. Basta digitar os números, que automaticamente são colocados os sinais de pontuação.
+    <li><b>Tipo de autoridade</b>
+    <li><b>Cargo ou profissão</b>: Permite pesquisar tanto o campo de cargo/função, quanto o de profissão.
+</ul>
+
+<h2>Impressão</h2>
+
+<ul>
+    <li><b>Impresso</b>: Permite escolher entre gerar <b>Envelopes</b> ou <b>Etiquetas</b>.
+    <li><b>Ocultar sem endereço?</b> Essa opção será explicada logo mais, quando falarmos da geração de envelopes ou etiquetas para pessoas que não tenham endereço.
+    <li><b>Nome maiúsculo</b>: Por padrão, o nome impresso é exatamente igual ao do cadastro. Se estiver em maiúsculo, sairá em maiúsculo, e se estiver em minúsculo sairá em minúsculo. Por isso, recomendamos que os nomes sejam cadastrados em minúsculo, e se desejar que o nome saia em maiúsculo, marque <b>Sim</b> nessa opção.
+    <li><b>Imprimir pronome</b>: Essa opção será explicada logo mais, quando falarmos da inserção de pronomes.
+    <li><b>Utilizar pronome padrão</b>: Essa opção também será explicada logo mais, quando falarmos da inserção de pronomes.
+    <li><b>Expressão pós-nome</b>: Existem algumas expressões que podem ser adicionadas após o nome do contato, como, por exemplo, "e família", "e esposo", "e esposa", entre outras. Para exibir, marque <b>Sim</b>. O único detalhe a atentar é que, caso alguma pessoa não possua o estado civil cadastrado -  na tabela, os contatos com estado civil não informado são destacados em <span class="erro">vermelho</span> - o relatório não será gerado, até que os contatos sem estado civil sejam corrigidos.
+    <li><b>Imprimir cargo</b>: Marcando <b>Sim</b>, os contatos que possuem cargo cadastrado terão o mesmo exibido.
+    <li><b>Local para imprimir o cargo</b>: Habilitando <b>Sim</b> no campo anterior, é possível definir aonde o cargo será exibido: <b>Depois do pronome</b>, <b>Antes do nome</b> ou <b>Entre o nome e o endereço</b>.
+</ul>
+
+<h2>Contatos sem endereço</h2>
+
+Algumas vezes, não é possível ter o endereço de todos os contatos, por algum motivo - por exemplo, não foi cadastrado. Ou também, pode acontecer que algum contato não tenha marcado o endereço para contato. <br />
+
+<br />
+
+Para mitigar esses problemas, esse relatório possui um sistema de análise de endereços. Isto já começa na própria listagem, onde os contatos que não possuem endereço de contato cadastrado são destacados em <span class="erro">vermelho</span>. <br />
+
+<br />
+
+Mas, digamos que você acabe não vendo esse contato, ou você possua centenas ou milhares de contatos, e não consegue saber se há e quais estão com este problema. Existem duas formas de resolver isto. <br />
+
+<br />
+
+A primeira, para não ter dúvida, é marcar <b>Sim</b> na opção <b>Ocultar sem endereço</b>. Desta forma, todos os contatos que estão sem endereço serão automaticamente desconsiderados.<br />
+
+<br />
+
+A segunda é gerar o relatório normalmente. Caso haja algum contato com problema, a tela recarregará com uma mensagem no alto, informando quantos contatos possuem o problema. <br />
+
+<br />
+
+É importante tomar cuidado: caso você deseje que todos os seus contatos sejam impressos, é necessário revisar os endereços, para não correr o risco de, posteriormente, saber que uma determinada pessoa não recebeu o contato.<br />
+
+<h2>Exibição de pronomes</h2>
+
+É possível gerar os envelopes ou as etiquetas exibindo pronomes dos contatos. Porém, existem algumas questões a serem analisadas.<br />
+
+<br />
+
+Caso o contato tenha um pronome adicionado em seu cadastro, marque <b>Sim</b> na opção <b>Imprimir pronome</b> e o mesmo será colocado no envelope ou etiqueta. Entretanto, se o contato não tiver um pronome adicionado, serão adicionados "Ao Senhor" ou "À Senhora", conforme o sexo. <br />
+
+<br />
+
+Porém, embora seja obrigatório o campo do sexo do contato, pode acontecer de algum contato não ter o sexo cadastrado - na tabela, os contatos com sexo não informado são destacados em <span class="erro">vermelho</span> - não há como informar "Ao Senhor" ou "À Senhora". Se você tentar gerar o relatório, será exibido um erro. <br />
+
+<br />
+
+Para resolver isto, é necessário marcar <b>Sim</b> no campo <b>Utilizar pronome padrão</b> e, então, será colocada a expressão "Para", no lugar do pronome. <br />
+
+<h2>Gerar envelopes ou etiquetas</h2>
+
+Explicados e resolvidos esses problemas, podemos gerar o relatório. Basta clicar em <b>Imprimir</b>. <br />
+
+<br />
+
+Recomendamos fortemente que, antes de imprimir, você baixe o arquivo, por dois motivos: a impressão direto pelo navegador (Chrome, Firefox ou Edge) é bem mais lenta e acaba ficando com uma qualidade um pouquinho inferior; a segunda é que, por ser um arquivo PDF, é possível fazer impressões em etapas. <br />
+
+<br />
+
+Por exemplo, se você tem 6 mil envelopes pra imprimir, pode separar pra imprimir 2 mil por dia. Não seria necessário gerar novamente, basta abrir o arquivo PDF e imprimir as páginas seguintes. <br />
+
+<br />
+
+Escolha o local que deseja salvar, vá até o arquivo e, então, clique para abri-lo no programa leitor de PDF que você desejar ou utiliza. Para imprimir, basta clicar no ícone ou apertar as teclas Ctrl + P. <br />
+
+<br />
+
+Antes de imprimir, você precisa verificar algumas questões: <br />
+
+<ol>
+    <li>Verifique se a Impressora desejada está selecionada
+    <li>Abra as <b>Propriedades</b> da impressora e veja se estão selecionadas as opções corretas de tipo e tamanho de papel:
+        <ul>
+	<li><b>Envelopes</b>: Tipo Envelope / Tamanho Envelope DL
+        <li><b>Etiquetas</b>: Tipo Etiqueta / Tamanho Carta
+ 	</ul>
+    <li>Caso queira seguir nossa sugestão e imprimir em partes, é necessário marcar a opção <b>Páginas</b>, na parte que se refere a quais páginas serão impressas. Informe, então, o intervalo de páginas - por exemplo, da primeira até a centésima, informe "1-100" (sem as aspas). Na próxima vez, informe da página 101 até a próxima página final, e assim por diante.
+</ol>
+
+Importante lembrar que as configurações de papel devem ser as mesmas na impressora. Ou seja, se você for imprimir envelopes, deve configurar na impressora para que seja realizada a impressão de envelopes. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'correspondencias' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'maladireta' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

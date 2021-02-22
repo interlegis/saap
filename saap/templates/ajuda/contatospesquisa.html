@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Pesquisa de Contatos</h1>
+
+<br />
+
+Ao acessar a tela de <b>Contatos</b>, é possível, além de adicionar um novo contato, fazer uma extensa pesquisa no cadastro de contatos. <br />
+
+<h2>Campos para filtro</h2>
+
+<ul>
+    <li><b>Código</b>: Número identificador do contato. Cada contato possui um código ou ID.
+    <li><b>Nome, nome social ou apelido</b>: Campo que permite pesquisar pelo nome do contato, pelo nome social ou ainda pelo apelido.
+    <li><b>Ativo?</b> Sim ou Não. A opção <b>Desconhecido</b> é o mesmo que "Ambos" (Sim e Não)
+    <li><b>Sexo</b>: Masculino ou Feminino. A opção Indiferente é o mesmo que "Ambos" (Masculino e Feminino)
+    <li><b>Estado civil</b>
+    <li><b>Tem filhos?</b> Sim ou Não. A opção <b>Desconhecido</b> é o mesmo que "Ambos" (Sim e Não)
+    <li><b>RG, CPF, CNPJ ou IE</b>: Campo que permite pesquisar alguns documentos do contato. Recomenda-se digitar sem a pontuação, para facilitar a pesquisa.
+    <li><b>Aniversário (Início) / Aniversário (Fim)</b>: Campos de data que permite pesquisar um período e retornar as pessoas que fizeram aniversário nesse período. Por exemplo, para obter todos os aniversariantes de janeiro, basta informar os dias 01/01 e 31/01 nos dois campos - recomenda-se usar o ano em que estamos. Ao clicar nos campos, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Nascimento (Início) / Nascimento (Fim)</b>: Campos de data que permite pesquisar um período e retornar as pessoas que nasceram nesse  período. Por exemplo, para obter todas as pessoas nascidas em 1991, basta basta informar os dias 01/01/1991 e 31/01/1991 nos dois campos. Ao clicar nos campos, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Endereço</b>: Campo que permite pesquisar o nome da rua ou complemento. Não coloque aqui o número da rua.
+    <li><b>Número</b>: Número do endereço
+    <li><b>CEP</b>: Basta digitar os números, que automaticamente são colocados os sinais de pontuação.
+    <li><b>Bairro</b>: Permite selecionar um ou mais bairros da cidade. Para selecionar um bairro, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Município</b>: Permite selecionar um ou mais municípios do estado. Para selecionar um município, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Grupos de contatos</b>: Permite selecionar um ou mais grupos. Para selecionar um grupo, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Contatos que possuem</b>: Caso você precise listar os contatos que possuem um determinado dado, como data de nascimento, endereço, telefone, basta usar esse campo. Para selecionar uma das opções, basta clicar na mesma. Para selecionar mais de uma, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Contatos que NÃO possuem</b>: Caso você precise listar os contatos que não possuem um determinado dado, como data de nascimento, endereço, telefone, basta usar esse campo. Para selecionar uma das opções, basta clicar na mesma. Para selecionar mais de uma, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Tipo de autoridade</b>
+    <li><b>Cargo ou profissão</b>: Permite pesquisar tanto o campo de cargo/função, quanto o de profissão.
+    <li><b>Nível de instrução</b>
+    <li><b>Telefone</b>: Deve ser informado com o DDD. Basta digitar os números, que automaticamente são colocados os sinais de pontuação.
+    <li><b>Dependente</b>: Pesquisa pelo nome dos dependentes cadastrados.
+</ul>
+
+Após preencher/selecionar os campos, basta clicar em <b>Filtrar</b>. <br />
+
+<h2>Tabela de contatos</h2>
+
+Todos os contatos são exibidos em uma tabela, logo abaixo dos campos de filtro. Se nenhum filtro foi selecionado, todos os contatos aparecem. O <b>Total de Contatos</b> aparece no alto da tabela. <br />
+
+<br />
+
+Porém, para não sobrecarregar a exibição, quando há mais de 100 contatos, eles são divididos em páginas. É possível avançar para a página <b>Anterior</b> ou <b>Próxima</b>, assim como ir direto para uma página, clicando no número. A página atual é destacada com fundo <span class="paginacao">azul claro</span>. <br />
+
+<br />
+
+Na tabela, são exibidas cinco colunas: <b>ID</b> (Código), <b>Nome</b>, <b>Data de nascimento</b>, <b>Sexo biológico</b> e <b>Estado civil</b>. Para ordenar os contatos por uma destas colunas, basta clicar em cima dela. Quando há uma seta para cima ao lado do nome, significa que a ordem é crescente ou A-Z. Quando a seta aponta para baixo, a ordem é decrescente ou Z-A. Lembre-se que se a ordem é crescente, os dados em branco aparecem primeiro, e se a ordem é descrescente, os dados em branco aparecem por último.
+
+<br />
+
+Para acessar os dados de um contato, basta clicar no seu código (coluna <b>ID</b>, em verde). <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'filiacao' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'grupos' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

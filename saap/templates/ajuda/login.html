@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Login e logout</h1>
+
+<br />
+
+<h2>Login</h2>
+
+Para acessar, basta clicar no ícone de usuário, no alto da janela, ou acessar qualquer uma das opções na página inicial. <br />
+
+<br />
+
+O SAAP utiliza e-mail para acesso, e cada integrante do gabinete possui seu e-mail. Quanto à senha, ela é fornecida e trocada quando da primeira vez que é configurado o acesso. Se tiver dúvidas com isto, entre em contato com o setor de TI de sua Casa Legislativa. <br />
+
+<h2>Logout</h2>
+
+Após utilizar o sistema, principalmente se você não está usando o seu computador, é importante sair do SAAP, para evitar que alguma pessoa tenha acesso indevido aos dados do gabinete. <br />
+
+<br />
+
+Para isto, basta clicar em seu nome (canto superior direito) e clique em <b>Sair</b> <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'acesso' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'senha' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

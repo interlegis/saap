@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Área de Trabalho</h1>
+
+<br />
+
+O SAAP utiliza o conceito de Área de Trabalho. Para resumir, consiste em uma área com dados restritos. Sendo assim, cada área de trabalho possui os seus contatos, os seus grupos, os seus processos, sem que uma pessoa de outra área possa acessar esses dados. <br />
+
+<br />
+
+Na prática, cada parlamentar/gabinete possui sua área de trabalho. Sendo assim, o parlamentar João e seu gabinete só terá acesso aos dados da área de trabalho <b>João</b>, sem que seja possível acessar os dados da área de trabalho da parlamentar <b>Maria</b>. Isso traz um nível de segurança e confidencialidade. <br />
+
+<br />
+
+Para saber em qual área de trabalho você está conectado, basta ver o nome do parlamentar/gabinete no retângulo amarelo, na parte superior da paǵina. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'senha' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'contatos' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

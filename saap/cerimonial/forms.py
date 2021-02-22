@@ -1065,7 +1065,7 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
     def filter_grupo(self, queryset, value):
         if value:
-            queryset = queryset.filter(grupodecontatos_set__in=value)
+            queryset = queryset.filter(grupodecontatos_set__in=value).distinct()
 
         return queryset
 
@@ -1073,7 +1073,7 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
         if value:
             queryset = queryset.filter(
                 endereco_set__bairro__in=value,
-                endereco_set__permite_contato=True)
+                endereco_set__permite_contato=True).distinct()
 
         return queryset
 
@@ -1081,7 +1081,7 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
         if value:
             queryset = queryset.filter(
                 endereco_set__municipio__in=value,
-                endereco_set__permite_contato=True)
+                endereco_set__permite_contato=True).distinct()
 
         return queryset
 
@@ -1496,25 +1496,25 @@ class ProcessoIndividualFilterSet(FilterSet):
 
     def filter_classificacao(self, queryset, value):
         if value:
-            queryset = queryset.filter(classificacao__in=value)
+            queryset = queryset.filter(classificacao__in=value).distinct()
 
         return queryset
 
     def filter_importancia(self, queryset, value):
         if value:
-            queryset = queryset.filter(importancia__in=value)
+            queryset = queryset.filter(importancia__in=value).distinct()
 
         return queryset
 
     def filter_status(self, queryset, value):
         if value:
-            queryset = queryset.filter(status__in=value)
+            queryset = queryset.filter(status__in=value).distinct()
 
         return queryset
 
     def filter_bairro(self, queryset, value):
         if value:
-            queryset = queryset.filter(bairro__in=value)
+            queryset = queryset.filter(bairro__in=value).distinct()
 
         return queryset
 
@@ -1954,25 +1954,25 @@ class ProcessosFilterSet(FilterSet):
 
     def filter_classificacao(self, queryset, value):
         if value:
-            queryset = queryset.filter(classificacao__in=value)
+            queryset = queryset.filter(classificacao__in=value).distinct()
 
         return queryset
 
     def filter_importancia(self, queryset, value):
         if value:
-            queryset = queryset.filter(importancia__in=value)
+            queryset = queryset.filter(importancia__in=value).distinct()
 
         return queryset
 
     def filter_status(self, queryset, value):
         if value:
-            queryset = queryset.filter(status__in=value)
+            queryset = queryset.filter(status__in=value).distinct()
 
         return queryset
 
     def filter_bairro(self, queryset, value):
         if value:
-            queryset = queryset.filter(bairro__in=value)
+            queryset = queryset.filter(bairro__in=value).distinct()
 
         return queryset
 
@@ -2430,14 +2430,14 @@ class ContatoIndividualFilterSet(FilterSet):
 
     def filter_grupo(self, queryset, value):
         if value:
-            queryset = queryset.filter(grupodecontatos_set__in=value)
+            queryset = queryset.filter(grupodecontatos_set__in=value).distinct()
 
         return queryset
 
     def filter_bairro(self, queryset, value):
         if value:
             queryset = queryset.filter(
-                endereco_set__bairro__in=value)
+                endereco_set__bairro__in=value).distinct()
 
         return queryset
 
@@ -2533,7 +2533,7 @@ class ContatoIndividualFilterSet(FilterSet):
     def filter_municipio(self, queryset, value):
         if value:
             queryset = queryset.filter(
-                    endereco_set__municipio__in=value)
+                    endereco_set__municipio__in=value).distinct()
        
         return queryset
 
@@ -2869,7 +2869,7 @@ class ContatosExportaFilterSet(FilterSet):
 
     def filter_grupo(self, queryset, value):
         if value:
-            queryset = queryset.filter(grupodecontatos_set__in=value)
+            queryset = queryset.filter(grupodecontatos_set__in=value).distinct()
 
         return queryset
 
@@ -2966,14 +2966,14 @@ class ContatosExportaFilterSet(FilterSet):
     def filter_bairro(self, queryset, value):
         if value:
             queryset = queryset.filter(
-                endereco_set__bairro__in=value)
+                endereco_set__bairro__in=value).distinct()
 
         return queryset
 
     def filter_municipio(self, queryset, value):
         if value:
             queryset = queryset.filter(
-                    endereco_set__municipio__in=value)
+                    endereco_set__municipio__in=value).distinct()
 
         return queryset
 
@@ -3157,7 +3157,7 @@ class ContatosExportaFilterSet(FilterSet):
         self.form.fields['municipio'].queryset = Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk)
 
 
-class ContatosFilterSet(FilterSet):
+class MalaDiretaFilterSet(FilterSet):
 
     filter_overrides = {models.DateField: {
         'filter_class': MethodFilter,
@@ -3175,23 +3175,6 @@ class ContatosFilterSet(FilterSet):
 
     BOTH_CHOICE = [(None, _('Ambos'))] + YES_NO_CHOICES
 
-    RETRATO = 'R'
-    PAISAGEM = 'P'
-    ORIENTACAO_CHOICE = ((PAISAGEM, _('Paisagem')),
-                         (RETRATO, _('Retrato')))
-
-    PDF = 'PDF'
-    TXT = 'TXT'
-    FORMATO_CHOICE = ((PDF, _('PDF')),
-                      (TXT, _('Mala direta')))
-
-    PRINCIPAL = 'P'
-    CONTATO = 'C'
-    AMBOS = 'A'
-    TIPO_DADO_CONTATO_CHOICE = ((PRINCIPAL, _('Apenas o principal')),
-                      (CONTATO, _('Apenas o escolhido pra contato')),
-                      (AMBOS, _('Ambos')))
-    
     NASCIMENTO = 'DTN'
     ENDERECO = 'END'
     TELEFONE = 'TEL'
@@ -3244,18 +3227,6 @@ class ContatosFilterSet(FilterSet):
         label=_('Idade entre'),
         widget=RangeWidgetNumber)
 
-    formato = MethodChoiceFilter(
-        label=_('Formato'),
-        choices=FORMATO_CHOICE, initial=PDF)
-    
-    orientacao = MethodChoiceFilter(
-        label=_('Orientação'),
-        choices=ORIENTACAO_CHOICE, initial=PAISAGEM)
-
-    tipo_dado_contato = MethodChoiceFilter(
-        label=_('Endereço, telefone e e-mail'),
-        choices=TIPO_DADO_CONTATO_CHOICE, initial=PRINCIPAL)
-
     grupo = MethodModelMultipleChoiceFilter(
         required=False,
         label=_('Grupo de contatos'),
@@ -3277,7 +3248,7 @@ class ContatosFilterSet(FilterSet):
 
     def filter_grupo(self, queryset, value):
         if value:
-            queryset = queryset.filter(grupodecontatos_set__in=value)
+            queryset = queryset.filter(grupodecontatos_set__in=value).distinct()
 
         return queryset
 
@@ -3397,14 +3368,432 @@ class ContatosFilterSet(FilterSet):
     def filter_bairro(self, queryset, value):
         if value:
             queryset = queryset.filter(
-                endereco_set__bairro__in=value)
+                endereco_set__bairro__in=value).distinct()
 
         return queryset
 
     def filter_municipio(self, queryset, value):
         if value:
             queryset = queryset.filter(
-                    endereco_set__municipio__in=value)
+                    endereco_set__municipio__in=value).distinct()
+
+        return queryset
+
+    def filter_idade(self, queryset, value):
+        idi = int(value.start) if value.start is not None else 0
+        idf = int(value.stop) if value.stop is not None else 100
+
+        if idi > idf:
+            a = idi
+            idi = idf
+            idf = a
+
+        # lim inicial-dt.mais antiga
+        li = date.today() - relativedelta(years=idf + 1)
+        # lim final - dt. mais nova
+        lf = date.today() - relativedelta(years=idi)
+
+        return queryset.filter(data_nascimento__gt=li,
+                               data_nascimento__lte=lf)
+
+    def filter_search(self, queryset, value):
+
+        query = normalize(value)
+
+        query = query.split(' ')
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                # Remove acentos dos campos que estão no banco
+                q = q & Q(search__unaccent__icontains=item)
+
+            if q:
+                queryset = queryset.filter(q)
+        return queryset
+ 
+    def filter_search_endereco(self, queryset, value):
+
+        query = normalize(value)
+
+        query = query.split(' ')
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                # Remove acentos dos campos que estão no banco
+                q = q & (Q(endereco_set__endereco__unaccent__icontains=item) | 
+                         Q(endereco_set__ponto_referencia__unaccent__icontains=item) |
+                         Q(endereco_set__complemento__unaccent__icontains=item))
+
+            if q:
+                queryset = queryset.filter(q)
+        return queryset
+
+    def filter_cep(self, queryset, value):
+
+        query = normalize(value.strip())
+        
+        q = Q()
+        
+        if query:
+            q = q & Q(endereco_set__cep=value)
+
+        if q:
+            queryset = queryset.filter(q)
+        
+        return queryset
+
+    def filter_data_nascimento(self, queryset, value):
+
+        if not value[0] or not value[1]:
+            return queryset
+
+        now = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        then = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+        if now > then:
+            a = now
+            now = then
+            then = a
+
+        # Build the list of month/day tuples.
+        monthdays = [(now.month, now.day)]
+        while now <= then:
+            monthdays.append((now.month, now.day))
+            now += timedelta(days=1)
+
+        # Tranform each into queryset keyword args.
+        monthdays = (dict(zip(("data_nascimento__month",
+                               "data_nascimento__day"), t))
+                     for t in monthdays)
+
+        # Compose the djano.db.models.Q objects together for a single query.
+        query = reduce(operator.or_, (Q(**d) for d in monthdays))
+
+        # Run the query.
+        return queryset.extra(select={
+            'month': 'extract( month from data_nascimento )',
+            'day': 'extract( day from data_nascimento )', }
+        ).order_by('month', 'day', 'nome').filter(query)
+
+    class Meta:
+        model = Contato
+        fields = ['search',
+                  'search_endereco',
+                  'sexo',
+                  'tem_filhos',
+                  'data_nascimento',
+                  'tipo_autoridade']
+
+    def __init__(self, data=None,
+                 queryset=None, prefix=None, strict=None, **kwargs):
+
+        workspace = kwargs.pop('workspace')
+ 
+        super(MalaDiretaFilterSet, self).__init__(
+            data=data,
+            queryset=queryset, prefix=prefix, strict=strict, **kwargs)
+
+        col1 = to_row([
+            ('search', 9),
+            ('ativo', 3),
+            ('sexo', 3),
+            ('estado_civil', 3),
+            ('tem_filhos', 3),
+            ('search_documentos', 3),
+            ('data_nascimento', 6),
+            ('idade', 6),
+            ('search_endereco', 8),
+            ('num_endereco', 2),
+            ('cep', 2),
+            ('bairro', 6),
+            ('municipio', 6),
+            ('grupo', 4),
+            ('dados_nao_nulos', 4),
+            ('dados_nulos', 4),
+            ('telefone', 4),
+            ('tipo_autoridade', 4),
+            ('cargo', 4),
+        ])
+
+        col2 = to_row([
+            ('ocultar_sem_email', 12),
+        ])
+
+        row = to_row(
+            [(Fieldset(
+                _('Filtro de Contatos'),
+                col1,
+                to_row([(SubmitFilterPrint(
+                    'filter',
+                    value=_('Filtrar'), css_class='btn-default pull-right',
+                    type='submit'), 12)])), 9),
+             (Fieldset(
+                 _('Impressão'),
+                 col2,
+                 to_row([(SubmitFilterPrint(
+                     'print',
+                     value=_('Gerar'), css_class='btn-primary pull-right',
+                     type='submit'), 12)])), 3)])
+
+        self.form.helper = FormHelper()
+        self.form.helper.form_method = 'GET'
+        self.form.helper.layout = Layout(
+            row,
+        )
+
+        self.form.fields['search'].label = 'Nome, nome social ou apelido'
+        self.form.fields['search_endereco'].label = 'Endereço, complemento ou ponto de referência'
+        self.form.fields['data_nascimento'].label = 'Período de aniversário'
+        self.form.fields['search_documentos'].label = 'RG, CPF, CNPJ ou IE'
+        self.form.fields['tem_filhos'].label = _('Tem filhos?')
+        self.form.fields['ativo'].label = _('Ativo?')
+        self.form.fields['cep'].widget.attrs['class'] = 'cep'
+
+        self.form.fields['ocultar_sem_email'].inline_class = True
+        self.form.fields['ocultar_sem_email'].label = _('<font color=red>Ocultar sem e-mail?</font>')
+
+        self.form.fields['grupo'].queryset = GrupoDeContatos.objects.filter(workspace=workspace)
+        self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk)
+        self.form.fields['municipio'].queryset = Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk)
+
+
+
+
+
+
+class ContatosFilterSet(FilterSet):
+
+    filter_overrides = {models.DateField: {
+        'filter_class': MethodFilter,
+        'extra': lambda f: {
+            'label': 'Período de aniversário',
+            'widget': RangeWidgetOverride}
+    }}
+
+    FEMININO = 'F'
+    MASCULINO = 'M'
+    AMBOS = ''
+    SEXO_CHOICE = ((AMBOS, _('Ambos')),
+                   (FEMININO, _('Feminino')),
+                   (MASCULINO, _('Masculino')))
+
+    BOTH_CHOICE = [(None, _('Ambos'))] + YES_NO_CHOICES
+
+    RETRATO = 'R'
+    PAISAGEM = 'P'
+    ORIENTACAO_CHOICE = ((PAISAGEM, _('Paisagem')),
+                         (RETRATO, _('Retrato')))
+
+    PRINCIPAL = 'P'
+    CONTATO = 'C'
+    AMBOS = 'A'
+    TIPO_DADO_CONTATO_CHOICE = ((PRINCIPAL, _('Apenas o principal')),
+                      (CONTATO, _('Apenas o escolhido pra contato')),
+                      (AMBOS, _('Ambos')))
+    
+    NASCIMENTO = 'DTN'
+    ENDERECO = 'END'
+    TELEFONE = 'TEL'
+    EMAIL = 'EML'
+    SEXO = 'SEX'
+    ESTADO_CIVIL = 'ECV'
+    GRUPO = 'GRP'
+
+    NULL_DATA_CHOICE = ((NASCIMENTO, _('Data de nascimento')),
+                        (ENDERECO, _('Endereço')),
+                        (TELEFONE, _('Telefone')),
+                        (EMAIL, _('E-mail')),
+                        (SEXO, _('Sexo biológico')),
+                        (ESTADO_CIVIL, _('Estado civil')),
+                        (GRUPO, _('Grupos')))
+
+    dados_nulos = MethodMultipleChoiceFilter(
+        required=False,
+        label=_('Contatos que NÃO possuem:'),
+        choices=NULL_DATA_CHOICE)
+
+    dados_nao_nulos = MethodMultipleChoiceFilter(
+        required=False,
+        label=_('Contatos que possuem:'),
+        choices=NULL_DATA_CHOICE)
+
+    search = MethodFilter()
+    
+    search_documentos = MethodFilter()
+
+    sexo = ChoiceFilter(choices=SEXO_CHOICE)
+
+    estado_civil = ModelChoiceFilter(
+        required=False,
+        queryset=EstadoCivil.objects.all())
+
+    telefone = MethodFilter(label=_('Telefone'))
+
+    tem_filhos = BooleanFilter()
+
+    ativo = BooleanFilter()
+
+    cargo = MethodFilter(label=_('Cargo ou profissão'))
+
+    num_endereco = MethodIntegerFilter(label=_('Número'))
+
+    idade = MethodRangeFilter(
+        label=_('Idade entre'),
+        widget=RangeWidgetNumber)
+
+    orientacao = MethodChoiceFilter(
+        label=_('Orientação'),
+        choices=ORIENTACAO_CHOICE, initial=PAISAGEM)
+
+    tipo_dado_contato = MethodChoiceFilter(
+        label=_('Endereço, telefone e e-mail'),
+        choices=TIPO_DADO_CONTATO_CHOICE, initial=PRINCIPAL)
+
+    grupo = MethodModelMultipleChoiceFilter(
+        required=False,
+        label=_('Grupo de contatos'),
+        queryset=GrupoDeContatos.objects.all())
+    
+    search_endereco = MethodFilter()
+
+    bairro = MethodModelMultipleChoiceFilter(
+        required=False,
+        label=_('Bairro (' + settings.DADOS_MUNICIPIO + ')'),
+        queryset=None) # Será carregado no final do código
+
+    cep = MethodFilter(label=_('CEP'))
+
+    municipio = MethodModelMultipleChoiceFilter(
+        required=False,
+        label=_('Município (' + settings.DADOS_UF + ')'), 
+        queryset=None) # Será carregado no final do código
+
+    def filter_grupo(self, queryset, value):
+        if value:
+            queryset = queryset.filter(grupodecontatos_set__in=value).distinct()
+
+        return queryset
+
+    def filter_telefone(self, queryset, value):
+
+        query = normalize(value.strip())
+        
+        q = Q()
+       
+        if query:
+            q = q & Q(telefone_set__telefone=value)
+
+        if q:
+            queryset = queryset.filter(q)
+        
+        return queryset
+
+    def filter_cargo(self, queryset, value):
+
+        query = normalize(value)
+        query = query.split(' ')
+
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                # Remove acentos dos campos que estão no banco
+                q = q & (Q(cargo__unaccent__icontains=item) | 
+                         Q(profissao__unaccent__icontains=item))
+
+            if q:
+                queryset = queryset.filter(q)
+
+        return queryset
+
+    def filter_search_documentos(self, queryset, value):
+
+        if value: 
+
+            # Remove caracteres especiais do campo digitado, deixando apenas os dígitos
+            value = ''.join(filter( str.isdigit, normalize(value) ))
+
+            # Remove caracteres especiais dos campos de documentos, deixando apenas os dígitos
+            queryset = queryset.all().annotate(
+                new_cpf=Func( F('cpf'), Value('[^[:digit:]]'), Value(''), Value('g'), function='regexp_replace' ) )
+            queryset = queryset.all().annotate(
+                new_rg=Func( F('rg'), Value('[^[:digit:]]'), Value(''), Value('g'), function='regexp_replace' ) )
+            queryset = queryset.all().annotate(
+                new_cnpj=Func( F('cnpj'), Value('[^[:digit:]]'), Value(''), Value('g'), function='regexp_replace' ) )
+            queryset = queryset.all().annotate(
+                new_ie=Func( F('ie'), Value('[^[:digit:]]'), Value(''), Value('g'), function='regexp_replace' ) )
+
+            q = Q()
+            q = q & (Q(new_cpf=value) | 
+                     Q(new_rg=value) |
+                     Q(new_cnpj=value) |
+                     Q(new_ie=value))
+            queryset = queryset.filter(q)
+
+        return queryset
+
+    def filter_dados_nulos(self, queryset, value):
+        if value:
+            for opcao in value:
+                if(opcao == 'DTN'):
+                   queryset = queryset.exclude(data_nascimento__isnull=False)
+                elif(opcao == 'END'):
+                   queryset = queryset.exclude(endereco_set__isnull=False)
+                elif(opcao == 'TEL'):
+                   queryset = queryset.exclude(telefone_set__isnull=False)
+                elif(opcao == 'EML'):
+                   queryset = queryset.exclude(email_set__isnull=False)
+                elif(opcao == 'SEX'):
+                   queryset = queryset.filter(sexo='')
+                elif(opcao == 'ECV'):
+                   queryset = queryset.exclude(estado_civil__isnull=False)
+                elif(opcao == 'GRP'):
+                   queryset = queryset.exclude(grupodecontatos_set__isnull=False)
+
+        return queryset
+
+    def filter_dados_nao_nulos(self, queryset, value):
+        if value:
+            for opcao in value:
+                if(opcao == 'DTN'):
+                   queryset = queryset.exclude(data_nascimento__isnull=True)
+                elif(opcao == 'END'):
+                   queryset = queryset.exclude(endereco_set__isnull=True)
+                elif(opcao == 'TEL'):
+                   queryset = queryset.exclude(telefone_set__isnull=True)
+                elif(opcao == 'EML'):
+                   queryset = queryset.exclude(email_set__isnull=True)
+                elif(opcao == 'SEX'):
+                   queryset = queryset.filter(Q(sexo='M') | Q(sexo='F'))
+                elif(opcao == 'ECV'):
+                   queryset = queryset.exclude(estado_civil__isnull=True)
+                elif(opcao == 'GRP'):
+                   queryset = queryset.exclude(grupodecontatos_set__isnull=True)
+
+        return queryset
+
+    def filter_num_endereco(self, queryset, value):
+
+        if value:
+            queryset = queryset.filter(endereco_set__numero=value)
+        
+        return queryset
+
+    def filter_bairro(self, queryset, value):
+        if value:
+            queryset = queryset.filter(
+                endereco_set__bairro__in=value).distinct()
+
+        return queryset
+
+    def filter_municipio(self, queryset, value):
+        if value:
+            queryset = queryset.filter(
+                    endereco_set__municipio__in=value).distinct()
 
         return queryset
 
@@ -3557,10 +3946,8 @@ class ContatosFilterSet(FilterSet):
         ])
 
         col2 = to_row([
-            ('formato', 12),
             ('orientacao', 12),
             ('tipo_dado_contato', 12),
-            ('ocultar_sem_email', 12),
         ])
 
         row = to_row(
@@ -3592,9 +3979,6 @@ class ContatosFilterSet(FilterSet):
         self.form.fields['tem_filhos'].label = _('Tem filhos?')
         self.form.fields['ativo'].label = _('Ativo?')
         self.form.fields['cep'].widget.attrs['class'] = 'cep'
-
-        self.form.fields['ocultar_sem_email'].inline_class = True
-        self.form.fields['ocultar_sem_email'].label = _('<font color=red>Ocultar sem e-mail?</font>')
 
         self.form.fields['grupo'].queryset = GrupoDeContatos.objects.filter(workspace=workspace)
         self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk)

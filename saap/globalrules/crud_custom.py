@@ -348,7 +348,7 @@ class DetailMasterCrud(Crud):
         list_field_names_set = ['nome', ]
 
         paginate_by = 20
-        no_entries_msg = _('Nenhum registro Associado.')
+        no_entries_msg = _('Nenhum registro associado.')
 
         def get_rows(self, object_list):
             return [self._as_row(obj) for obj in object_list]

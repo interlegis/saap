@@ -27,7 +27,7 @@ from reportlab.platypus.tables import TableStyle, LongTable
 from reportlab.lib.units import mm
 
 from saap.cerimonial.forms import ImpressoEnderecamentoFilterSet,\
-    ProcessosFilterSet, ContatosFilterSet, ContatosExportaFilterSet, ProcessoIndividualFilterSet, ContatoIndividualFilterSet
+    ProcessosFilterSet, ContatosFilterSet, ContatosExportaFilterSet, ProcessoIndividualFilterSet, ContatoIndividualFilterSet, MalaDiretaFilterSet
 from saap.cerimonial.models import Contato, Processo, Telefone, Email, GrupoDeContatos, Endereco, AssuntoProcesso, TopicoProcesso, LocalTrabalho, Dependente, FiliacaoPartidaria, Municipio, Estado, IMPORTANCIA_CHOICE
 from saap.core.models import AreaTrabalho
 from saap.crud.base import make_pagination
@@ -2532,8 +2532,6 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
 #
 #
 
-
-
 class RelatorioContatosView(RelatorioProcessosView):
     #permission_required = 'cerimonial.print_rel_contatos'
     permission_required = 'core.menu_contatos'
@@ -2560,37 +2558,18 @@ class RelatorioContatosView(RelatorioProcessosView):
                                       'condições definidas na busca!'))
         
         if 'print' in request.GET and self.object_list.exists():
-            if self.filterset.form.cleaned_data['formato'] == 'PDF':
-                filename = str(self.filterset.form.cleaned_data['formato']) + "_Contatos_"\
-                     + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
-                response = HttpResponse(content_type='application/pdf')
-                content = 'inline; filename="%s.pdf"' % filename
-                #content = 'attachment; filename="%s.pdf"' % filename
-                response['Content-Disposition'] = content
-                self.build_pdf(response)
-                return response
-            elif self.filterset.form.cleaned_data['formato'] == 'TXT':
-                total_erros = self.validate_data()
-                if(total_erros > 0):
-                    self.filterset.form._errors['ocultar_sem_email'] = ErrorList([_(
-                        'ATENÇÃO! Marcando Sim, você vai remover do relatório %s contatos que não tem e-mail' % (total_erros))])
-
-                    messages.error(request, _('Existem %s contatos na busca que não tem e-mail marcado para Contato.\
-                             <br>Revise-os antes de gerar a mala direta, ou se preferir, escolha Sim no campo "Ocultar sem e-mail"' % (total_erros)))
-                else:
-                    filename = str(self.filterset.form.cleaned_data['formato']) + "_Contatos_"\
-                         + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
-
-                    response = HttpResponse(content_type='text/plain')
-                    content = 'inline; filename="%s.txt"' % filename
-                    #content = 'attachment; filename="%s.txt"' % filename
-                    response['Content-Disposition'] = content
-                    self.build_txt(response)
-                    return response
-
+            filename = str("Contatos_") +\
+                        str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
+            response = HttpResponse(content_type='application/pdf')
+            content = 'inline; filename="%s.pdf"' % filename
+            #content = 'attachment; filename="%s.pdf"' % filename
+            response['Content-Disposition'] = content
+            self.build_pdf(response)
+            return response
+        
         context = self.get_context_data(filter=self.filterset,
                                         object_list=self.object_list)
-        
+
         return self.render_to_response(context)
 
     def get_filterset(self, filterset_class):
@@ -2650,28 +2629,6 @@ class RelatorioContatosView(RelatorioProcessosView):
             contato.email = email.email if email else ''
 
         return context
-
-    def build_txt(self, response):
-        CONTATO = 0
-        EMAILS = 3
-
-        NOME = 1
-
-        registros = self.get_data()
-
-        csv_data = []
-
-        for dados in registros:
-            sem_email = False
-            if(dados[EMAILS] != None):
-                for email in dados[EMAILS]:
-                    if email.permite_contato == True:
-                        csv_data.append([dados[CONTATO][NOME], email])
-                        sem_email = True
-
-        t = loader.get_template('cerimonial/contato_email.txt')
-        response.write(t.render({'data': csv_data}))
-        return response
 
     def build_pdf(self, response):
         CONTATO = 0
@@ -2961,6 +2918,186 @@ class RelatorioContatosView(RelatorioProcessosView):
         corpo_relatorio.append([Paragraph(tit_relatorio, self.h3)])
 
         corpo_relatorio.append(self.cabec)
+
+#
+#
+#
+#
+#
+#
+#
+#
+
+class MalaDiretaView(RelatorioProcessosView):
+    #permission_required = 'cerimonial.print_rel_contatos'
+    permission_required = 'core.menu_contatos'
+    filterset_class = MalaDiretaFilterSet
+    model = Contato
+    template_name = 'cerimonial/filter_contatos.html'
+    container_field = 'workspace__operadores'
+
+    def __init__(self):
+        super().__init__()
+        self.ctx_title = 'Exportação para mala direta'
+        #self.relat_title = 'Mala Direta'
+        self.nome_objeto = 'Contato'
+        #self.filename = 'Mala_Direta'
+
+    def get(self, request, *args, **kwargs):
+        filterset_class = self.get_filterset_class()
+        self.filterset = self.get_filterset(filterset_class)
+        self.object_list = self.filterset.qs
+
+        if len(request.GET) and not len(self.filterset.form.errors)\
+                and not self.object_list.exists():
+            messages.error(request, _('Não existe contato com as '
+                                      'condições definidas na busca!'))
+        
+        if 'print' in request.GET and self.object_list.exists():
+            total_erros = self.validate_data()
+            if(total_erros > 0):
+                self.filterset.form._errors['ocultar_sem_email'] = ErrorList([_(
+                    'ATENÇÃO! Marcando Sim, você vai remover do relatório %s contatos que não tem e-mail' % (total_erros))])
+
+                messages.error(request, _('Existem %s contatos na busca que não tem e-mail marcado para Contato.\
+                         <br>Revise-os antes de gerar a mala direta, ou se preferir, escolha Sim no campo "Ocultar sem e-mail"' % (total_erros)))
+            else:
+                filename = str("Contatos_")\
+                     + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
+                response = HttpResponse(content_type='text/plain')
+                content = 'inline; filename="%s.txt"' % filename
+                #content = 'attachment; filename="%s.txt"' % filename
+                response['Content-Disposition'] = content
+                self.build_txt(response)
+                return response
+
+        context = self.get_context_data(filter=self.filterset,
+                                        object_list=self.object_list)
+        
+        return self.render_to_response(context)
+
+    def get_filterset(self, filterset_class):
+        kwargs = self.get_filterset_kwargs(filterset_class)
+        try:
+            kwargs['workspace'] = AreaTrabalho.objects.filter(
+                operadores=self.request.user.pk)[0]
+        except:
+            raise PermissionDenied(_('Sem permissão de acesso!'))
+
+        return filterset_class(**kwargs)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        kwargs = {}
+        if self.container_field:
+            kwargs[self.container_field] = self.request.user.pk
+
+        return qs.filter(**kwargs)
+
+    def get_context_data(self, **kwargs):
+        count = self.object_list.count()
+        context = super(MalaDiretaView,
+                        self).get_context_data(**kwargs)
+
+        context['count'] = count
+        context['title'] = _(self.ctx_title)
+
+        paginator = context['paginator']
+        page_obj = context['page_obj']
+
+        context['page_range'] = make_pagination(
+            page_obj.number, paginator.num_pages)
+
+        qr = self.request.GET.copy()
+        if 'page' in qr:
+            del qr['page']
+        context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
+
+        for contato in context['page_obj']:            
+            endpref = contato.endereco_set.filter(principal=True).first()
+            grupo = contato.grupodecontatos_set.all()
+            
+            if endpref:
+                contato.bairro = endpref.bairro.nome if endpref.bairro else ''
+                contato.municipio = '%s/%s' % (endpref.municipio, endpref.estado.sigla) if endpref.municipio else ''
+            else:
+                contato.bairro = ''
+                contato.municipio = ''
+
+            contato.grupo = grupo
+           
+            telefone = contato.telefone_set.filter(principal=True).first()
+            contato.telefone = telefone.telefone if telefone else ''
+            
+            email = contato.email_set.filter(permite_contato=True).first()
+            contato.email = email.email if email else ''
+
+        return context
+
+    def build_txt(self, response):
+        CONTATO = 0
+        EMAILS = 3
+
+        NOME = 1
+
+        registros = self.get_data()
+
+        csv_data = []
+
+        for dados in registros:
+            sem_email = False
+            if(dados[EMAILS] != None):
+                for email in dados[EMAILS]:
+                    if email.permite_contato == True:
+                        csv_data.append([dados[CONTATO][NOME], email])
+                        sem_email = True
+
+        t = loader.get_template('cerimonial/contato_email.txt')
+        response.write(t.render({'data': csv_data}))
+        return response
+
+    def get_data(self):
+        contatos = []
+        consulta_agregada = self.object_list.order_by('nome',)
+        consulta_agregada = consulta_agregada.values_list(
+            'id',
+            'nome',
+            'data_nascimento',
+        )
+
+        for contato in consulta_agregada.all():
+            query = (Q(principal=True))
+            query.add(Q(permite_contato=True), Q.OR)
+            query.add(Q(contato__id=contato[0]), Q.AND)
+
+            endereco = Endereco.objects.filter(query)
+            telefone = Telefone.objects.filter(query)
+            email = Email.objects.filter(query)
+            grupos = GrupoDeContatos.objects.filter(contatos__id=contato[0])[:2]
+
+            contatos.append((contato, endereco, telefone, email, grupos))
+
+        return contatos
+
+    def validate_data(self):
+        contatos = []
+        consulta_agregada = self.object_list.order_by('nome',)
+        consulta_agregada = consulta_agregada.values_list(
+            'id',
+        )
+
+        total_erros = 0
+
+        for contato in consulta_agregada.all():
+            query = (Q(permite_contato=True))
+            query.add(Q(contato__id=contato[0]), Q.AND)
+
+            email = Email.objects.filter(query).count()
+
+            if(email == 0):
+                total_erros = total_erros + 1
+
+        return total_erros
 
 #
 #

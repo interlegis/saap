@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Listagem de processos</h1>
+
+<br />
+
+Para acessar o relatório de <b>Listagem de processos</b>, clique no menu <b>Relatórios</b> e, depois, na opção <b>Listagem</b>. <br />
+
+<br />
+
+A listagem de processos permite gerar uma tabela em PDF, contendo alguns dados dos processos filtrados. <br />
+
+<h2>Filtro de Processos</h2>
+
+<ul>
+    <li><b>Pesquisa por título, histórico, observações ou solução</b>: Campo que permite pesquisar pelo título ou pelos textos colocados nos campos de histórico, observações ou solução.
+    <li><b>Contatos interessados</b>: É possível pesquisar processo pelo nome dos contatos que estejam marcados como interessados no processo.
+    <li><b>Matéria, protocolo ou ofício</b>: Campo que permite pesquisar alguns númeos de controle do processo, como número da matéria, número de protocolo ou de ofício.
+    <li><b>Data do envio (período)</b>: Campos de data que pesquisam um período e retornam os processos que tiveram envio de documento entre essas datas. Ao clicar nos campos, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Data do protocolo (período)</b>: Campos de data que pesquisam um período e retornam os processos que tiveram envio de protocolo entre essas datas. Ao clicar nos campos, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Data de abertura (período)</b>: Campos de data que pesquisam um período e retornam os processos que tiveram sua abertura entre essas datas. Ao clicar nos campos, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Data do retorno (período)</b>: Campos de data que pesquisam um período e retornam os processos que tiveram retorno recebido entre essas datas. Ao clicar nos campos, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Data da solução (período)</b>: Campos de data que pesquisam um período e retornam os processos que tiveram solução entre essas datas. Ao clicar nos campos, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Há quantos dias foi enviado?</b> Permite buscar processos que foram enviados dentro de um período de dias. Deve-se informar o mínimo (quantidade de dias mais recente) e o máximo (quantidade de dias mais antiga). Por exemplo, mínimo de 30 e máximo de 60 indica que vão ser obtidos os processos que foram enviados de 30 dias atrás até 60 dias atrás.
+    <li><b>Tempo entre envio e retorno</b>: Permite obter os processos conforme os dias que decorreram entre a data de envio e a data de retorno. Deve-se informar o mínimo (quantidade de dias mais recente) e o máximo (quantidade de dias mais antiga). Por exemplo, mínimo 20 e máximo de 30 indica que vão ser obtidos os processos que demoraram de 20 a 30 dias entre seu envio e o retorno.
+    <li><b>Tempo entre abertura e solução</b>: Permite obter os processos conforme os dias que decorreram entre a data de abertura e a data de solução . Deve-se informar o mínimo (quantidade de dias mais recente) e o máximo (quantidade de dias mais antiga). Por exemplo, mínimo 20 e máximo de 30 indica que vão ser obtidos os processos que demoraram de 20 a 30 dias entre sua abertura e sua solução.
+    <li><b>Classificações</b>: Permite selecionar uma ou mais classificações de processo. Para selecionar uma classificação, basta clicar na mesma. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar.
+    <li><b>Status</b>: Permite selecionar um ou mais status de processo. Para selecionar um status, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar.
+    <li><b>Tópicos</b>: Permite selecionar um ou mais problemas. Para selecionar um problema, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar.
+    <li><b>Assuntos</b>: Permite selecionar um ou mais assuntos de processo. Para selecionar um assunto, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar. 
+    <li><b>Bairro</b>: Permite selecionar um ou mais bairros da cidade. Para selecionar um bairro, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar.
+    <li><b>Importância</b>: Permite selecionar uma ou mais importâncias de processo. Para selecionar uma importância, basta clicar na mesma. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar.
+    <li><b>Urgente?</b> Sim ou Não. A opção <b>Desconhecido</b> é o mesmo que "Ambos" (Sim e Não)
+    <li><b>Endereço</b>: Pesquisa no endereço informado no processo.
+    <li><b>Órgão ou instituição</b>: Campo pra pesquisar o órgão ou instituição relacionada ao processo.
+</ul>
+
+Após preencher os filtros, clique em <b>Filtrar</b>. Se você não fizer o filtro antes de <b>Imprimir</b> o relatório, ele será criado desconsiderando os filtros que você preencheu. Primeiro filtre, depois imprima.
+
+<h2>Imprimir relatório</h2>
+
+Por padrão, os processos são listados sem agrupamento. Porém, é possível selecionar um <b>Agrupamento</b>, sendo disponibilizadas as opções de agrupamento por importância, por tópico, por assunto, por status ou por classificação. <br />
+
+<br />
+
+Recomendamos fortemente que, antes de imprimir, você baixe o arquivo, pois a impressão direto pelo navegador (Chrome, Firefox ou Edge) é mais lenta e acaba ficando com uma qualidade um pouco inferior. <br />
+
+<br />
+
+Escolha o local que deseja salvar, vá até o arquivo e, então, clique para abri-lo no programa leitor de PDF que você desejar ou utiliza. Para imprimir, basta clicar no ícone ou apertar as teclas Ctrl + P. A impressão é feita em tamanho A4. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'contatosdetalhe' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'processosdetalhe' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

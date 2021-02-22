@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Contatos</h1>
+
+<br />
+
+A primeira e principal funcionalidade do SAAP é a gestão de contatos. É possível cadastrar diversos dados de um contato, como dados básicos, documentos, endereços, telefones, e-mails, dados educacionais e profissionais, filiação partidária, parentescos, e outros. Além disto, o SAAP também permite criar grupos, bem como fazer uma pesquisa completa no cadastro. <br />
+
+<br />
+
+O sistema também permite a exportação de contatos para planilha, seja para armazenamento, ou para manipulação de dados. No futuro, será possível fazer o processo inverso: importar a partir de uma planilha. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'areatrabalho' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'contatoscadastro' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

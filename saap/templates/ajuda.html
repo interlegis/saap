@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load i18n crispy_forms_tags %}
+
+{% block base_content %}
+<div class="conteudo">
+	<h2>Tópicos do Manual de Ajuda</h2>
+	<br />
+	<ul class="manual">
+		<li>
+			<a href="{% url 'saap.core:help_topic' 'acesso' %}">Acesso ao Sistema</a>
+			<ul>
+				<li><a href="{% url 'saap.core:help_topic' 'login' %}">Login e logout</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'senha' %}">Senha</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'areatrabalho' %}">Área de Trabalho</a></li>
+			</ul>
+		</li>
+
+		<li>
+			<a href="{% url 'saap.core:help_topic' 'contatos' %}">Contatos</a>
+			<ul>
+				<li><a href="{% url 'saap.core:help_topic' 'contatoscadastro' %}">Cadastro</a></li>
+                                    <ul>
+					<li><a href="{% url 'saap.core:help_topic' 'enderecos' %}">Endereços</a></li>
+					<li><a href="{% url 'saap.core:help_topic' 'telefones' %}">Telefones</a></li>
+					<li><a href="{% url 'saap.core:help_topic' 'emails' %}">E-mails</a></li>
+					<li><a href="{% url 'saap.core:help_topic' 'trabalho' %}">Locais de trabalho</a></li>
+					<li><a href="{% url 'saap.core:help_topic' 'dependentes' %}">Dependentes</a></li>
+					<li><a href="{% url 'saap.core:help_topic' 'filiacao' %}">Filiação partidária</a></li>
+                                    </ul>
+				<li><a href="{% url 'saap.core:help_topic' 'contatospesquisa' %}">Pesquisa</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'grupos' %}">Grupos de contatos</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'exportacao' %}">Exportação para planilha</a></li>
+			</ul>
+		</li>
+
+		<li>
+			<a href="{% url 'saap.core:help_topic' 'processos' %}">Processos</a>
+			<ul>
+				<li><a href="{% url 'saap.core:help_topic' 'processoscadastro' %}">Cadastro</a></li>
+                                    <ul>
+					<li><a href="{% url 'saap.core:help_topic' 'contatosprocessos' %}">Vínculo entre processos e contatos</a></li>
+                                    </ul>
+				<li><a href="{% url 'saap.core:help_topic' 'processospesquisa' %}">Pesquisa</a></li>
+			</ul>
+		</li>
+
+		<li>
+			<a href="{% url 'saap.core:help_topic' 'correspondencias' %}">Correspondências</a>
+			<ul>
+				<li><a href="{% url 'saap.core:help_topic' 'envelopesetiquetas' %}">Envelopes e etiquetas</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'maladireta' %}">Exportação para mala direta</a></li>
+			</ul>
+		</li>
+		<li>
+			<a href="{% url 'saap.core:help_topic' 'correspondencias' %}">Relatórios</a>
+			<ul>
+				<li><a href="{% url 'saap.core:help_topic' 'contatoslista' %}">Listagem de contatos</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'contatosdetalhe' %}">Dados detalhados do contato</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'processoslista' %}">Listagem de processos</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'processosdetalhe' %}">Dados detalhados do processo</a></li>
+			</ul>
+		</li>
+
+	</ul>
+</div>
+{% endblock base_content %}

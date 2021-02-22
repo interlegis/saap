@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Correspondências</h1>
+
+<br />
+
+Com base na gestão de contatos, o SAAP possui ferramentas que permitem a comunicação ou correspondência com estes. No momento, estão disponibilizadas as funcionalidades de geração de envelopes e etiquetas, para o envio de correspondências, ou a geração da lista de contatos para envio de e-mail em sistema externo. <br />
+
+<br />
+
+No futuro, será possível gerar mala direta, tanto por e-mail quanto por correspondência. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'processospesquisa' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'envelopesetiquetas' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

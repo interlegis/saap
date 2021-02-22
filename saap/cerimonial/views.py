@@ -254,13 +254,13 @@ class ContatoCrud(DetailMasterCrud):
                 queryset = queryset.filter(q)
 
             if grupos:        
-                queryset = queryset.filter(grupodecontatos_set__in=grupos)
+                queryset = queryset.filter(grupodecontatos_set__in=grupos).distinct()
 
             if bairro:
-                queryset = queryset.filter(endereco_set__bairro__in=bairro)
+                queryset = queryset.filter(endereco_set__bairro__in=bairro).distinct()
 
             if municipio:
-                queryset = queryset.filter(endereco_set__municipio__in=municipio)
+                queryset = queryset.filter(endereco_set__municipio__in=municipio).distinct()
 
             if cep:
                 queryset = queryset.filter(endereco_set__cep=cep)
@@ -721,22 +721,22 @@ class ProcessoMasterCrud(DetailMasterCrud):
                         queryset = queryset.filter(q)
 
             if bairros:
-                queryset = queryset.filter(bairro__in=bairros)
+                queryset = queryset.filter(bairro__in=bairros).distinct()
 
             if classificacoes:
-                queryset = queryset.filter(classificacao__in=classificacoes)
+                queryset = queryset.filter(classificacao__in=classificacoes).distinct()
 
             if assuntos:
-                queryset = queryset.filter(assuntos__in=assuntos)
+                queryset = queryset.filter(assuntos__in=assuntos).distinct()
 
             if status:
-                queryset = queryset.filter(status__in=status)
+                queryset = queryset.filter(status__in=status).distinct()
 
             if topicos:
-                queryset = queryset.filter(topicos__in=topicos)
+                queryset = queryset.filter(topicos__in=topicos).distinct()
 
             if importancias:
-                queryset = queryset.filter(importancia__in=importancias)
+                queryset = queryset.filter(importancia__in=importancias).distinct()
 
             if contatos:
                 query = normalize(contatos)

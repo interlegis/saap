@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Cadastro de Processos</h1>
+
+<br />
+
+Para cadastrar um novo processo, é necessário acessar o menu <b>Processos</b>, ir em <b>Processo</b> e clicar em <b>Adicionar Processo</b> <br />
+
+
+O formulário possui diversos campos, porém apenas aqueles que estão destacados em <span class='erro'>vermelho</span> são obrigatórios. No caso, os campos de <span class='erro'>Título</span> e <span class='erro'>Data de abertura</span>. <br />
+
+<h2>Dados básicos</h2>
+
+<ul>
+    <li><b>Título</b>: Campo livre
+    <li><b>Data de abertura</b>: Data considerada como de início do processo, ou da ocorrência do fato. Ao clicar no campo, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Tópicos</b>: Categorização em nível mais amplo, podendo ser escolhido entre Problema ou Sugestão/Pedido de informação. Por exemplo, saúde, educação, emprego, entre outros. Para selecionar uma das opções, basta clicar na mesma. Para selecionar mais de uma, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar.
+    <li><b>Assuntos</b>: Categorização em nível mais básico. Por exemplo, buraco na rua, problema na iluminação pública, entre outros. Para selecionar uma das opções, basta clicar na mesma. Para selecionar mais de uma, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar.
+    <li><b>Importância</b>: Baixa, média, alta ou crítica
+    <li><b>Urgente</b>: Sim ou Não
+    <li><b>Número de controle do gabinete</b>: Caso o gabinete possua alguma numeração própria de controle, poderá informar nesse campo. Numerações de protocolos podem ser adicionadas em campos mais abaixo.
+    <li><b>Status</b>: Diversos status, desde aguardando, não solucionado, encaminhado, entre outros.
+    <li><b>Classificação</b>: Permite classificar o processo, sendo por exemplo uma visita ao gabinete, uma visita externa, uma denúncia, entre outros.
+    <li><b>Histórico do processo</b>: Campo livre e amplo para que seja escrito o que for necessário a respeito do andamento do processo. 
+    <li><b>Outras observações</b>: Campo livre e amplo
+    <li><b>Rua da solicitação</b>: Endereço relacionado ao processo
+    <li><b>Bairro da solicitação</b>: Bairro relacionado ao processo
+    <li><b>Instituição envolvida</b>: Caso o processo esteja ligado a alguma empresa ou instituição. Por exemplo, a companhia de energia elétrica.
+    <li><b>Órgão demandado</b>: Caso o processo esteja ligado a algum órgão público. Por exemplo, o Tribunal de Contas do Estado.
+    <li><b>Número da matéria na Câmara</b>: Caso haja alguma matéria tramitando na Câmara (projeto de lei, requerimento, pedido de providência), é possível informar seu número.
+    <li><b>Ofício enviado pela Câmara</b>: Se houve o envio de um ofício pela Câmara a algum órgão, é possível informar seu número.
+    <li><b>Protocolo da Prefeitura</b>: Caso o processo gerou um protocolo na Prefeitura, é possível informar aqui seu número
+    <li><b>Protocolo do Órgão</b>: Caso o processo gerou um protocolo no Órgão demandado, é possível informar aqui seu número
+    <li><b>Data do envio</b>: Data do envio do ofício pela Câmara. Ao clicar no campo, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Data do protocolo</b>: Data de realização do protocolo na Prefeitura. Ao clicar no campo, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Data do retorno</b>: Data de recebimento de ofício com resposta, pela Prefeitura ou pelo Órgão demandado. Ao clicar no campo, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Ofício recebido da Prefeitura</b>: Se houve o recebimento de um ofício com resposta, enviado pela Prefeitura, é possível informar seu número.
+    <li><b>Ofício recebido do Órgão</b>: Se houve o recebimento de um ofício com resposta, enviado pelo Órgão demandado, é possível informar seu número.
+    <li><b>Link para acompanhamento na Câmara</b>: Para monitorar alguma matéria na Câmara, ligada ao processo, é possível salvar o seu link
+    <li><b>Link para acompanhamento na Prefeitura ou outro órgão</b>: Para monitorar o protocolo ou andamento do processo na Prefeitura ou Órgão demandado, em assunto ligado ao processo, é possível salvar o seu link
+    <li><b>Data da solução</b>: Caso o processo teve um fim ou solução, é possível informar a data disto. Ao clicar no campo, abre-se um mini calendário, permitindo a escolha da data.
+    <li><b>Solução do processo</b>: Campo livre e amplo para que seja escrito o que for necessário a respeito da solução do processo. 
+</ul>
+
+A seleção de contatos, bem como o vínculo entre contato e processo, será abordado no capítulo seguinte. <br />
+
+<br/>
+
+Após isto, basta clicar em <b>Salvar</b>. Na tela, será possível, não apenas visualizar os processos cadastrados, como também <b>Editar</b> o processo, <b>Excluir</b> o processo, <b>Adicionar</b> um novo processo ou retornar a <b>Lista</b> de processos. <br />
+
+<h2>Editar ou Excluir</h2>
+
+Ao clicar em <b>Editar</b>, o SAAP abrirá o mesmo formulário, porém com os dados preenchidos, sendo possível sua alteração. <br />
+
+<br />
+
+Ao clicar em <b>Excluir</b>, o SAAP perguntará se o usuário deseja mesmo excluir o processo. Basta clicar em <b>Confirmar</b> para excluir, ou <b>Cancelar</b> a exclusão. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'processos' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'contatosprocessos' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}
