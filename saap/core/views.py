@@ -165,7 +165,7 @@ class AreaTrabalhoCrud(DetailMasterCrud):
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
             context['subnav_template_name'] = 'core/subnav_areatrabalho.yaml'
-            context['headers'] = ['Usuário', 'Grupo associado']
+            context['headers'] = ['Usuário', 'Grupo associado', 'Descrição']
             return context
 
     class DetailView(DetailMasterCrud.DetailView):
@@ -309,6 +309,6 @@ class HelpTopicView(TemplateView):
         try:
             get_template('ajuda/%s.html' % topico)
         except TemplateDoesNotExist as e:
-            raise Http404()
+            raise Http404("Esse tópico de ajuda não existe. Acesse os tópicos pelo índice.")
 
         return ['ajuda/%s.html' % topico]
