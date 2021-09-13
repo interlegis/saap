@@ -31,9 +31,9 @@ git+git://github.com/interlegis/trml2pdf.git
 python-dateutil
 django-exclusivebooleanfield
 django-smart-selects
-social-auth-app-django
+social-auth-app-django==4
 pyjwkest
-psycopg2-binary
+psycopg2-binary==2.8.6
 bootstrap-admin
 django-easy-audit
 sqlparse==0.1.9
