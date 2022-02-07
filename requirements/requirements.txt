@@ -19,7 +19,7 @@ django-sass-processor==0.3.4
 django-smart-selects
 django-taggit==0.21.2
 django>=1.9,<1.10
-djangorestframework==3.9.1
+djangorestframework==3.11.2
 easy-thumbnails==2.3
 trml2pdf
 gunicorn==19.5.0
