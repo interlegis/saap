@@ -25,7 +25,6 @@ Com o ambiente em produção, os arquivos estáticos devem ser servidos pelo web
 
 ::
 
-    sudo rm collected_static/styles/*
     ./manage.py collectstatic --no-input --clear
 
 Com isto, ele coletará todos os arquivos estáticos do projeto e os guardará no diretório no qual o NGINX irá referenciar para a aplicação.

@@ -816,7 +816,7 @@ main .navbar .navbar-nav li a > .dropdown-menu {
       right: auto; }
     .navbar .navbar-nav > li > .menu-right {
       right: 0.5em;
-      left: auto; }
+      left: 0; }
     .navbar .navbar-nav > li > .dropdown-menu {
       top: 100%;
       border: 0px; }
@@ -1121,7 +1121,9 @@ nav .navbar-nav > li:nth-child(2) > .dropdown-menu {
 
 nav .dropdown-menu > li {
   background: #1a1a00;
-  border: 0px; }
+  border: 0px;
+  margin-right: -10px;
+}
 
 nav .dropdown-menu > li > a {
   font-size: 16px;

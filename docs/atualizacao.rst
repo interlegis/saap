@@ -26,12 +26,20 @@ Primeiro, vamos buscar os arquivos do repositório. Para isto, você deve entrar
 
     git pull
 
-
-Após a atualização, caso nenhum erro tenha sido apresentado, é necessário atualizar o banco de dados:
+Em seguida, caso nenhum erro tenha sido apresentado, é necessário atualizar o banco de dados:
 
 ::
 
     ./manage.py migrate
+
+
+3) Verificar alterações necessárias conforme release
+----------------------------------------------------------------------------------------
+
+Após a atualização, é importante verificar na release lançada se exise algum procedimento que deva ser realizado, como a atualização de arquivos ou instalação/atualização de programas.
+
+4) Reiniciar sistema
+----------------------------------------------------------------------------------------
 
 Para concluir, basta reiniciar o Supervisor:
 
@@ -40,3 +48,5 @@ Para concluir, basta reiniciar o Supervisor:
     sudo supervisorctl restart all
 
 O SAAP deverá estar funcionando e atualizado.
+
+Caso ocorreram modificações de layout, e a página ainda apareça com as configurações antigas, atualize a página usando Ctrl + Shift + R

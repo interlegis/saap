@@ -24,20 +24,22 @@ Instale os pacotes:
     software-properties-common build-essential libxml2-dev libjpeg-dev \
     libssl-dev libffi-dev libxslt1-dev python3-setuptools \
     python3-pip poppler-utils antiword default-jre python3-venv \
-    nodejs curl vim openssh-client
+    curl vim openssh-client
 
 Instale o Node.js e o Bower
 
-::  
+::
+
+    curl -fsSL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+
+::
 
     curl -L https://npmjs.org/install.sh | sudo sh
 
-::  
+::
 
     sudo npm install npm -g
-
-::  
-
     sudo npm install bower -g
 
 2) Instalar o virtualenv usando Python 3 para o projeto
@@ -113,15 +115,6 @@ As configurações e instruções de uso para o Git estão espalhadas pela Inter
 
     mkvirtualenv -a /var/interlegis/saap -p python3 -r requirements/requirements.txt saap
 
-Acesse o seu virtualenv
-
-::
-
-    workon saap
-
-Sempre que você der esse comando, o terminal vai automaticamente redirecioná-lo para a pasta ``/var/interlegis/saap``. 
-
-    
 5) Configurar o banco de dados PostgreSQL
 -----------------------------------------------------
 
@@ -331,40 +324,7 @@ Após isto, é necessário fazer a carga de dados básicos. Para isto, rode os c
 
 ::
    
-    ./manage.py loaddata config/initial_data/auth_permission.json
-    ./manage.py loaddata config/initial_data/auth_group.json
-
-::
-
-    ./manage.py loaddata config/initial_data/saap_cerimonial_assuntoprocesso.json
-    ./manage.py loaddata config/initial_data/saap_cerimonial_classificacaoprocesso.json
-    ./manage.py loaddata config/initial_data/saap_cerimonial_estadocivil.json
-    ./manage.py loaddata config/initial_data/saap_cerimonial_nivelinstrucao.json
-    ./manage.py loaddata config/initial_data/saap_cerimonial_operadoratelefonia.json
-    ./manage.py loaddata config/initial_data/saap_cerimonial_parentesco.json
-    ./manage.py loaddata config/initial_data/saap_cerimonial_pronometratamento.json
-    ./manage.py loaddata config/initial_data/saap_cerimonial_statusprocesso.json
-    ./manage.py loaddata config/initial_data/saap_cerimonial_tipoautoridade.json
-    ./manage.py loaddata config/initial_data/saap_cerimonial_tipoemail.json
-    ./manage.py loaddata config/initial_data/saap_cerimonial_tipoendereco.json
-    ./manage.py loaddata config/initial_data/saap_cerimonial_tipolocaltrabalho.json
-    ./manage.py loaddata config/initial_data/saap_cerimonial_tipotelefone.json
-    ./manage.py loaddata config/initial_data/saap_cerimonial_topicoprocesso.json
-
-::
-
-    ./manage.py loaddata config/initial_data/saap_core_estado.json
-    ./manage.py loaddata config/initial_data/saap_core_municipio.json
-    ./manage.py loaddata config/initial_data/saap_core_bairro.json
-    ./manage.py loaddata config/initial_data/saap_core_distrito.json
-    ./manage.py loaddata config/initial_data/saap_core_regiaomunicipal.json
-    ./manage.py loaddata config/initial_data/saap_core_cep.json
-    ./manage.py loaddata config/initial_data/saap_core_tipologradouro.json
-    ./manage.py loaddata config/initial_data/saap_core_logradouro.json
-    ./manage.py loaddata config/initial_data/saap_core_trecho.json
-    ./manage.py loaddata config/initial_data/saap_core_impressoenderecamento.json
-    ./manage.py loaddata config/initial_data/saap_core_situacaomilitar.json
-    ./manage.py loaddata config/initial_data/saap_core_partido.json
+    ./manage.py loaddata config/initial_data/*.json
 
 Para concluir, é necessário criar o super-usuário, que terá permissão de admin. Ele solicitará e-mail e senha.
 

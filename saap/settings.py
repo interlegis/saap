@@ -57,7 +57,7 @@ DADOS_TELEFONE = config('DADOS_TELEFONE');
 DADOS_SITE = config('DADOS_SITE');
 BRASAO_PROPRIO = config('BRASAO_PROPRIO');
 
-VERSION='3.0.4'
+VERSION='3.0.5b'
 
 INSTALLED_APPS = (
     #'django_admin_bootstrapped',
@@ -148,7 +148,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
-    'PAGE_SIZE': 10
+    #'PAGE_SIZE': 10
 }
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
