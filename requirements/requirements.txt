@@ -10,7 +10,7 @@ django-easy-audit
 django-exclusivebooleanfield
 django-extensions==1.6.1
 django-extra-views==0.7.1
-django-filter==0.13.0
+django-filter==2.4.0
 django-floppyforms==1.6.1
 django-image-cropping
 django-model-utils==2.4
