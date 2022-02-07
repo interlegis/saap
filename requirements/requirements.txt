@@ -32,7 +32,7 @@ python-decouple==3.0
 python-magic==0.4.10
 python-social-auth
 pytz==2016.3
-pyyaml==5.1
+pyyaml==5.4
 rtyaml==0.0.2
 social-auth-app-django==4
 sqlparse==0.2.0
