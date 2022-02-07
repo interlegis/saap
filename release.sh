@@ -15,6 +15,17 @@ NEXT_VERSION=$MAIN_REV'.'$NEXT_NUMBER
 
 FINAL_VERSION=
 
+function update_repo {
+
+   echo "Sincronizando e atualizando repositório local..."
+
+   git fetch upstream
+   git checkout master
+   git merge upstream/master
+
+   echo "Release atual: "$LATEST_VERSION
+}
+
 function change_files {
 
     echo "Atualizando de "$LATEST_VERSION" para "$NEXT_VERSION"..."
@@ -37,10 +48,11 @@ function commit_and_push {
 
    git push origin master
 
+   git push --tags
+
    echo "Concluído"
 }
 
-git fetch
-echo "Release atual: "$LATEST_VERSION
+update_repo
 change_files
 commit_and_push

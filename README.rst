@@ -4,7 +4,7 @@ SAAP - Sistema de Apoio à Atividade Parlamentar
 
 Esta página reúne informações úteis sobre o desenvolvimento atual do SAAP.
 
-Isso significa que toda a informação aqui apresentada aplica-se apenas para a versão 3.0 e superior.
+Isso significa que toda a informação aqui apresentada aplica-se apenas para a versão 3.0.1 e superior.
 
 
 Desenvolvimento

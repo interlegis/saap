@@ -37,4 +37,3 @@ rtyaml==0.0.2
 social-auth-app-django==4
 sqlparse==0.2.0
 unipath==1.1
-xlwt

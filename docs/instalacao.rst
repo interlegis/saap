@@ -207,7 +207,7 @@ Onde:
 
     * Você deve preencher os dados do banco de dados
     * Para desenvolvimento, deixe as opções ``DEBUG`` e ``DJANGO_TOOLBAR`` em True
-    * Informe os dados do servidor de e-mail
+    * Informe os dados do servidor de e-mail - ao menos a porta. Não é possível gerar a chave secreta sem que a porta esteja informada.
     * Preencha os dados da Câmara. Os mesmos serão utilizados no cabeçalho e rodapé da página. Além disto, informe corretamente o seu município e a UF, de forma ao sistema carregar corretamente os campos que dependem dessas informações
     * Caso você queria usar um brasão próprio na barra superior, coloque-o na pasta ``/var/interlegis/saap/saap/static/img``, com o nome de ``brasao-camara.png`` e ative com True. Deixando como False, o brasão exibido será o da República.
 
@@ -222,20 +222,20 @@ Como exemplo de arquivo ``.env``, veja:
     SITE_NAME='Sistema de Apoio à Atividade Parlamentar'
     SITE_DOMAIN='saap.camaranh.rs.gov.br'
     EMAIL_USE_TLS=True
-    EMAIL_PORT=
+    EMAIL_PORT=25
     EMAIL_HOST=
     EMAIL_SEND_USER=
     EMAIL_HOST_USER=
     EMAIL_HOST_PASSWORD=
-    DADOS_NOME='Câmara Municipal de Novo Hamburgo'
-    DADOS_ENDERECO='Rua Almirante Barroso, 261'
-    DADOS_MUNICIPIO='Novo Hamburgo'
-    DADOS_UF='RS'
-    DADOS_CEP='93510-290'
-    DADOS_EMAIL='camaranh@camaranh.rs.gov.br'
-    DADOS_TELEFONE='(51) 3594-0500'
-    DADOS_SITE='portal.camaranh.rs.gov.br'
-    BRASAO_PROPRIO=True
+    DADOS_NOME='Câmara Municipal do Interlegis'
+    DADOS_ENDERECO='Av. N2, Bloco E - Senado Federal'
+    DADOS_MUNICIPIO='Brasília'
+    DADOS_UF='DF'
+    DADOS_CEP='70165-900'
+    DADOS_EMAIL='atendimento@interlegis.leg.br'
+    DADOS_TELEFONE='(61) 3303-3221'
+    DADOS_SITE='interlegis.leg.br'
+    BRASAO_PROPRIO=False
 
 7) Corrigir problemas de configuração em alguns pacotes
 -----------------------------------------------------

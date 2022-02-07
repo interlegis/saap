@@ -2,6 +2,11 @@
 Orientações gerais de implementação e testes
 ***********************************************   
 
+Aviso
+-------------
+Tais orientações são replicações das mesmas orientadas no SAPL. Entretanto, as mesmas ainda não estão totalmente ativas - principalmente o teste.
+
+
 Boas Práticas
 --------------
 
