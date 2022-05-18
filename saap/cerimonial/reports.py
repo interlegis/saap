@@ -11,6 +11,7 @@ from django.template.defaultfilters import lower
 from django.template import Context, loader
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
 from django_filters.views import FilterView
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
@@ -27,8 +28,10 @@ from reportlab.platypus.tables import TableStyle, LongTable
 from reportlab.lib.units import mm
 
 from saap.cerimonial.forms import ImpressoEnderecamentoFilterSet,\
-    ProcessosFilterSet, ContatosFilterSet, ContatosExportaFilterSet, ProcessoIndividualFilterSet, ContatoIndividualFilterSet, MalaDiretaFilterSet
-from saap.cerimonial.models import Contato, Processo, Telefone, Email, GrupoDeContatos, Endereco, AssuntoProcesso, TopicoProcesso, LocalTrabalho, Dependente, FiliacaoPartidaria, Municipio, Estado, IMPORTANCIA_CHOICE
+    ProcessosFilterSet, ContatosFilterSet, ContatosExportaFilterSet, ProcessoIndividualFilterSet, ContatoIndividualFilterSet, MalaDiretaFilterSet, AgendaFilterSet
+from saap.cerimonial.models import Contato, Processo, Telefone, Email, GrupoDeContatos, Endereco, \
+                                   AssuntoProcesso, TopicoProcesso, LocalTrabalho, Dependente, FiliacaoPartidaria, \
+                                   Bairro, Municipio, Estado, IMPORTANCIA_CHOICE, Evento
 from saap.core.models import AreaTrabalho
 from saap.crud.base import make_pagination
 from saap.utils import strip_tags, calcularIdade
@@ -2928,6 +2931,307 @@ class RelatorioContatosView(RelatorioProcessosView):
 #
 #
 
+class RelatorioAgendaView(RelatorioProcessosView):
+    #permission_required = 'cerimonial.print_rel_agenda'
+    #permission_required = 'core.menu_agenda'
+    permission_required = 'core.menu_contatos'
+    filterset_class = AgendaFilterSet
+    model = Evento
+    template_name = 'cerimonial/filter_agenda.html'
+    container_field = 'workspace__operadores'
+
+    def __init__(self):
+        super().__init__()
+        self.ctx_title = 'Agenda em PDF'
+        self.relat_title = 'Agenda do parlamentar '
+        self.nome_objeto = 'Evento'
+        self.filename = 'Relatorio_Agenda'
+
+    def get(self, request, *args, **kwargs):
+        filterset_class = self.get_filterset_class()
+        self.filterset = self.get_filterset(filterset_class)
+        self.object_list = self.filterset.qs
+
+        if len(request.GET) and not len(self.filterset.form.errors)\
+                and not self.object_list.exists():
+            messages.error(request, _('Não existe agenda com as '
+                                      'condições definidas na busca!'))
+        
+        if 'print' in request.GET and self.object_list.exists():
+            filename = str("Agenda_") +\
+                        str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
+            response = HttpResponse(content_type='application/pdf')
+            content = 'inline; filename="%s.pdf"' % filename
+            #content = 'attachment; filename="%s.pdf"' % filename
+            response['Content-Disposition'] = content
+            self.build_pdf(response)
+            return response
+        
+        context = self.get_context_data(filter=self.filterset,
+                                        object_list=self.object_list)
+
+        return self.render_to_response(context)
+
+    def get_filterset(self, filterset_class):
+        kwargs = self.get_filterset_kwargs(filterset_class)
+        try:
+            kwargs['workspace'] = AreaTrabalho.objects.filter(
+                operadores=self.request.user.pk)[0]
+        except:
+            raise PermissionDenied(_('Sem permissão de acesso!'))
+
+        self.relat_title += str(kwargs['workspace'])
+
+        return filterset_class(**kwargs)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        kwargs = {}
+        if self.container_field:
+            kwargs[self.container_field] = self.request.user.pk
+
+        return qs.filter(**kwargs)
+
+    def get_context_data(self, **kwargs):
+        count = self.object_list.count()
+        context = super(RelatorioAgendaView,
+                        self).get_context_data(**kwargs)
+
+        context['count'] = count
+        context['title'] = _(self.ctx_title)
+
+        paginator = context['paginator']
+        page_obj = context['page_obj']
+
+        context['page_range'] = make_pagination(
+            page_obj.number, paginator.num_pages)
+
+        qr = self.request.GET.copy()
+        if 'page' in qr:
+            del qr['page']
+        context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
+
+        for agenda in page_obj:
+            fmt = "%d/%m/%Y às %H:%M"
+            agenda.inicio = agenda.inicio.strftime(fmt)
+            agenda.termino = agenda.termino.strftime(fmt)
+            agenda.url = reverse('saap.cerimonial:evento_edit', args=(agenda.id,))
+
+        return context
+
+    def build_pdf(self, response):
+        TITULO = 0
+        DESCRICAO = 1
+        LOCALIZACAO = 2
+        BAIRRO = 3
+        MUNICIPIO = 4
+        INICIO = 5
+        TERMINO = 6
+
+        self.set_headings()
+        self.set_styles()
+        self.set_cabec(self.h5)
+
+        if self.filterset.form.cleaned_data['orientacao'] == 'P':
+            estilo = ParagraphStyle(
+                name='Normal',
+                fontSize=8,
+            )   
+        elif self.filterset.form.cleaned_data['orientacao'] == 'R':
+            estilo = ParagraphStyle(
+                name='Normal',
+                fontSize=7,
+            )   
+
+        corpo_relatorio = []
+        self.add_relat_title(corpo_relatorio)
+
+        registros = self.get_data()
+        for dados in registros:
+
+            titulo = dados[TITULO]
+            descricao = dados[DESCRICAO]
+
+            if(dados[BAIRRO] != None):
+                bairro = str(Bairro.objects.filter(pk=dados[BAIRRO])[0])
+            else:
+                bairro = ''
+
+            if(dados[MUNICIPIO] != None):
+                municipio = str(Municipio.objects.filter(pk=dados[MUNICIPIO])[0])
+            else:
+                municipio = ''
+
+            localizacao = ''
+            localizacao += dados[LOCALIZACAO]
+            localizacao += "<br/><b>Bairro:</b> " + str(bairro)
+            localizacao += "<br/><b>Município:</b> " + str(municipio)
+
+            data_inicio = dados[INICIO].strftime('%d/%m/%Y')
+            hora_inicio = dados[INICIO].strftime('%H:%M')
+            data_termino = dados[TERMINO].strftime('%d/%m/%Y')
+            hora_termino = dados[TERMINO].strftime('%H:%M')
+
+            item = [
+                Paragraph(dados[TITULO], estilo),
+                Paragraph(dados[DESCRICAO], estilo),
+                Paragraph(localizacao, estilo),
+                Paragraph(data_inicio, estilo),
+                Paragraph(hora_inicio, estilo),
+                Paragraph(data_termino, estilo),
+                Paragraph(hora_termino, estilo),
+            ]
+            corpo_relatorio.append(item)
+
+        style = TableStyle([
+            ('FONTSIZE', (0, 0), (-1, -1), 6),
+            ('LEADING', (0, 0), (-1, -1), 7),
+            ('GRID', (0, 0), (-1, -1), 0.1, colors.black),
+            ('INNERGRID', (0, 0), (-1, -1), 0.1, colors.black),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+        ])
+        style.add('VALIGN', (0, 0), (-1, -1), 'TOP')
+
+        for i, value in enumerate(corpo_relatorio):
+            if len(value) <= 1:
+                style.add('SPAN', (0, i), (-1, i))
+
+            if len(value) == 0:
+                style.add('INNERGRID', (0, i), (-1, i), 0, colors.black),
+                style.add('GRID', (0, i), (-1, i), -1, colors.white)
+                style.add('LINEABOVE', (0, i), (-1, i), 0.1, colors.black)
+
+            if len(value) == 1:
+                style.add('LINEABOVE', (0, i), (-1, i), 0.1, colors.black)
+
+        if self.filterset.form.cleaned_data['orientacao'] == 'P':
+            rowHeights = 40
+        elif self.filterset.form.cleaned_data['orientacao'] == 'R':
+            rowHeights = 50
+
+        t = LongTable(corpo_relatorio, rowHeights=None, splitByRow=True)
+        #t = LongTable(corpo_relatorio, rowHeights=rowHeights, splitByRow=True)
+        t.setStyle(style)
+       
+        if self.filterset.form.cleaned_data['orientacao'] == 'P':
+            t._argW[0] = 5 * cm
+            t._argW[1] = 7 * cm
+            t._argW[2] = 5 * cm
+            t._argW[3] = 2 * cm
+            t._argW[4] = 2 * cm
+            t._argW[5] = 2 * cm
+            t._argW[6] = 2 * cm
+        elif self.filterset.form.cleaned_data['orientacao'] == 'R':
+            t._argW[0] = 3.5 * cm
+            t._argW[1] = 4.5 * cm
+            t._argW[2] = 4 * cm
+            t._argW[3] = 2 * cm
+            t._argW[4] = 2 * cm
+            t._argW[5] = 2 * cm
+            t._argW[6] = 2 * cm
+
+        #for i, value in enumerate(corpo_relatorio):
+        #    if len(value) == 0:
+        #        t._argH[i] = 7
+        #        continue
+        #    for cell in value:
+        #        if isinstance(cell, list):
+        #            t._argH[i] = (height) * (
+        #                len(cell) - (0 if len(cell) > 1 else 0))
+        #            break
+
+        elements = [t]
+
+        if self.filterset.form.cleaned_data['orientacao'] == 'P':
+            orientacao = landscape(A4)
+        elif self.filterset.form.cleaned_data['orientacao'] == 'R':
+            orientacao = A4
+
+        doc = SimpleDocTemplate(
+            response,
+            title=self.relat_title,
+            pagesize=orientacao,
+            rightMargin=1.25 * cm,
+            leftMargin=1.25 * cm,
+            topMargin=1.1 * cm,
+            bottomMargin=0.8 * cm)
+        
+        doc.build(elements, canvasmaker=NumberedCanvas)
+
+    def get_data(self):
+
+        agrupamento = 'sem_agrupamento'
+
+        agenda = []
+        consulta_agregada = self.object_list.order_by('inicio')
+        consulta_agregada = consulta_agregada.values_list(
+            'titulo',
+            'descricao',
+            'localizacao',
+            'bairro',
+            'municipio',
+            'inicio',
+            'termino',
+        )
+
+        for evento in consulta_agregada.all():
+            agenda.append(evento)
+
+        return agenda
+
+#    def validate_data(self):
+#        contatos = []
+#        consulta_agregada = self.object_list.order_by('nome',)
+#        consulta_agregada = consulta_agregada.values_list(
+#            'id',
+#        )
+#
+#        total_erros = 0
+#
+#        for contato in consulta_agregada.all():
+#            query = (Q(permite_contato=True))
+#            query.add(Q(contato__id=contato[0]), Q.AND)
+#
+#            email = Email.objects.filter(query).count()
+#
+#            if(email == 0):
+#                total_erros = total_erros + 1
+#
+#        return total_erros
+
+    def set_cabec(self, h5):
+        cabec = [Paragraph(_('Título'), h5)]
+        cabec.append(Paragraph(_('Descrição'), h5))
+        cabec.append(Paragraph(_('Localização'), h5))
+        cabec.append(Paragraph(_('Data de início'), h5))
+        cabec.append(Paragraph(_('Hora de início'), h5))
+        cabec.append(Paragraph(_('Data de término'), h5))
+        cabec.append(Paragraph(_('Hora de término'), h5))
+        self.cabec = cabec
+
+
+    def add_relat_title(self, corpo_relatorio):
+        tit_relatorio = _(self.relat_title)
+        tit_relatorio = force_text(tit_relatorio) + ' '
+
+        corpo_relatorio.append([Paragraph(tit_relatorio, self.h3)])
+
+        corpo_relatorio.append(self.cabec)
+
+
+
+#
+#
+#
+#
+#
+#
+#
+#
+
 class MalaDiretaView(RelatorioProcessosView):
     #permission_required = 'cerimonial.print_rel_contatos'
     permission_required = 'core.menu_contatos'
@@ -3012,6 +3316,7 @@ class MalaDiretaView(RelatorioProcessosView):
         if 'page' in qr:
             del qr['page']
         context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
+
 
         for contato in context['page_obj']:            
             endpref = contato.endereco_set.filter(principal=True).first()

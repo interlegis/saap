@@ -19,7 +19,7 @@ from saap.crud.base import Crud, make_pagination
 from saap.core.models import Partido, Filiacao
 
 from saap.core.forms import OperadorAreaTrabalhoForm, ImpressoEnderecamentoForm,\
-    ListWithSearchForm
+    ListWithSearchForm, UserForm
 from saap.core.models import Cep, TipoLogradouro, Logradouro, RegiaoMunicipal,\
     Distrito, Bairro, Municipio, Estado, Trecho, AreaTrabalho, OperadorAreaTrabalho,\
     ImpressoEnderecamento, User
@@ -42,6 +42,16 @@ EstadoCrud = DetailMasterCrud.build(Estado, None, 'estado')
 BairroCrud = DetailMasterCrud.build(Bairro, None, 'bairro')
 TipoLogradouroCrud = DetailMasterCrud.build(TipoLogradouro, None, 'tipo_logradouro')
 LogradouroCrud = DetailMasterCrud.build(Logradouro, None, 'logradouro')
+
+#UserCrud = DetailMasterCrud.build(User, None, 'usuario')
+
+class UserCrud(DetailMasterCrud):
+    help_text = 'usuario'
+    model = User
+
+    class BaseMixin(DetailMasterCrud.BaseMixin):
+         list_field_names = [
+            ('first_name', 'last_name'), 'email', 'groups', 'is_active']
 
 class TrechoCrud(DetailMasterCrud):
     help_text = 'trecho'
@@ -165,11 +175,10 @@ class AreaTrabalhoCrud(DetailMasterCrud):
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
             context['subnav_template_name'] = 'core/subnav_areatrabalho.yaml'
-            context['headers'] = ['Usuário', 'Grupo associado', 'Descrição']
             return context
 
     class DetailView(DetailMasterCrud.DetailView):
-        list_field_names_set = ['user', 'grupos_associados']
+        list_field_names_set = []
 
 class OperadorAreaTrabalhoCrud(MasterDetailCrudPermission):
     parent_field = 'areatrabalho'
@@ -239,7 +248,6 @@ class OperadorAreaTrabalhoCrud(MasterDetailCrudPermission):
 
             return MasterDetailCrudPermission.DeleteView.post(
                 self, request, *args, **kwargs)
-
 
 class PartidoCrud(DetailMasterCrud):
     help_text = 'partidos'

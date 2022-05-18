@@ -57,7 +57,7 @@ DADOS_TELEFONE = config('DADOS_TELEFONE');
 DADOS_SITE = config('DADOS_SITE');
 BRASAO_PROPRIO = config('BRASAO_PROPRIO');
 
-VERSION='3.0.5'
+VERSION='3.1.0'
 
 INSTALLED_APPS = (
     #'django_admin_bootstrapped',

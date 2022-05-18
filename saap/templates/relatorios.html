@@ -4,7 +4,10 @@
 {% block base_content %}
 
   <fieldset>
-  <legend><h1>{% trans "Relatórios" %}</h2></legend>
+  <legend><h1 class="page-header">{% trans "Relatórios" %}</h1></legend>
+
+  {% block title %}
+  {% endblock %}
 
     {% if perms.core.menu_contatos %}
     <h2>Contatos</h2>
@@ -37,6 +40,21 @@
     </tbody>
     </table>
     {% endif %}
+
+    {# if perms.core.menu_agenda #}
+    {% if perms.core.menu_contatos %} {# Permissão temporária. Criar no futuro #}
+    <h2>Agenda</h2>
+    <table class="table">
+    <tbody>
+        <tr>
+        <tr>
+          <td width="30%"><a href="{% url 'saap.cerimonial:print_agenda' %}">{% trans "Listagem" %}</a></td>
+          <td> Lista completa de eventos e compromissos, em PDF.</td>
+        </tr>
+    </tbody>
+    </table>
+    {% endif %}
+
 
   </fieldset>
 

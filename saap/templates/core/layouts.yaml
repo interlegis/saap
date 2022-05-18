@@ -67,3 +67,8 @@ ImpressoEnderecamento:
   {% trans 'Sobre a Etiqueta' %}:
     - colunasfolha linhasfolha entre_colunas entre_linhas
     - larguraetiqueta alturaetiqueta fontsize rotate
+
+User:
+  {% trans 'Usuário' %}:
+  - first_name last_name email:6
+  - groups is_active:3 is_staff:3

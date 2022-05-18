@@ -38,14 +38,14 @@ def form_actions(more=[], save_label=_('Salvar')):
         Submit('salvar', save_label, css_class='pull-right'), *more)
 
 
-class SaplFormLayout(Layout):
+class SaapFormLayout(Layout):
 
     def __init__(self, *fields, label_cancel=_('Cancelar')):
         buttons = form_actions(more=[
             HTML('<a href="{{ view.cancel_url }}"'
                  ' class="btn btn-inverse">%s</a>' % label_cancel)])
         _fields = list(to_fieldsets(fields)) + [to_row([(buttons, 12)])]
-        super(SaplFormLayout, self).__init__(*_fields)
+        super(SaapFormLayout, self).__init__(*_fields)
 
 
 def get_field_display(obj, fieldname):
@@ -119,7 +119,7 @@ class CrispyLayoutFormMixin:
             pass
         else:
             form.helper = FormHelper()
-            form.helper.layout = SaplFormLayout(*self.get_layout())
+            form.helper.layout = SaapFormLayout(*self.get_layout())
             return form
 
     @property
@@ -166,7 +166,6 @@ def read_layout_from_yaml(yaml_layout, key):
     # TODO cache this at application level
     yaml = read_yaml_from_file(yaml_layout)
     base = yaml[key]
-
     def line_to_namespans(line):
         split = [cell.split(':') for cell in line.split()]
         namespans = [[s[0], int(s[1]) if len(s) > 1 else 0] for s in split]

@@ -1,0 +1,21 @@
+DATABASE_URL = sqlite:///sapl.db
+SECRET_KEY = 'mzp++@i1y-6y8ez_=^sfbr!dzuyry#^@v(3g^2d1k9%f=+mhlb'
+DEBUG=False
+DJANGO_TOOLBAR=False
+SITE_NAME='Sistema de Apoio à Atividade Parlamentar'
+SITE_DOMAIN='saap.camaranh.rs.gov.br'
+EMAIL_USE_TLS=True
+EMAIL_PORT=25
+EMAIL_HOST=
+EMAIL_SEND_USER=
+EMAIL_HOST_USER=
+EMAIL_HOST_PASSWORD=
+DADOS_NOME='Câmara Municipal do Interlegis'
+DADOS_ENDERECO='Av. N2, Bloco E - Senado Federal'
+DADOS_MUNICIPIO='Brasília'
+DADOS_UF='DF'
+DADOS_CEP='70165-900'
+DADOS_EMAIL='atendimento@interlegis.leg.br'
+DADOS_TELEFONE='(61) 3303-3221'
+DADOS_SITE='interlegis.leg.br'
+BRASAO_PROPRIO=False

@@ -3166,7 +3166,6 @@ tbody.collapse.in {
   background-color: #fff;
   border: 1px solid #ccc;
   border: 1px solid rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
   -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
   background-clip: padding-box; }
@@ -3729,9 +3728,7 @@ tbody.collapse.in {
     .container > .navbar-header,
     .container > .navbar-collapse,
     .container-fluid > .navbar-header,
-    .container-fluid > .navbar-collapse {
-      margin-right: 0;
-      margin-left: 0; } }
+    .container-fluid > .navbar-collapse {} }
 
 .navbar-static-top {
   z-index: 1000;
@@ -3896,9 +3893,13 @@ tbody.collapse.in {
       box-shadow: none; } }
 
 .navbar-nav > li > .dropdown-menu {
-  margin-top: 0;
+  margin-top: 0px;
   border-top-right-radius: 0;
-  border-top-left-radius: 0; }
+  border-top-left-radius: 0;
+  background: #1a1a00;
+  border-width: 0px;
+  right: auto;
+ }
 
 .navbar-fixed-bottom .navbar-nav > li > .dropdown-menu {
   margin-bottom: 0;

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Agenda</h1>
+
+<br />
+
+O SAAP também permite o gerenciamento de atividades, eventos e compromissos, por meio da sua agenda. É possível não apenas cadastrar as ocorrências com diversos dados, como título, descrição, localização, município, data e hora de início e término, como também navegar pelo calendário para ter a real noção das datas e horários.<br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'processospesquisa' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'agendacalendario' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

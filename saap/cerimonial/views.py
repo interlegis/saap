@@ -1,11 +1,19 @@
 from django.core.exceptions import PermissionDenied
 from django.db.models.aggregates import Max
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.edit import FormView
+
+from django.utils.safestring import mark_safe
+from django.shortcuts import render, get_object_or_404
+from django.views import generic
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 
 from _functools import reduce
 from datetime import date, timedelta
 import datetime
+
 import operator
 
 from saap.cerimonial.forms import LocalTrabalhoForm, EnderecoForm,\
@@ -13,7 +21,7 @@ from saap.cerimonial.forms import LocalTrabalhoForm, EnderecoForm,\
     ContatoFragmentPronomesForm, ContatoForm, ProcessoForm,\
     ContatoFragmentSearchForm, ProcessoContatoForm,\
     ListWithSearchProcessoForm, ListWithSearchContatoForm,\
-    GrupoDeContatosForm, TelefoneForm, EmailForm
+    GrupoDeContatosForm, TelefoneForm, EmailForm, EventoForm
 from saap.cerimonial.models import TipoTelefone, TipoEndereco,\
     TipoEmail, Parentesco, EstadoCivil, TipoAutoridade, TipoLocalTrabalho,\
     NivelInstrucao, Contato, Telefone, OperadoraTelefonia, Email,\
@@ -21,18 +29,23 @@ from saap.cerimonial.models import TipoTelefone, TipoEndereco,\
     DependentePerfil, LocalTrabalhoPerfil,\
     EmailPerfil, TelefonePerfil, EnderecoPerfil, FiliacaoPartidaria,\
     StatusProcesso, ClassificacaoProcesso, TopicoProcesso, Processo,\
-    AssuntoProcesso, ProcessoContato, GrupoDeContatos
+    AssuntoProcesso, ProcessoContato, GrupoDeContatos, Evento
 from saap.cerimonial.rules import rules_patterns
+
+from saap.cerimonial.utils import Calendar, get_date, prev_month, prev_year, next_month, next_year, this_month
+
+from saap.utils import normalize
+
 from saap.core.forms import ListWithSearchForm
 from saap.core.models import AreaTrabalho
 from saap.crispy_layout_mixin import CrispyLayoutFormMixin
+
 from saap.globalrules import globalrules
 from saap.globalrules.crud_custom import DetailMasterCrud,\
     MasterDetailCrudPermission, PerfilAbstractCrud, PerfilDetailCrudPermission
 
-from saap.utils import normalize
-
-from django.db.models import Q
+# Variável usada para transportar a area de trabalho na seção de agenda/evento
+workspace = None
 
 globalrules.rules.config_groups(rules_patterns)
 
@@ -395,6 +408,52 @@ class PrincipalMixin:
         #    self.crud.model.objects.filter(**query_filter).exclude(
         #        pk=self.object.pk).update(preferencial=False)
         return response
+
+class AgendaView(generic.ListView):
+    model = Evento
+    template_name = 'cerimonial/agenda.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "Agenda"
+
+        d = get_date(self.request.GET.get('mes', None))
+        
+
+        global workspace
+        workspace = AreaTrabalho.objects.filter(operadores=self.request.user.pk)[0]
+        eventos = Evento.objects.filter(inicio__year=d.year, inicio__month=d.month, workspace=workspace).order_by('inicio')
+        cal = Calendar(d.year, d.month, eventos)
+
+        # Call the formatmonth method, which returns our calendar as a table
+        html_cal = cal.formatmonth(withyear=True)
+        context['calendar'] = mark_safe(html_cal)
+        context['prev_month'] = prev_month(d)
+        context['next_month'] = next_month(d)
+        context['prev_year'] = prev_year(d)
+        context['next_year'] = next_year(d)
+        context['this_month'] = this_month()
+        return context
+
+class EventoView():
+
+    def event(request, event_id=None):
+        global workspace
+
+        instance = Evento()
+        if event_id:
+            instance = get_object_or_404(Evento, pk=event_id)
+        else:
+            instance = Evento()
+    
+        form = EventoForm(request.POST or None, instance=instance, workspace=workspace)
+        if request.POST and form.is_valid():
+            inicio = form.cleaned_data['inicio']
+            #month = "mes=" + str(inicio.year) + "-" + str(inicio.month)
+            form.save()
+            #return HttpResponseRedirect(reverse('saap.cerimonial:agenda_mes', args=(month,)))
+            return HttpResponseRedirect(reverse('saap.cerimonial:agenda'))
+        return render(request, 'cerimonial/evento.html', {'form': form, 'title': "Evento"})
 
 
 class FiliacaoPartidariaCrud(MasterDetailCrudPermission):
@@ -892,11 +951,9 @@ class ProcessoContatoCrud(MasterDetailCrudPermission):
             qs = qs.annotate(pk_unico=Max('pk'))
             return qs
 
-
 class GrupoDeContatosMasterCrud(DetailMasterCrud):
     model = GrupoDeContatos
     container_field = 'workspace__operadores'
-
     model_set = 'contatos'
 
     class BaseMixin(DetailMasterCrud.BaseMixin):

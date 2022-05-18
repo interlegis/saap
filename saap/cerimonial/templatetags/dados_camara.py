@@ -35,6 +35,10 @@ def site_camara():
     return settings.DADOS_SITE
 
 @register.simple_tag() 
+def versao_atual(): 
+    return settings.VERSION
+
+@register.simple_tag() 
 def brasao_sistema():
     if settings.BRASAO_PROPRIO == 'True':
         return 'img/brasao-camara.png'

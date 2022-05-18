@@ -7,8 +7,8 @@ from saap.settings import EMAIL_SEND_USER, SITE_NAME
 from saap.core.forms import LoginForm, NewPasswordForm, ResetPasswordForm, PasswordForm
 from saap.core.views import CepCrud, RegiaoMunicipalCrud, DistritoCrud,\
     BairroCrud, MunicipioCrud, EstadoCrud, TipoLogradouroCrud, LogradouroCrud, TrechoCrud, \
-    TrechoJsonSearchView, TrechoJsonView, AreaTrabalhoCrud,\
-    OperadorAreaTrabalhoCrud, PartidoCrud, ImpressoEnderecamentoCrud, HelpTopicView
+    TrechoJsonSearchView, TrechoJsonView, AreaTrabalhoCrud, \
+    OperadorAreaTrabalhoCrud, PartidoCrud, ImpressoEnderecamentoCrud, HelpTopicView, UserCrud
 
 from .apps import AppConfig
 
@@ -57,8 +57,11 @@ urlpatterns = [
 #    url(r'^enderecos/', login_required(
 #       TrechoSearchView.as_view()), name='search_view'),
 
+
     url(r'^areatrabalho/', include(AreaTrabalhoCrud.get_urls() +
                                    OperadorAreaTrabalhoCrud.get_urls())),
+
+    url(r'^usuarios/', include(UserCrud.get_urls())),
 
     url(r'^api/enderecos.json', TrechoJsonSearchView.as_view(
         {'get': 'list'}), name='trecho_search_rest_json'),
@@ -82,12 +85,7 @@ urlpatterns = [
 
     url(r'^sistema/core/partido/', include(PartidoCrud.get_urls())),
     
-    url(r'^sistema/$', permission_required(
-        'core.menu_tabelas_auxiliares', login_url='saap.core:login')(
-        TemplateView.as_view(template_name='saap_sistema.html')),
-        name="tabelas_auxiliares"),
-
-    url(r'^sistema$', permission_required(
+    url(r'^tabelas$', permission_required(
         'core.menu_tabelas_auxiliares', login_url='saap.core:login')(
         TemplateView.as_view(template_name='saap_sistema.html')),
         name="tabelas_auxiliares"),

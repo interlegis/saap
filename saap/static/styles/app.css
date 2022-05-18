@@ -2,14 +2,14 @@
 
 /* FONTES */
 html {
-  font-family: "Helvetica Neue",Arial,"Noto Sans", "sans-serif","Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
-  font-family: "Helvetica Neue",Arial,"Noto Sans", "sans-serif","Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji
 }
 
 .alert > strong,
@@ -28,7 +28,7 @@ label,
 .nav-tabs > li.active > a,
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6
 {
-  font-family: "Helvetica Neue",Arial,"Noto Sans", "sans-serif","Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji
 }
 
 .btn {
@@ -119,11 +119,10 @@ a {
     transform: rotate(180deg); }
 
 #content {
-  margin-top: 20px;
   margin-bottom: 170px; }
 
 .navbar {
-  background:  #001a00;
+  background: white;
   border-radius: 0;
   border-width: 0;
   margin: 0;
@@ -138,7 +137,7 @@ a {
     background-color: white; }
   .navbar a.navbar-brand {
     font-size: 18px;
-    color: white;
+    color: #008800;
     display: block;
     position: relative;
     margin: 0 !important; }
@@ -180,6 +179,10 @@ a {
 .nav-acessar {
   display: none; }
 
+.smallfooter {
+  color: #777;
+}
+
 .masthead {
   margin-top: 20px;
   z-index: 10; }
@@ -206,7 +209,7 @@ a {
   color: black;
   border-radius: 5px 5px 0 0;
   border-bottom: 1px solid white;
-  font-size: 2em;
+  font-size: 32px;
   font-weight: 400;
   float: left; }
 
@@ -264,7 +267,7 @@ main .btn-default.btn-excluir:hover {
   padding: 0px 20px 15px 20px;
   margin-bottom: 15px;
   float: right;
-  background: white;
+  background: red;
   font-size: 17px;
 }
 
@@ -286,6 +289,7 @@ main .btn-default.btn-excluir:hover {
   display: inline-block;
   vertical-align: middle;
   float: none;
+  margin-left: -20px;
   padding: 30px; }
 
 .table {
@@ -430,7 +434,9 @@ fieldset {
 
 .h1,
 h1 {
-  font-size: 35px; }
+  font-size: 30px;
+  font-weight: 500;
+ }
 
 .h2,
 h2 {
@@ -468,7 +474,7 @@ body {
   width: 100%;
   /* Set the fixed height of the footer here */
   background:  #001a00 none repeat scroll 0% 0%;
-  color: white;
+  color: #777;
   text-align: center;
   font-size: 1em; }
 
@@ -553,7 +559,7 @@ body {
       margin-top: 1em;
       line-height: 50px;
       text-align: center;
-      font-family: "Helvetica Neue",Arial,"Noto Sans","sans-serif","Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+      font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji
   }
   .container-login .btns-login .btn-login:hover {
         border: 1px solid #fff;
@@ -574,6 +580,21 @@ body {
 
 .pagination {
   padding-top: 25px; }
+
+.pagination > li > a {
+  color: #008800;
+}
+
+.pagination > li > a:hover {
+  color: #008800;
+  border-color: #dee2e6;
+  background: #dee2e6;
+}
+
+.pagination > li > a:focus {
+  color: #008800;
+  border-color: #008800;
+}
 
 .container,
 .container-fluid {
@@ -708,6 +729,7 @@ body {
     .context-actions .actions {
       margin: 0.5em 0; } }
 
+
 main .navbar .navbar-nav li a > .dropdown-menu {
   background: red
 
@@ -758,7 +780,7 @@ main .navbar .navbar-nav li a > .dropdown-menu {
       font-size: 1em !important; }
   .page-header {
     padding: 0.4em 0.3em 0.3em;
-    font-size: 1.5em; } }
+    font-size: 32px; } }
 
 @media screen and (min-width: 768px) {
   .navbar .container {
@@ -780,7 +802,6 @@ main .navbar .navbar-nav li a > .dropdown-menu {
       /* para todo submenu */
       /*background-color: $color_topo_bg;
           border: 1px solid rgba(255, 255, 255, 0.3);*/
-      color: white;
       min-width: 250px;
       margin: 0;
       padding: 0; }
@@ -832,6 +853,13 @@ main .navbar .navbar-nav li a > .dropdown-menu {
       margin-top: 1em; }
   .context-actions .search {
     max-width: 75%; } }
+
+.navbar-menu {
+    background: #001a00;
+}
+.navbar-menu a {
+    color: #93a4aa;
+}
 
 @media screen and (max-width: 800px) {
   .navbar .nav.navbar-nav li {
@@ -939,8 +967,13 @@ main .navbar .navbar-nav li a > .dropdown-menu {
   -moz-transition: 0.3s ease-in;
   -o-transition: 0.3s ease-in; }
 
+#firstHeading {
+  font-size: 30px;
+}
+
 #homeIndex {
-  text-align: center; }
+  text-align: center; 
+}
 
 .homeBanner span {
   color: white;
@@ -1101,17 +1134,31 @@ nav .navbar-nav > li > a {
   padding-top: 0px;
   padding-bottom: 0px;
   line-height: 75px;
-  font-family: "Helvetica Neue",Arial,"Noto Sans","sans-serif","Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji
 }
 
 nav .navbar-nav > li > a:hover {
-  background: transparent; }
+  background: transparent;
+  color: #93a4aa;
+}
 
 nav .navbar-nav > li > a:focus {
-  background: transparent; }
+  background: transparent; 
+  color: #93a4aa;
+}
 
 nav .navbar-nav > li:nth-child(2) > .dropdown-menu {
   right: auto; }
+
+nav .dropdown-menu > li > a {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+nav .dropdown-menu > li > a:hover {
+    background: #0B3B0B;
+    color: #93a4aa;
+}
 
 .nav .open > a,
 .nav .open > a:hover,
@@ -1120,15 +1167,13 @@ nav .navbar-nav > li:nth-child(2) > .dropdown-menu {
   border-color: #ffffff #ffffff #d6e1e5; }
 
 nav .dropdown-menu > li {
-  background: #1a1a00;
   border: 0px;
-  margin-right: -10px;
 }
 
 nav .dropdown-menu > li > a {
   font-size: 16px;
-  line-height: 0px;
-  color: white; }
+  color: #93a4aa;
+ }
 
 .masthead {
   padding: 10px; }
@@ -1155,7 +1200,117 @@ nav .dropdown-menu > li > a {
 .navbar-brand {
   padding: 0px; }
 
+#dropdown-user {
+  line-height: 20px;
+  margin-top: 15px;
+}
+
 #div_id_pk_selecionados,
 #id_pk_selecionados {
   display: none;
+}
+
+#calendar table {
+    width: 100%;
+}
+
+#calendar table tr th {
+    text-align: center;
+    font-size: 16px;
+    background-color: #316497;
+    color: #99ccff;
+}
+
+#calendar table tr td {
+    width: 10%;
+    border: 1px solid #555;
+    vertical-align: top;
+    height: 120px;
+    padding: 2px;
+}
+
+#calendar td.noday {
+    background-color: #eee;
+}
+
+#calendar td.filled {
+    background-color: #99ccff;
+}
+
+#calendar td.today {
+    border: 4px solid #316497;
+}
+
+#calendar .dayNumber {
+    font-size: 16px !important;
+    font-weight: bold;
+}
+
+#calendar a {
+    font-size: 10px;
+}
+
+.calendario {
+  width: 98%;
+  margin: 10px;
+  font-size: 13px;
+}
+
+.calendario tr, .calendario td {
+  border: 1px solid #dcdac8;
+}
+
+.calendario th {
+  padding: 10px;
+  text-align: center;
+  font-size: 18px;
+  background: #d6e1e5;  
+}
+
+.calendario td {
+  width: 200px;
+  height: 150px;
+  padding: 5px 0px 0px 5px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.calendario .mes {
+  font-size: 25px;
+}
+
+.calendario .data {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+.evento {
+  width: 100%;
+}
+
+.evento th {
+  width: 15%;
+  padding: 10px;
+}
+
+.evento tr {
+  padding: 5px;
+}
+
+.evento textarea {
+  resize: none;
+  height: 150px;
+  margin-bottom: 10px;
+}
+
+.evento .form-control {
+  margin-bottom: 10px;
 }
