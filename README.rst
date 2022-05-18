@@ -57,4 +57,4 @@ Estes guias, o projeto e as configurações do ambiente foram desenvolvidos, cor
 
 O mesmo teve como ponto de partida o projeto original do SAAP, desenvolvido por  `Leandro Silva <https://github.com/LeandroJatai>`_ (servidor na `Câmara Municipal de Jataí/GO <https://www.jatai.go.leg.br>`_) e `Ramiro Luz <https://github.com/ramiroluz>`_ (servidor na `Câmara Municipal de Curitiba/PR <https://www.curitiba.pr.leg.br/>`_).
 
-Para testar o SAAP, basta acessar a `versão de demonstração <http://saap-demo.camaranh.rs.gov.br>`.
+Para testar o SAAP, basta acessar a `versão de demonstração <http://saap-demo.camaranh.rs.gov.br>`_.
