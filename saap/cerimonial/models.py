@@ -11,7 +11,13 @@ from saap.utils import YES_NO_CHOICES, NONE_YES_NO_CHOICES,\
 
 from smart_selects.db_fields import ChainedForeignKey
 
+from django.utils import timezone
+
+from django.core.urlresolvers import reverse
+
 from exclusivebooleanfield.fields import ExclusiveBooleanField
+
+from pytz import timezone as pytz_timezone
 
 FEMININO = 'F'
 MASCULINO = 'M'
@@ -203,6 +209,84 @@ class OperadoraTelefonia(DescricaoAbstractModel):
         verbose_name = _('Operadora de telefonia')
         verbose_name_plural = _('Operadoras de telefonia')
 
+#class Evento(SaapAuditoriaModelMixin):
+class Evento(models.Model):
+
+    titulo = models.CharField(max_length=200, default='Evento', blank=False, verbose_name=_('Título'))
+
+    descricao = models.TextField(blank=True, default='', verbose_name=_('Descrição'))
+
+    localizacao = models.TextField(blank=True, default='', verbose_name=_('Localização'))
+
+    inicio = models.DateTimeField(default=timezone.now, blank=False, verbose_name=_('Início'))
+
+    termino = models.DateTimeField(default=timezone.now, blank=False, verbose_name=_('Término'))
+
+    workspace = models.ForeignKey(
+        AreaTrabalho,
+        verbose_name=_('Área de trabalho'),
+        blank=True, null=True, on_delete=PROTECT)
+
+    estado = models.ForeignKey(
+        Estado,
+        verbose_name=_('Estado'),
+        blank=True, null=True)
+
+    municipio = ChainedForeignKey(
+        Municipio,
+        chained_field="estado",
+        chained_model_field="estado",
+        null=True, blank=True,
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        verbose_name=_('Município'))
+
+    bairro = ChainedForeignKey(
+        Bairro,
+        chained_field="municipio",
+        chained_model_field="municipio",
+        null=True, blank=True,
+        show_all=False,
+        auto_choose=False,
+        sort=True,
+        verbose_name=_('Bairro'))
+
+    class Meta():
+        verbose_name = _('Evento')
+        verbose_name_plural = _('Eventos')
+        ordering = ('inicio',)
+ 
+    @cached_property
+    def fields_search(self):
+        return ['title',
+                'description',]
+
+    @property
+    def get_html_url(self):
+        url = reverse('saap.cerimonial:evento_edit', args=(self.id,))
+        fmt = "%d/%m/%Y às %H:%M"
+        self.inicio = self.inicio.astimezone(pytz_timezone('America/Sao_Paulo'))
+        self.termino = self.termino.astimezone(pytz_timezone('America/Sao_Paulo'))
+
+        if(self.bairro != None):
+            str_bairro = self.bairro.nome
+        else:
+            str_bairro = ''
+
+        if(self.municipio != None):
+            str_municipio = self.municipio.nome
+        else:
+            str_municipio = ''
+
+        text = "Descrição: " + self.descricao + "\n\n" + \
+               "Local: " + self.localizacao + "\n" + \
+               "Bairro: " + str_bairro + "\n" + \
+               "Município: " + str_municipio + "\n\n" + \
+               "Início: " + self.inicio.strftime(fmt) + "\n" + \
+               "Término: " + self.termino.strftime(fmt) 
+        hora_inicio = self.inicio.strftime("%H:%M")
+        return f'&nbsp;<b>{hora_inicio}</b>&nbsp;<a href="{url}" title="{text}">{self.titulo}</a>'
 
 class Contato(SaapSearchMixin, SaapAuditoriaModelMixin):
 
@@ -610,7 +694,7 @@ class LocalTrabalho(SaapAuditoriaModelMixin):
         Bairro,
         chained_field="municipio",
         chained_model_field="municipio",
-        null=True, blank=True, default=5,
+        null=True, blank=True,
         show_all=False,
         auto_choose=False,
         sort=True,

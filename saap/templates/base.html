@@ -32,7 +32,116 @@
 
   <body class="{% block body_class %}{%endblock%}">
     <div class="page fadein">
-      <nav class="navbar">
+
+   {% block navigation %}
+          <nav class="navbar-menu">
+            <div class="container{{fluid}}">
+
+              <div id="navbar" class="navbar-collapse collapse">
+
+            <ul class="nav navbar-nav navbar-right" id="autenticacao">
+              {% if user and not user.is_anonymous %}
+                <li><a href="{% url 'saap.core:help' %}{{view.help_topic}}"><img src="/static/img/manual.png"></a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-user" id="dropdown-user" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    {{ user.get_full_name|default:user.email }}
+
+	             {% block base_workspace %}
+	                  {% if user and not user.is_anonymous %}
+        	            {% for at in areatrabalho %}
+        	               <br><small> {{at.nome}}</small>
+	                    {% endfor %}
+        	          {% endif %}
+	              {% endblock base_workspace %}
+
+                    <span class="caret"></span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <!---<li><a href="{# url 'saap.cerimonial:perfil_detail' #}">{# trans "Meu perfil" #}</a></li>--->
+                    <li><a href="{% url 'saap.core:password_change' %}">{% trans "Alterar minha senha" %}</a></li>
+                    <li><a href="{% url 'saap.core:logout' %}">{% trans "Sair" %}</a></li>
+                  </ul>
+
+                </li>
+              {% else %}
+                <li><a href="{% url 'saap.core:help' %}{{view.help_topic}}"><img src="/static/img/manual.png"></a></li>
+                <li><a href="{% url 'saap.core:login' %}"><img src="/static/img/user.png"></a></li>              
+               {% endif %}
+               </ul>
+
+
+
+                <ul class="nav navbar-nav">
+
+                  <li><a href="/">{% trans "Início" %}</a></li>
+
+                  {% if perms.core.menu_contatos %}
+                    <li class="dropdown">
+                      <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Contatos" %}<span class="caret"></span></a>
+                      <ul class="dropdown-menu menu-right">
+ 	                     <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:contato_list' %}">{% trans "Cadastro" %}</a></li>
+                         {# if perms.core.menu_grupocontatos #} {# Corrigir permissões no futuro #}
+                             <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:grupodecontatos_list' %}">{% trans "Grupos de contatos" %}</a></li>
+                         {# endif #}
+                             <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:print_rel_contatosexporta' %}">{% trans "Exportação para planilha" %}</a></li>
+                      </ul>
+                    </li>
+                  {% endif %}
+
+                  {% if perms.core.menu_processos %}
+                    <li class="dropdown">
+                      <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Processos" %}<span class="caret"></span></a>
+                      <ul class="dropdown-menu menu-right">
+                         <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:processo_list' %}">{% trans "Processos" %}</a></li>
+                      </ul>
+                    </li>
+                  {% endif %}
+
+                  {# if perms.core.menu_agenda #} 
+                  {% if perms.core.menu_contatos %} {# Permissão temporária. Criar no futuro #}
+                    <li><a href="{% url 'saap.cerimonial:agenda' %}">{% trans "Agenda" %}</a></li>
+                  {% endif %}
+
+                  {# if perms.core.menu_correspondencias #} 
+                  {% if perms.core.menu_relatorios %}  {# Permissão temporária. Criar no futuro #}
+                    <li class="dropdown">
+                      <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Correspondências" %}<span class="caret"></span></a>
+                      <ul class="dropdown-menu menu-right">
+ 	                 <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:print_impressoenderecamento' %}">{% trans "Envelopes e etiquetas" %}</a></li>
+ 	                 <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:print_maladireta' %}">{% trans "Exportação para mala direta" %}</a></li>
+                      </ul>
+                    <li>
+                  {% endif %}
+                      
+
+                  {% if perms.core.menu_relatorios %}  {# Permissão temporária. Criar no futuro #}
+                    <li><a href="{% url 'saap.cerimonial:relatorios' %}">{% trans "Relatórios" %}</a></li>
+                  {% endif %}
+
+                  {# if perms.core.menu_sistema #}
+                  {% if perms.core.menu_dados_auxiliares %} {# Permissão temporária. Criar no futuro #}
+                    <li class="dropdown">
+                      <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Sistema" %}<span class="caret"></span></a>
+                      <ul class="dropdown-menu menu-right">
+ 	                 <li class="nav__sub-item"><a href="{% url 'saap.core:tabelas_auxiliares' %}">{% trans "Tabelas auxiliares" %}</a></li>
+                         <li class="nav__sub-item"><a href="{% url 'saap.core:user_list' %}">{% trans "Administração de Usuários" %}</a></li>
+                         <li class="nav__sub-item"><a href="{% url 'saap.core:areatrabalho_list' %}">{% trans "&Aacute;reas de trabalho e Operadores" %}</a></li>
+                      </ul>
+                    </li>
+                  {% endif %}
+
+                </ul>
+		
+
+
+              </div><!--/.nav-collapse -->
+            </div>
+          </nav>
+
+
+        {% endblock navigation %}
+      
+       <nav class="navbar">
         <div class="container">
           <div class="navbar-header">
             {% block button_toogle %}
@@ -49,116 +158,14 @@
 		<span class="vcenter">  {% nome_camara %} <br> <small>{% nome_sistema %}</small> </span>
             </a>
           </div>
-          <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav navbar-right" id="autenticacao">
-              {% if user and not user.is_anonymous %}
-                <li><a href="{% url 'saap.core:help' %}{{view.help_topic}}"><img src="/static/img/manual.png"></a></li>
-                <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                    {{ user.get_full_name|default:user.email }}
-                    <span class="caret"></span>
-                  </a>
-                  <ul class="dropdown-menu">
-                    <li><a href="{% url 'saap.cerimonial:perfil_detail' %}">{% trans "Meu perfil" %}</a></li>
-                    <li><a href="{% url 'saap.core:password_change' %}">{% trans "Alterar minha senha" %}</a></li>
-                    <li><a href="{% url 'saap.core:logout' %}">{% trans "Sair" %}</a></li>
-                  </ul>
-
-                </li>
-              {% else %}
-                <li><a href="{% url 'saap.core:help' %}{{view.help_topic}}"><img src="/static/img/manual.png"></a></li>
-                <li><a href="{% url 'saap.core:login' %}"><img src="/static/img/user.png"></a></li>              
-               {% endif %}
-               </ul>
-          </div><!--/.nav-collapse -->
         </div>
       </nav>
 
+
+
+
       {% block global_container %}
-        {% block navigation %}
-          <nav class="navbar navbar-menu">
-            <div class="container{{fluid}}">
-
-              <div id="navbar" class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-
-                  {% if perms.core.menu_contatos %}
-                    <li class="dropdown">
-                      <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Contatos" %}<span class="caret"></span></a>
-                      <ul class="dropdown-menu menu-right">
- 	                     <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:contato_list' %}">{% trans "Cadastro" %}</a></li>
-                         {% if perms.core.menu_grupocontatos %}
-                             <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:grupodecontatos_list' %}">{% trans "Grupos de contatos" %}</a></li>
-                         {% endif %}
-                         {% if perms.core.menu_relatorios %} {# Permissão temporária, deve ser criada uma específica no futuro #}
-                             <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:print_rel_contatosexporta' %}">{% trans "Exportação para planilha" %}</a></li>
-                         {% endif %}
-                      </ul>
-                    </li>
-                  {% endif %}
-
-                  {% if perms.core.menu_processos %}
-                    <li class="dropdown">
-                      <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Processos" %}<span class="caret"></span></a>
-                      <ul class="dropdown-menu menu-right">
-                         <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:processo_list' %}">{% trans "Cadastro" %}</a></li>
-                      </ul>
-                    </li>
-                  {% endif %}
-
-                  {% if perms.core.menu_contatos %}  {# Permissão temporária, deve ser criada uma específica no futuro #}
-                    <li class="dropdown">
-                      <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Correspondências" %}<span class="caret"></span></a>
-                      <ul class="dropdown-menu menu-right">
- 	                 <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:print_impressoenderecamento' %}">{% trans "Envelopes e etiquetas" %}</a></li>
- 	                 <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:print_maladireta' %}">{% trans "Exportação para mala direta" %}</a></li>
-                      </ul>
-                    <li>
-                  {% endif %}
-                      
-
-                  {% if perms.core.menu_relatorios %}
-                    <li><a href="{% url 'saap.cerimonial:relatorios' %}">{% trans "Relatórios" %}</a></li>
-                  {% endif %}
-
-                  {% if perms.core.menu_dados_auxiliares %}
-                    <li class="dropdown">
-                      <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Sistema" %}<span class="caret"></span></a>
-                      <ul class="dropdown-menu menu-right">
- 	                 <li class="nav__sub-item"><a href="{% url 'saap.core:tabelas_auxiliares' %}">{% trans "Tabelas auxiliares" %}</a></li>
-                         <li class="nav__sub-item"><a href="{% url 'saap.core:areatrabalho_list' %}">{% trans "&Aacute;reas de trabalho e Operadores" %}</a></li>
-                         <li class="nav__sub-item"><a href="#">{% trans "Administração de Usuários" %}</a></li>
-                      </ul>
-                    </li>
-                  {% endif %}
-
-                </ul>
-		
-             {% block base_workspace %}
-                  {% if user and not user.is_anonymous %}
-                  <nav class="btn-area-trabalho">
-                    {% for at in areatrabalho %}
-                      {% if forloop.first %}
-                        <ul class="nav navbar-nav" >
-                      {% endif %}
-                        <li>{{at.nome}}</li>
-                      {% if forloop.last %}
-                        </ul>
-                      {% endif %}
-                    {% endfor %}
-                  </nav>
-                  {% endif %}
-              {% endblock base_workspace %}
-
-
-              </div><!--/.nav-collapse -->
-            </div>
-          </nav>
-
-
-
-        {% endblock navigation %}
-
+     
         {# Header #}
         {% block main_header %}
             <div class="container{{fluid}}">
@@ -203,7 +210,6 @@
 
               {% block base_content %}{% endblock %}
 
-
             </div>
           </main>
         {% endblock content_container %}
@@ -227,10 +233,11 @@
                 </a>
               
               <p>
-                <small>
+                <small class="smallfooter">
                   Desenvolvido pelo <a href="http://www.interlegis.leg.br/">Interlegis</a> em software livre e aberto.
                 </small>
-                Release: 3.0.5b
+                <br>
+                Release: {% versao_atual %}
               </p>
             </div>
             <div class="col-1-3">
@@ -238,7 +245,7 @@
                 <img src="/static/img/logo_cc.png" alt="Logo do Creative Commons BY SA">
               </a>
               <p>
-                <small>
+                <small class="smallfooter">
                   Conteúdo e dados sob licença <a href="https://creativecommons.org">Creative Commons</a> 4.0 <br> <a href="https://creativecommons.org/licenses/by/4.0/">Atribuir Fonte - Compartilhar Igual</a>
                 </small>
               </p>
@@ -246,7 +253,7 @@
             <div class="col-1-3">
               
               <address>
-                <small>
+                <small class="smallfooter">
 			<span class="org"><strong>{% nome_camara %}</strong></span><br>
 			<span class="street-address">{% endereco_camara %}</span><br>
 			<span class="postal-code">CEP: {% cep_camara %}</span> |
@@ -295,8 +302,7 @@
       <script src="{% static 'tinymce/tinymce.min.js' %}"></script>
       <script type="text/javascript" src="{% static 'jsdiff/diff.min.js' %}"></script>
 
-      
-      {% block extra_js %}{% endblock %}
+    {% block extra_js %}{% endblock %}
 
     {% endblock foot_js %}
 

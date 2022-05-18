@@ -7,22 +7,22 @@ from saap.cerimonial.models import Perfil, Endereco, Email, Telefone,\
     NivelInstrucao, EstadoCivil, FiliacaoPartidaria, AssuntoProcesso, Processo,\
     ProcessoContato, GrupoDeContatos
 from saap.core.models import Trecho
-from saap.core.rules import menu_contatos, menu_dados_auxiliares, search_trecho,\
-    menu_processos, menu_relatorios, menu_grupocontatos
+from saap.core.rules import menu_contatos, menu_processos, menu_agenda, search_trecho,\
+    menu_correspondencias, menu_sistema
 from saap.globalrules.crud_custom import LIST, ADD, DETAIL, CHANGE, DELETE
 from saap.globalrules.globalrules import GROUP_SOCIAL_USERS,\
     GROUP_WORKSPACE_OPER_CONTATOS, GROUP_WORKSPACE_MANAGERS,\
     GROUP_WORKSPACE_OPER_PROCESSOS, GROUP_WORKSPACE_OPER_GRUPO_CONTATOS
 
 
-rules_group_social_users = (
-    GROUP_SOCIAL_USERS, [
-        (Perfil, [ADD, DETAIL, CHANGE, DELETE]),
-        (EnderecoPerfil, [LIST, ADD, DETAIL, CHANGE, DELETE]),
-        (EmailPerfil, [LIST, ADD, DETAIL, CHANGE, DELETE]),
-        (TelefonePerfil, [LIST, ADD, DETAIL, CHANGE, DELETE]),
-        (LocalTrabalhoPerfil, [LIST, ADD, DETAIL, CHANGE, DELETE]),
-        (DependentePerfil, [LIST, ADD, DETAIL, CHANGE, DELETE]), ])
+#rules_group_social_users = (
+#    GROUP_SOCIAL_USERS, [
+#        (Perfil, [ADD, DETAIL, CHANGE, DELETE]),
+#        (EnderecoPerfil, [LIST, ADD, DETAIL, CHANGE, DELETE]),
+#        (EmailPerfil, [LIST, ADD, DETAIL, CHANGE, DELETE]),
+#        (TelefonePerfil, [LIST, ADD, DETAIL, CHANGE, DELETE]),
+#        (LocalTrabalhoPerfil, [LIST, ADD, DETAIL, CHANGE, DELETE]),
+#        (DependentePerfil, [LIST, ADD, DETAIL, CHANGE, DELETE]), ])
 
 rules_group_workspace_managers = (
     GROUP_WORKSPACE_MANAGERS, [
@@ -33,9 +33,10 @@ rules_group_workspace_oper_contatos = (
     GROUP_WORKSPACE_OPER_CONTATOS, [
         (get_user_model(), [
             menu_contatos,
-            menu_dados_auxiliares,
-            menu_grupocontatos,
-            menu_relatorios]),
+            #menu_dados_auxiliares,
+            #menu_grupocontatos,
+            #menu_relatorios
+        ]),
         (Trecho, [LIST, DETAIL]),
         (OperadoraTelefonia, [LIST, DETAIL]),
         (NivelInstrucao, [LIST, DETAIL]),
@@ -54,21 +55,22 @@ rules_group_workspace_oper_contatos = (
     ]
 )
 
-rules_group_workspace_oper_grupo_contatos = (
-    GROUP_WORKSPACE_OPER_GRUPO_CONTATOS, [
-        (get_user_model(), [
-            menu_contatos,
-            menu_grupocontatos, ]),
-        (GrupoDeContatos, [LIST, ADD, DETAIL, CHANGE, DELETE]),
-        (Contato, [LIST, DETAIL, ]),
-    ]
-)
+#rules_group_workspace_oper_grupo_contatos = (
+#    GROUP_WORKSPACE_OPER_GRUPO_CONTATOS, [
+#        (get_user_model(), [
+#            menu_contatos,
+#            menu_grupocontatos, ]),
+#        (GrupoDeContatos, [LIST, ADD, DETAIL, CHANGE, DELETE]),
+#        (Contato, [LIST, DETAIL, ]),
+#    ]
+#)
 rules_group_workspace_oper_processos = (
     GROUP_WORKSPACE_OPER_PROCESSOS, [
         (get_user_model(), [
             menu_processos,
-            menu_dados_auxiliares,
-            menu_relatorios]),
+            #menu_dados_auxiliares,
+            #menu_relatorios
+        ]),
         #(AssuntoProcesso, [LIST, ADD, DETAIL, CHANGE, DELETE]),
         (Processo, [LIST, ADD, DETAIL, CHANGE, DELETE]),
         (ProcessoContato, [LIST, ADD, DETAIL, CHANGE, DELETE]),

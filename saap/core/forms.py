@@ -157,12 +157,9 @@ class UserForm(UserChangeForm):
 
     class Meta(UserChangeForm.Meta):
         model = User
-        fields = ('first_name', 'last_name', 'avatar', 'cropping')
-        widgets = {
-            'avatar': CustomImageCropWidget(),
-            'cropping': CropWidget(),
-        }
 
+    def __init__(self, *args, **kwargs):
+        super(UserForm, self).__init__(*args, **kwargs)
 
 class OperadorAreaTrabalhoForm(ModelForm):
 

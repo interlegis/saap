@@ -45,6 +45,14 @@
 		</li>
 
 		<li>
+			<a href="{% url 'saap.core:help_topic' 'agenda' %}">Agenda</a>
+			<ul>
+				<li><a href="{% url 'saap.core:help_topic' 'agendacalendario' %}">Calendário</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'agendaevento' %}">Evento</a></li>
+			</ul>
+		</li>
+
+		<li>
 			<a href="{% url 'saap.core:help_topic' 'correspondencias' %}">Correspondências</a>
 			<ul>
 				<li><a href="{% url 'saap.core:help_topic' 'envelopesetiquetas' %}">Envelopes e etiquetas</a></li>
@@ -58,6 +66,7 @@
 				<li><a href="{% url 'saap.core:help_topic' 'contatosdetalhe' %}">Dados detalhados do contato</a></li>
 				<li><a href="{% url 'saap.core:help_topic' 'processoslista' %}">Listagem de processos</a></li>
 				<li><a href="{% url 'saap.core:help_topic' 'processosdetalhe' %}">Dados detalhados do processo</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'agendalista' %}">Listagem de eventos da agenda</a></li>
 			</ul>
 		</li>
 

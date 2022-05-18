@@ -13,6 +13,7 @@ from django.db import models
 from django.db.models import Q, F, Func, Value
 #from django.forms.extras.widgets import SelectDateWidget
 from django.forms.widgets import SelectDateWidget, DateInput
+from django.forms import DateInput
 
 from django.forms.models import ModelForm, ModelMultipleChoiceField
 from django.db.models import F
@@ -21,14 +22,14 @@ from django_filters.filters import ChoiceFilter, NumberFilter,\
     MethodFilter, ModelChoiceFilter, RangeFilter,\
     MultipleChoiceFilter, ModelMultipleChoiceFilter, BooleanFilter
 from django_filters.filterset import FilterSet
-from saap.crispy_layout_mixin import SaplFormLayout, to_row
+from saap.crispy_layout_mixin import SaapFormLayout, to_row
 from saap.core.models import Municipio, Estado
 
 from saap import settings
 from saap.cerimonial.models import LocalTrabalho, Endereco,\
     TipoAutoridade, PronomeTratamento, Contato, Perfil, Processo, Dependente,\
     IMPORTANCIA_CHOICE, AssuntoProcesso, ClassificacaoProcesso, StatusProcesso, ProcessoContato,\
-    GrupoDeContatos, TopicoProcesso, Telefone, Email, EstadoCivil
+    GrupoDeContatos, TopicoProcesso, Telefone, Email, EstadoCivil, Evento
 from saap.core.forms import ListWithSearchForm
 from saap.core.models import Trecho, ImpressoEnderecamento, Bairro, NivelInstrucao
 from saap.utils import normalize, YES_NO_CHOICES, NONE_YES_NO_CHOICES
@@ -90,7 +91,6 @@ class LocalTrabalhoPerfilForm(ModelForm):
         self.fields['principal'].widget = forms.RadioSelect()
         self.fields['principal'].inline_class = True
 
-
 class LocalTrabalhoForm(ModelForm):
 
     class Meta:
@@ -148,6 +148,53 @@ class LocalTrabalhoForm(ModelForm):
         self.fields['principal'].widget = forms.RadioSelect()
         self.fields['principal'].inline_class = True
 
+
+
+class EventoForm(ModelForm):
+
+    class Meta:
+        model = Evento
+        fields = ['titulo',
+                  'descricao',
+                  'localizacao',
+                  'estado',
+                  'municipio',
+                  'bairro',
+                  'inicio',
+                  'termino', 
+                  'workspace']
+        
+
+        # datetime-local is a HTML5 input type, format to make date time show on fields
+        widgets = {
+            'inicio': DateInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'termino': DateInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+        }
+
+    def __init__(self, *args, **kwargs):
+        workspace = kwargs.pop('workspace')
+
+        super(EventoForm, self).__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
+
+        self.workspace = workspace
+        self.initial['workspace'] = self.workspace
+
+        # input_formats parses HTML5 datetime-local input to datetime field
+        self.fields['inicio'].input_formats = ('%Y-%m-%dT%H:%M',)
+        self.fields['termino'].input_formats = ('%Y-%m-%dT%H:%M',)
+
+        self.fields['workspace'].widget = forms.HiddenInput()
+
+    def clean(self):
+ 
+        inicio = self.cleaned_data['inicio']
+        termino = self.cleaned_data['termino']
+
+        if termino <= inicio:
+            self._errors['termino'] = [_('O término do evento deve ser posterior ao seu início.')]
 
 class ContatoForm(ModelForm):
 
@@ -624,7 +671,7 @@ class ProcessoForm(ModelForm):
         yaml_layout.append(q)
 
         self.helper = FormHelper()
-        self.helper.layout = SaplFormLayout(*yaml_layout)
+        self.helper.layout = SaapFormLayout(*yaml_layout)
 
         #self.fields['data_abertura'] = forms.DateField(widget=SelectDateWidget(), label='Joining Date', initial=date.today())
 
@@ -820,7 +867,7 @@ class GrupoDeContatosForm(ModelForm):
         yaml_layout.append(q)
 
         self.helper = FormHelper()
-        self.helper.layout = SaplFormLayout(*yaml_layout)
+        self.helper.layout = SaapFormLayout(*yaml_layout)
 
         super(GrupoDeContatosForm, self).__init__(*args, **kwargs)
 
@@ -3563,6 +3610,198 @@ class MalaDiretaFilterSet(FilterSet):
 
 
 
+
+class AgendaFilterSet(FilterSet):
+
+    filter_overrides = {models.DateTimeField: {
+        'filter_class': MethodFilter,
+        'extra': lambda f: {
+            'label': '%s (%s)' % (f.verbose_name, _('período')),
+            'widget': RangeWidgetOverride}
+    }}
+
+
+    RETRATO = 'R'
+    PAISAGEM = 'P'
+    ORIENTACAO_CHOICE = ((PAISAGEM, _('Paisagem')),
+                         (RETRATO, _('Retrato')))
+
+    search = MethodFilter()
+
+    orientacao = MethodChoiceFilter(
+        label=_('Orientação'),
+        choices=ORIENTACAO_CHOICE, initial=PAISAGEM)
+
+    bairro = MethodModelMultipleChoiceFilter(
+        required=False,
+        label=_('Bairro (' + settings.DADOS_MUNICIPIO + ')'),
+        queryset=None) # Será carregado no final do código
+
+    municipio = MethodModelMultipleChoiceFilter(
+        required=False,
+        label=_('Município (' + settings.DADOS_UF + ')'), 
+        queryset=None) # Será carregado no final do código
+
+    def filter_orientacao(self, queryset, value):
+        return queryset
+
+    def filter_search(self, queryset, value):
+
+        query = normalize(value)
+
+        query = query.split(' ')
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                # Remove acentos dos campos que estão no banco
+                q = q & Q(search__unaccent__icontains=item)
+
+            if q:
+                queryset = queryset.filter(q)
+        return queryset
+ 
+    def filter_search(self, queryset, value):
+
+        query = normalize(value)
+
+        query = query.split(' ')
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                # Remove acentos dos campos que estão no banco
+                q = q & (Q(title__unaccent__icontains=item) | 
+                         Q(description__unaccent__icontains=item) |
+                         Q(location__unaccent__icontains=item))
+
+            if q:
+                queryset = queryset.filter(q)
+        return queryset
+
+
+    def filter_inicio(self, queryset, value):
+
+        if not value[0] and not value[1]:
+            return queryset
+
+        inicial = None
+        final = None
+
+        if(value[0] != ''):
+            inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        if(value[1] != ''):
+            final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+   
+        if(inicial != None and final != None):
+            if inicial > final:
+                inicial, final = final, inicial
+            range_select = Q(inicio__range=[inicial, final])
+        elif(inicial != None):
+            range_select = Q(inicio__gte=inicial)
+        elif(final != None):
+            range_select = Q(inicio__lte=final)
+
+        # Run the query.
+        return queryset.filter(range_select)
+
+    def filter_termino(self, queryset, value):
+
+        if not value[0] and not value[1]:
+            return queryset
+
+        inicial = None
+        final = None
+
+        if(value[0] != ''):
+            inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        if(value[1] != ''):
+            final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+   
+        if(inicial != None and final != None):
+            if inicial > final:
+                inicial, final = final, inicial
+            range_select = Q(termino__range=[inicial, final])
+        elif(inicial != None):
+            range_select = Q(termino__gte=inicial)
+        elif(final != None):
+            range_select = Q(termino__lte=final)
+
+        # Run the query.
+        return queryset.filter(range_select)
+
+    def filter_bairro(self, queryset, value):
+        if value:
+            queryset = queryset.filter(
+                bairro__in=value).distinct()
+
+        return queryset
+
+    def filter_municipio(self, queryset, value):
+        if value:
+            queryset = queryset.filter(
+                    municipio__in=value).distinct()
+
+        return queryset
+
+    class Meta:
+        model = Evento
+        fields = ['search',
+                  'inicio',
+                  'termino',
+                  ]
+
+    def __init__(self, data=None,
+                 queryset=None, prefix=None, strict=None, **kwargs):
+
+        workspace = kwargs.pop('workspace')
+ 
+        super(AgendaFilterSet, self).__init__(
+            data=data,
+            queryset=queryset, prefix=prefix, strict=strict, **kwargs)
+
+        col1 = to_row([
+            ('search', 12),
+            ('inicio', 6),
+            ('termino', 6),
+            ('bairro', 6),
+            ('municipio', 6),
+        ])
+
+        col2 = to_row([
+            ('orientacao', 12),
+        ])
+
+        row = to_row(
+            [(Fieldset(
+                _('Pesquisa'),
+                col1,
+                to_row([(SubmitFilterPrint(
+                    'filter',
+                    value=_('Filtrar'), css_class='btn-default pull-right',
+                    type='submit'), 12)])), 9),
+             (Fieldset(
+                 _('Impressão'),
+                 col2,
+                 to_row([(SubmitFilterPrint(
+                     'print',
+                     value=_('Gerar'), css_class='btn-primary pull-right',
+                     type='submit'), 12)])), 3)])
+
+        self.form.helper = FormHelper()
+        self.form.helper.form_method = 'GET'
+        self.form.helper.layout = Layout(
+            row,
+        )
+
+        self.form.fields['search'].label = 'Título, descrição ou localização'
+        self.form.fields['inicio'].label = 'Início do evento (período)'
+        self.form.fields['termino'].label = 'Término do evento (período)'
+
+        self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk)
+        self.form.fields['municipio'].queryset = Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk)
 
 class ContatosFilterSet(FilterSet):
 

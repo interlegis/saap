@@ -83,22 +83,33 @@ def avatar_validation(image):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(_('email address'), unique=True)
 
-    first_name = models.CharField(_('first name'), max_length=30, blank=True)
-    last_name = models.CharField(_('last name'), max_length=30, blank=True)
+    email = models.EmailField(_('E-mail'), unique=True)
+
+    first_name = models.CharField(_('Nome'), max_length=30, blank=True)
+
+    last_name = models.CharField(_('Sobrenome'), max_length=30, blank=True)
+
     is_staff = models.BooleanField(
-        _('staff status'), default=False,
+        default=False,
+        choices=YES_NO_CHOICES,
+        verbose_name=_('Membro da equipe'),
         help_text=_('Designates whether the user can log into this admin '
                     'site.'))
+
     is_active = models.BooleanField(
-        _('active'), default=True,
+        default=False,
+        choices=YES_NO_CHOICES,
+        verbose_name=_('Ativo'),
         help_text=_('Designates whether this user should be treated as '
                     'active. Unselect this instead of deleting accounts.'))
-    date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
+
+    date_joined = models.DateTimeField(_('Data de ingresso'), default=timezone.now)
+
     avatar = ImageCropField(
-        _('profile picture'), upload_to="avatars/",
+        _('Imagem do perfil'), upload_to="avatars/",
         validators=[avatar_validation], null=True, blank=True)
+
     cropping = ImageRatioField(
         'avatar', '70x70', help_text=_(
             'Note that the preview above will only be updated after '
@@ -112,6 +123,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         abstract = False
         permissions = MENU_PERMS_FOR_USERS
         ordering = ['first_name']
+        verbose_name = "Usuário"
+        verbose_name_plural = "Usuários"
 
     def __str__(self):
         return self.get_display_name()
@@ -449,11 +462,11 @@ class Partido(models.Model):
 
 class AreaTrabalho(SaapAuditoriaModelMixin):
 
-    nome = models.CharField(max_length=100, blank=True, default='',
+    nome = models.CharField(max_length=100, blank=False, default='',
                             verbose_name=_('Nome'))
 
     descricao = models.CharField(
-        default='', max_length=254, verbose_name=_('Descrição'))
+        default='', max_length=254, verbose_name=_('Descrição'), blank=True)
 
     parlamentar = models.ForeignKey(
         Parlamentar,

@@ -2,7 +2,8 @@ from django.conf.urls import url, include
 
 from saap.cerimonial.reports import ImpressoEnderecamentoView,\
     RelatorioProcessosView, RelatorioContatosView, RelatorioContatosExportaView, \
-    RelatorioContatoIndividualView, RelatorioProcessoIndividualView, MalaDiretaView
+    RelatorioContatoIndividualView, RelatorioProcessoIndividualView, \
+    RelatorioAgendaView, MalaDiretaView
 from saap.cerimonial.views import ContatoCrud, TelefoneCrud, EmailCrud,\
     DependenteCrud, LocalTrabalhoCrud, EnderecoCrud, FiliacaoPartidariaCrud,\
     EnderecoPerfilCrud, LocalTrabalhoPerfilCrud, EmailPerfilCrud,\
@@ -14,7 +15,7 @@ from saap.cerimonial.views import ContatoCrud, TelefoneCrud, EmailCrud,\
     ContatoFragmentFormPronomesView, StatusProcessoCrud, TopicoProcessoCrud,\
     ClassificacaoProcessoCrud, ProcessoMasterCrud, AssuntoProcessoCrud,\
     ContatoFragmentFormSearchView, ProcessoContatoCrud,\
-    GrupoDeContatosMasterCrud
+    GrupoDeContatosMasterCrud, AgendaView, EventoView \
 
 from .apps import AppConfig
 
@@ -52,11 +53,19 @@ urlpatterns = [
 
     url(r'^processos/', include(
         ProcessoMasterCrud.get_urls()
-    )), 
+    )),
+
+    url(r'^agenda/$', AgendaView.as_view(), name='agenda'),
+    url(r'^evento/$', EventoView.event, name='evento_add'),
+    url(r'^evento/(?P<event_id>\d+)/$', EventoView.event, name='evento_edit'),
 
     url(r'^correspondencias/enderecamentos',
         ImpressoEnderecamentoView.as_view(),
         name='print_impressoenderecamento'),
+
+    url(r'^relatorios/agenda',
+        RelatorioAgendaView.as_view(),
+        name='print_agenda'),
 
     url(r'^relatorios/processos',
         RelatorioProcessosView.as_view(),
@@ -121,3 +130,4 @@ urlpatterns = [
 
 
 ]
+

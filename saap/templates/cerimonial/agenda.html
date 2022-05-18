@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n crispy_forms_tags common_tags %}
+
+{% block base_content %}
+
+  <fieldset>
+
+  <div class="clearfix">
+	<a class="btn btn-info" href="{% url 'saap.cerimonial:agenda' %}?{{ prev_year }}"> Ano anterior </a>
+	<a class="btn btn-info" href="{% url 'saap.cerimonial:agenda' %}?{{ prev_month }}"> Mês anterior </a>
+	<a class="btn btn-inverse" href="{% url 'saap.cerimonial:agenda' %}?{{ this_month }}"> Mês atual </a>
+	<a class="btn btn-info" href="{% url 'saap.cerimonial:agenda' %}?{{ next_month }}"> Próximo mês </a>
+	<a class="btn btn-info" href="{% url 'saap.cerimonial:agenda' %}?{{ next_year }}"> Próximo ano </a>
+	<a class="btn btn-default right" href="{% url 'saap.cerimonial:evento_add' %}"> Novo evento </a>
+   </div>
+    {{ calendar }}
+
+</fieldset>
+
+{% endblock %}

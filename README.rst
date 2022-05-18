@@ -4,7 +4,7 @@ SAAP - Sistema de Apoio à Atividade Parlamentar
 
 Esta página reúne informações úteis sobre o desenvolvimento atual do SAAP.
 
-Isso significa que toda a informação aqui apresentada aplica-se apenas para a versão 3.0.1 e superior.
+Isso significa que toda a informação aqui apresentada aplica-se apenas para a versão 3.1.0 e superior.
 
 
 Desenvolvimento
@@ -17,10 +17,14 @@ Deploy
    `Deploy SAAP com Nginx + Gunicorn <https://github.com/interlegis/saap/blob/master/docs/deploy.rst>`_
 
 
+Docker
+=========================================
+   `Container SAAP + Postgres <https://github.com/interlegis/saap/blob/master/docs/docker.rst>`_
+
+
 Tradução
 =========================================
    `Instruções para Tradução <https://github.com/interlegis/saap/blob/master/docs/traducao.rst>`_
-
 
 
 Implementação
@@ -51,4 +55,6 @@ Referências
 
 Estes guias, o projeto e as configurações do ambiente foram desenvolvidos, corrigidos e aperfeiçoados a partir do fork de `Jonatha Cardoso <https://github.com/ojonathacardoso/saap>`_ (servidor na `Câmara Municipal de Novo Hamburgo/RS <http://portal.camaranh.rs.gov.br>`_). 
 
-O mesmo teve como ponto de partida o projeto original do SAAP, desenvolvido por  `Leandro Silva <https://github.com/LeandroJatai>`_ (servidor na `Câmara Municipal de Jataí/GO <https://www.jatai.go.leg.br>`_) e `Ramiro Luz <https://github.com/ramiroluz>`_ (servidor na `Câmara Municipal de Curitiba/PR <https://www.curitiba.pr.leg.br/>`_)
+O mesmo teve como ponto de partida o projeto original do SAAP, desenvolvido por  `Leandro Silva <https://github.com/LeandroJatai>`_ (servidor na `Câmara Municipal de Jataí/GO <https://www.jatai.go.leg.br>`_) e `Ramiro Luz <https://github.com/ramiroluz>`_ (servidor na `Câmara Municipal de Curitiba/PR <https://www.curitiba.pr.leg.br/>`_).
+
+Para testar o SAAP, basta acessar a `versão de demonstração <http://saap-demo.camaranh.rs.gov.br>`.

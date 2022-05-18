@@ -51,6 +51,44 @@
     <div class="homeBlock">
         <div class="homeFront">
             <div class="homeIcon">
+                <img src="{% static 'img/index_agenda.png' %}" alt="Agenda">
+            </div>
+            <h2>Agenda</h2>
+        </div>
+        <div class="homeContent">
+            <div class="homeTitle">
+                <img src="{% static 'img/index_agenda.png' %}">
+                <h2>Agenda</h2>
+            </div>
+            <p>
+                Ferramenta para gerenciar a agenda de compromissos e eventos do parlamentar, por meio de um calendário interativo que fornece um panorama sobre as atividades previstas e realizadas.
+		</p>
+        </div>
+        <a href="{% url 'saap.cerimonial:agenda' %}"></a>
+    </div>
+
+    <div class="homeBlock">
+        <div class="homeFront">
+            <div class="homeIcon">
+                <img src="{% static 'img/index_maladireta.png' %}" alt="E-mail">
+            </div>
+            <h2>Envio de e-mails</h2>
+        </div>
+        <div class="homeContent">
+            <div class="homeTitle">
+                <img src="{% static 'img/index_maladireta.png' %}">
+                <h2>Envio de e-mails</h2>
+            </div>
+            <p>
+                Atualmente, o SAAP ainda não permite o envio de mala direta aos contatos. Sendo assim, essa ferramenta permite exportar os endereços de e-mail dos contatos, para utilização em um cliente de e-mail ou <em>webmail</em>.
+		</p>
+        </div>
+        <a href="{% url 'saap.cerimonial:print_maladireta' %}"></a>
+    </div>
+
+    <div class="homeBlock">
+        <div class="homeFront">
+            <div class="homeIcon">
                 <img src="{% static 'img/index_etiquetas.png' %}" alt="Impressos">
             </div>
             <h2>Envelopes e etiquetas</h2>
@@ -66,6 +104,7 @@
         </div>
         <a href="{% url 'saap.cerimonial:print_impressoenderecamento' %}"></a>
     </div>
+
 
     <div class="homeBlock">
         <div class="homeFront">
