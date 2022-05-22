@@ -1,7 +1,14 @@
-#/bin/bash
+#!/usr/bin/env bash
 
-git fetch upstream
-git checkout master
-git merge upstream/master
-git push origin master
-git push --tags
+function update_repo {
+
+   echo "Sincronizando e atualizando repositório local..."
+
+   git fetch upstream
+   git checkout master
+   git merge upstream/master
+
+   echo "Repositório sincronizado"
+}
+
+update_repo

@@ -47,11 +47,9 @@
                     {{ user.get_full_name|default:user.email }}
 
 	             {% block base_workspace %}
-	                  {% if user and not user.is_anonymous %}
         	            {% for at in areatrabalho %}
         	               <br><small> {{at.nome}}</small>
 	                    {% endfor %}
-        	          {% endif %}
 	              {% endblock base_workspace %}
 
                     <span class="caret"></span>
@@ -75,6 +73,7 @@
 
                   <li><a href="/">{% trans "Início" %}</a></li>
 
+              {% if user and not user.is_anonymous %}
                   {% if perms.core.menu_contatos %}
                     <li class="dropdown">
                       <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Contatos" %}<span class="caret"></span></a>
@@ -130,6 +129,7 @@
                     </li>
                   {% endif %}
 
+                {% endif %}
                 </ul>
 		
 

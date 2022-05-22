@@ -82,7 +82,7 @@ Para interromper a execução das imagens rodando em background, basta rodar:
     sudo docker-compose stop
 
 
-Backup e restauração do banco
+Backup do banco Postgres
 ----------------------------------------------------------------------------------------
 
 Para realizar o backup do banco do SAAP, basta rodar o seguinte comando:
@@ -93,12 +93,17 @@ Para realizar o backup do banco do SAAP, basta rodar o seguinte comando:
 
 O destino e o nome do arquivo gerado são personalizáveis.
 
-Para realizar a restauraçao do banco, é necessário previamente excluir o banco atual, para, então, fazer o processo:
+Restore do banco Postgres
+----------------------------------------------------------------------------------------
+
+Para realizar a restauraçao do banco, é necessário previamente limpar o banco atual:
 
 ::
 
-    docker exec postgres psql -U postgres -c 'DROP DATABASE saap'
-    docker exec postgres psql -U postgres -c "CREATE DATABASE saap ENCODING 'UTF8' template template0"
+    docker exec postgres psql -U saap -c 'DROP SCHEMA PUBLIC CASCADE;'
+    docker exec postgres psql -U saap -c 'CREATE SCHEMA PUBLIC;'
+
+Em seguida, basta copiar o arquivo para dentro da imagem e fazer a importação:
 
 ::
 

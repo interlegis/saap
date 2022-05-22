@@ -22,7 +22,7 @@ from saap.core.forms import OperadorAreaTrabalhoForm, ImpressoEnderecamentoForm,
     ListWithSearchForm, UserForm
 from saap.core.models import Cep, TipoLogradouro, Logradouro, RegiaoMunicipal,\
     Distrito, Bairro, Municipio, Estado, Trecho, AreaTrabalho, OperadorAreaTrabalho,\
-    ImpressoEnderecamento, User
+    ImpressoEnderecamento, User, Parlamentar
 from saap.core.rules import rules_patterns
 from saap.core.serializers import TrechoSearchSerializer, TrechoSerializer
 from saap.globalrules import globalrules
@@ -42,6 +42,7 @@ EstadoCrud = DetailMasterCrud.build(Estado, None, 'estado')
 BairroCrud = DetailMasterCrud.build(Bairro, None, 'bairro')
 TipoLogradouroCrud = DetailMasterCrud.build(TipoLogradouro, None, 'tipo_logradouro')
 LogradouroCrud = DetailMasterCrud.build(Logradouro, None, 'logradouro')
+ParlamentarCrud = DetailMasterCrud.build(Parlamentar, None, 'parlamentar')
 
 #UserCrud = DetailMasterCrud.build(User, None, 'usuario')
 

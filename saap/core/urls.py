@@ -7,7 +7,7 @@ from saap.settings import EMAIL_SEND_USER, SITE_NAME
 from saap.core.forms import LoginForm, NewPasswordForm, ResetPasswordForm, PasswordForm
 from saap.core.views import CepCrud, RegiaoMunicipalCrud, DistritoCrud,\
     BairroCrud, MunicipioCrud, EstadoCrud, TipoLogradouroCrud, LogradouroCrud, TrechoCrud, \
-    TrechoJsonSearchView, TrechoJsonView, AreaTrabalhoCrud, \
+    TrechoJsonSearchView, TrechoJsonView, AreaTrabalhoCrud, ParlamentarCrud, \
     OperadorAreaTrabalhoCrud, PartidoCrud, ImpressoEnderecamentoCrud, HelpTopicView, UserCrud
 
 from .apps import AppConfig
@@ -84,6 +84,7 @@ urlpatterns = [
         include(ImpressoEnderecamentoCrud.get_urls())),
 
     url(r'^sistema/core/partido/', include(PartidoCrud.get_urls())),
+    url(r'^sistema/core/parlamentar/', include(ParlamentarCrud.get_urls())),
     
     url(r'^tabelas$', permission_required(
         'core.menu_tabelas_auxiliares', login_url='saap.core:login')(

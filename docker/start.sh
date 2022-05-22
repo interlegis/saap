@@ -52,10 +52,6 @@ load_db() {
 
     export PGPASSWORD="saap"
 
-    echo "[LOAD_DB] Creating postgres role..."
-    psql -U saap -c "CREATE ROLE postgres LOGIN ENCRYPTED PASSWORD 'postgres' SUPERUSER INHERIT CREATEDB NOCREATEROLE NOREPLICATION;"
-    psql -U saap -c "ALTER ROLE postgres VALID UNTIL 'infinity';"
-
     echo "[LOAD_DB] Creating database structure..."
     yes yes | python3 manage.py migrate
     
