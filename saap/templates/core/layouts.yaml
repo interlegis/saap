@@ -72,3 +72,8 @@ User:
   {% trans 'Usuário' %}:
   - first_name last_name email:6
   - groups is_active:3 is_staff:3
+
+Parlamentar:
+  {% trans 'Parlamentar' %}:
+  - nome_completo nome_parlamentar
+  - ativo sexo data_nascimento 

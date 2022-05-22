@@ -30,8 +30,6 @@ function change_files {
 
     echo "Atualizando de "$LATEST_VERSION" para "$NEXT_VERSION"..."
 
-    sed -E -i "s|$LATEST_VERSION|$NEXT_VERSION|g" saap/templates/base.html
-
     sed -E -i "s|$LATEST_VERSION|$NEXT_VERSION|g" saap/settings.py
 }
 
@@ -53,6 +51,5 @@ function commit_and_push {
    echo "Concluído"
 }
 
-update_repo
 change_files
 commit_and_push

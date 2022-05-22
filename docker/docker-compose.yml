@@ -18,7 +18,7 @@ services:
     networks:
       - saap-net
   saap:
-    image: interlegis/saap:latest
+   image: interlegis/saap:latest
 #    build:
 #       context: .
 #       dockerfile: Dockerfile
@@ -28,7 +28,7 @@ services:
     restart: always
     environment:
        SITE_NAME: 'Sistema de Apoio à Atividade Parlamentar'
-       SITE_DOMAIN: 'saap.camaranh.rs.gov.br'
+       SITE_DOMAIN: 'saap-demo.camaranh.rs.gov.br'
        DEBUG: 'False'
        DJANGO_TOOLBAR: 'False'
        EMAIL_USE_TLS: 'True'

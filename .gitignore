@@ -100,7 +100,6 @@ whoosh_index/
 
 *.pyc
 .gitignore
-saap/templates/novidades.html
 gunicorn_conf
 gunicorn_start.sh
 brasao-camara.png
