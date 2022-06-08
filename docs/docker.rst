@@ -78,7 +78,7 @@ Para que o sistema esteja com os dados iniciais, além das configurações de pe
 
 ::
 
-    sudo docker cp saap:config/initial_data/django_content.type.sql .
+    sudo docker cp saap:/var/interlegis/saap/config/initial_data/django_content_type.sql .
     sudo docker exec -i postgres psql -U saap -d saap < django_content_type.sql
 
 :: 
@@ -87,6 +87,7 @@ Para que o sistema esteja com os dados iniciais, além das configurações de pe
     ./manage.py loaddata config/initial_data/auth_permission.json
     ./manage.py loaddata config/initial_data/auth_group.json
     ./manage.py loaddata config/initial_data/saap_*.json
+    exit
 
 
 Parar imagens
