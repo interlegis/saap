@@ -6,6 +6,8 @@ from image_cropping import ImageCroppingMixin
 
 from saap.utils import register_all_models_in_admin
 
+from saap.core.models import AuditLog
+
 from .forms import UserChangeForm, UserCreationForm
 from .models import User
 
@@ -55,3 +57,32 @@ admin.site.register(get_user_model(), UserAdmin)
 #admin.site.register(get_user_model(), ParlamentarAdmin)
 
 register_all_models_in_admin(__name__)
+
+class AuditLogAdmin(admin.ModelAdmin):
+    pass
+
+    def has_add_permission(self, request):
+        return False
+
+    # def has_change_permission(self, request, obj=None):
+    #     return False
+    #
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def save_model(self, request, obj, form, change):
+        pass
+
+    def delete_model(self, request, obj):
+        pass
+
+    def save_related(self, request, form, formsets, change):
+        pass
+
+
+# Na linha acima register_all_models_in_admin registrou AuditLog
+admin.site.unregister(AuditLog)
+admin.site.register(AuditLog, AuditLogAdmin)
+
+admin.site.site_title = 'Administração - SAAP'
+admin.site.site_header = 'Administração - SAAP'

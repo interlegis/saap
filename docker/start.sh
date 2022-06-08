@@ -55,11 +55,8 @@ load_db() {
     echo "[LOAD_DB] Creating database structure..."
     yes yes | python3 manage.py migrate
     
-    echo "[LOAD_DB] Loading initial data..."
-    python3 manage.py loaddata /var/interlegis/saap/config/initial_data/*.json
-
     echo "[LOAD_DB] Creating extension..."
-    psql -h saapdb -c "CREATE EXTENSION unaccent;"
+    psql -h saapdb -U saap -c "CREATE EXTENSION unaccent;"
 
     echo "[LOAD_DB] Done!"
 }
@@ -69,8 +66,6 @@ create_superuser(){
     echo "[CREATE_SUPERUSER] Creating superuser..."
 
     user_created=$(python3 create_admin.py 2>&1)
-
-    echo $user_created
 
     cmd=$(echo $user_created | grep 'ADMIN_USER_EXISTS')
     user_exists=$?

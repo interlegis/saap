@@ -76,23 +76,14 @@ COPY public.django_content_type (id, app_label, model) FROM stdin;
 55	cerimonial	processo
 56	cerimonial	processocontato
 57	cerimonial	grupodecontatos
-58	social_auth	usersocialauth
-59	social_auth	nonce
-60	social_auth	association
-61	social_auth	code
-62	social_django	usersocialauth
-63	social_django	nonce
-64	social_django	association
-65	social_django	code
-66	social_django	partial
 67	core	estado
 68	cities_light	country
 69	cities_light	region
 70	cities_light	city
-71	easy_audit	crudevent
-72	easy_audit	loginevent
-73	easy_audit	requestevent
+75	cerimonial	evento
+76	core	auditlog
 \.
+
 
 
 --

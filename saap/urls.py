@@ -25,9 +25,9 @@ import saap.core.urls
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='index.html')),
-    url(r'^django-admin/', admin.site.urls),
+    #url(r'^django-admin/', admin.site.urls),
 
-    url('', include('social.apps.django_app.urls', namespace='social')),
+    #url('', include('social.apps.django_app.urls', namespace='social')),
 
     url(r'', include(saap.core.urls)),
     url(r'', include(saap.cerimonial.urls)),
@@ -51,7 +51,10 @@ if settings.DEBUG:
         }),
     ]
 
-    import debug_toolbar
-    urlpatterns += [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
-    ]
+    try:
+        import debug_toolbar
+        urlpatterns += [
+            url(r'^__debug__/', include(debug_toolbar.urls)),
+        ]
+    except ImportError:
+        pass

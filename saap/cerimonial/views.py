@@ -1,17 +1,15 @@
 from django.core.exceptions import PermissionDenied
 from django.db.models.aggregates import Max
-from django.db.models import Q
+from django.db.models import Q, F, Func, Value
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.edit import FormView
 
 from django.utils.safestring import mark_safe
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.views import generic
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
 
 from _functools import reduce
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import datetime
 
 import operator
@@ -32,7 +30,8 @@ from saap.cerimonial.models import TipoTelefone, TipoEndereco,\
     AssuntoProcesso, ProcessoContato, GrupoDeContatos, Evento
 from saap.cerimonial.rules import rules_patterns
 
-from saap.cerimonial.utils import Calendar, get_date, prev_month, prev_year, next_month, next_year, this_month
+from saap.cerimonial.utils import CalendarAgenda, CalendarAniversarios, \
+    get_date, prev_month, prev_year, next_month, next_year, this_month
 
 from saap.utils import normalize
 
@@ -43,9 +42,6 @@ from saap.crispy_layout_mixin import CrispyLayoutFormMixin
 from saap.globalrules import globalrules
 from saap.globalrules.crud_custom import DetailMasterCrud,\
     MasterDetailCrudPermission, PerfilAbstractCrud, PerfilDetailCrudPermission
-
-# Variável usada para transportar a area de trabalho na seção de agenda/evento
-workspace = None
 
 globalrules.rules.config_groups(rules_patterns)
 
@@ -409,21 +405,19 @@ class PrincipalMixin:
         #        pk=self.object.pk).update(preferencial=False)
         return response
 
-class AgendaView(generic.ListView):
+class CalendarioView(generic.ListView):
     model = Evento
-    template_name = 'cerimonial/agenda.html'
+    template_name = 'cerimonial/calendario.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = "Agenda"
 
         d = get_date(self.request.GET.get('mes', None))
-        
 
-        global workspace
         workspace = AreaTrabalho.objects.filter(operadores=self.request.user.pk)[0]
         eventos = Evento.objects.filter(inicio__year=d.year, inicio__month=d.month, workspace=workspace).order_by('inicio')
-        cal = Calendar(d.year, d.month, eventos)
+        cal = CalendarAgenda(d.year, d.month, eventos)
 
         # Call the formatmonth method, which returns our calendar as a table
         html_cal = cal.formatmonth(withyear=True)
@@ -435,26 +429,78 @@ class AgendaView(generic.ListView):
         context['this_month'] = this_month()
         return context
 
-class EventoView():
+class AniversariosView(generic.ListView):
+    model = Contato
+    template_name = 'cerimonial/aniversarios.html'
 
-    def event(request, event_id=None):
-        global workspace
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "Aniversários"
 
-        instance = Evento()
-        if event_id:
-            instance = get_object_or_404(Evento, pk=event_id)
-        else:
-            instance = Evento()
-    
-        form = EventoForm(request.POST or None, instance=instance, workspace=workspace)
-        if request.POST and form.is_valid():
-            inicio = form.cleaned_data['inicio']
-            #month = "mes=" + str(inicio.year) + "-" + str(inicio.month)
-            form.save()
-            #return HttpResponseRedirect(reverse('saap.cerimonial:agenda_mes', args=(month,)))
-            return HttpResponseRedirect(reverse('saap.cerimonial:agenda'))
-        return render(request, 'cerimonial/evento.html', {'form': form, 'title': "Evento"})
+        d = get_date(self.request.GET.get('mes', None))
 
+        workspace = AreaTrabalho.objects.filter(operadores=self.request.user.pk)[0]
+        contatos = Contato.objects.prefetch_related('email_set', 'telefone_set', 'endereco_set', 'endereco_set__estado', 'endereco_set__municipio', 'endereco_set__bairro').filter(                                                                            data_nascimento__month=d.month, workspace=workspace).order_by('data_nascimento')
+        cal = CalendarAniversarios(d.year, d.month, contatos)
+
+        # Call the formatmonth method, which returns our calendar as a table
+        html_cal = cal.formatmonth(withyear=True)
+        context['calendar'] = mark_safe(html_cal)
+        context['prev_month'] = prev_month(d)
+        context['next_month'] = next_month(d)
+        context['prev_year'] = prev_year(d)
+        context['next_year'] = next_year(d)
+        context['this_month'] = this_month()
+        return context
+
+
+
+class EventoCrud(DetailMasterCrud):
+    model = Evento
+    container_field_set = 'workspace__operadores'
+
+    class BaseMixin(DetailMasterCrud.BaseMixin):
+        list_field_names = ['titulo', ('bairro', 'municipio'), 'inicio', 'termino']
+        layout_key = 'Evento'
+
+        def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            context['subnav_template_name'] = None
+            return context
+
+        def get_initial(self):
+            initial = {}
+
+            try:
+                initial['workspace'] = AreaTrabalho.objects.filter(
+                    operadores=self.request.user.pk)[0]
+            except:
+                raise PermissionDenied(_('Sem permissão de acesso!'))
+
+            return initial
+
+
+    class ListView(DetailMasterCrud.ListView):
+
+        def get(self, request, *args, **kwargs):
+            return DetailMasterCrud.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_queryset(self):
+            queryset = DetailMasterCrud.ListView.get_queryset(self)
+
+            queryset = queryset.filter(workspace=AreaTrabalho.objects.filter(operadores=self.request.user.pk)[0])
+            queryset = queryset.order_by('inicio')
+
+            return queryset
+
+    class CreateView(DetailMasterCrud.CreateView):
+        form_class = EventoForm
+        layout_key = 'Evento'
+
+    class UpdateView(DetailMasterCrud.UpdateView):
+        form_class = EventoForm 
+        layout_key = 'Evento'
 
 class FiliacaoPartidariaCrud(MasterDetailCrudPermission):
     model = FiliacaoPartidaria
@@ -566,8 +612,7 @@ class EnderecoPerfilCrud(PerfilDetailCrudPermission):
     parent_field = 'contato'
 
     class BaseMixin(PerfilDetailCrudPermission.BaseMixin):
-        #list_field_names = [('endereco', 'numero'), 'cep', 'bairro','municipio', 'principal', 'permite_contato']
-        list_field_names = ['endereco', 'numero', 'cep', 'bairro','municipio', 'principal', 'permite_contato']
+        list_field_names = [('endereco', 'numero'), 'cep', 'bairro','municipio', 'principal', 'permite_contato']
 
     class CreateView(PrincipalMixin, PerfilDetailCrudPermission.CreateView):
         form_class = EnderecoForm
@@ -657,7 +702,8 @@ class ProcessoMasterCrud(DetailMasterCrud):
 
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
-            context['subnav_template_name'] = 'cerimonial/subnav_processo.yaml'
+            #context['subnav_template_name'] = 'cerimonial/subnav_processo.yaml'
+            context['subnav_template_name'] = None
             return context
 
         def get_form(self, form_class=None):

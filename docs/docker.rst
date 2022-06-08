@@ -68,7 +68,26 @@ Se a opção ``BRASAO_PROPRIO`` está com ``True``, é necessário atualizar a i
 
 ::
 
-    docker cp brasao-camara.png saap:/var/interlegis/saap/saap/static/img/brasao-camara.png
+    sudo docker cp brasao-camara.png saap:/var/interlegis/saap/saap/static/img/brasao-camara.png
+
+
+5) Fazer a carga inicial do banco
+----------------------------------------------------------------------------------------
+
+Para que o sistema esteja com os dados iniciais, além das configurações de permissões, deve-se rodar os comandos a seguir, na ordem:
+
+::
+
+    sudo docker cp saap:/var/interlegis/saap/config/initial_data/django_content_type.sql .
+    sudo docker exec -i postgres psql -U saap -d saap < django_content_type.sql
+
+:: 
+
+    sudo docker exec -it saap bash
+    ./manage.py loaddata config/initial_data/auth_permission.json
+    ./manage.py loaddata config/initial_data/auth_group.json
+    ./manage.py loaddata config/initial_data/saap_*.json
+    exit
 
 
 Parar imagens
@@ -89,7 +108,7 @@ Para realizar o backup do banco do SAAP, basta rodar o seguinte comando:
 
 ::
 
-    docker exec postgres pg_dump -U saap -v -Fc saap > ~/saap.dump
+    sudo docker exec postgres pg_dump -U saap -v -Fc saap > ~/saap.dump
 
 O destino e o nome do arquivo gerado são personalizáveis.
 
@@ -100,15 +119,15 @@ Para realizar a restauraçao do banco, é necessário previamente limpar o banco
 
 ::
 
-    docker exec postgres psql -U saap -c 'DROP SCHEMA PUBLIC CASCADE;'
-    docker exec postgres psql -U saap -c 'CREATE SCHEMA PUBLIC;'
+    sudo docker exec postgres psql -U saap -c 'DROP SCHEMA PUBLIC CASCADE;'
+    sudo docker exec postgres psql -U saap -c 'CREATE SCHEMA PUBLIC;'
 
 Em seguida, basta copiar o arquivo para dentro da imagem e fazer a importação:
 
 ::
 
-    docker cp saap.dump postgres:/tmp/
-    docker exec postgres pg_restore -v -U saap -d saap /tmp/saap.dump
+    sudo docker cp saap.dump postgres:/tmp/
+    sudo docker exec postgres pg_restore -v -U saap -d saap /tmp/saap.dump
 
 Atualizar imagem
 ----------------------------------------------------------------------------------------

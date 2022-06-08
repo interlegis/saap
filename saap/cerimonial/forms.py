@@ -12,7 +12,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple, AdminDateWidget
 from django.db import models
 from django.db.models import Q, F, Func, Value
 #from django.forms.extras.widgets import SelectDateWidget
-from django.forms.widgets import SelectDateWidget, DateInput
+from django.forms.widgets import SelectDateWidget, DateInput, DateTimeInput, RadioSelect
 from django.forms import DateInput
 
 from django.forms.models import ModelForm, ModelMultipleChoiceField
@@ -149,11 +149,19 @@ class LocalTrabalhoForm(ModelForm):
         self.fields['principal'].inline_class = True
 
 
-
 class EventoForm(ModelForm):
+
+    simultaneo = forms.TypedChoiceField(
+                   label="Ignorar eventos simultâneos?",
+                   required=False,
+                   coerce=lambda x: x == 'True',
+                   choices=((False, 'Não'), (True, 'Sim')),
+                   widget=forms.RadioSelect
+                )
 
     class Meta:
         model = Evento
+
         fields = ['titulo',
                   'descricao',
                   'localizacao',
@@ -161,26 +169,20 @@ class EventoForm(ModelForm):
                   'municipio',
                   'bairro',
                   'inicio',
-                  'termino', 
-                  'workspace']
-        
+                  'termino',
+                  'simultaneo',
+                  'workspace', 
+                  ]
+       
 
         # datetime-local is a HTML5 input type, format to make date time show on fields
         widgets = {
-            'inicio': DateInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
-            'termino': DateInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'inicio': DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'termino': DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
         }
 
     def __init__(self, *args, **kwargs):
-        workspace = kwargs.pop('workspace')
-
         super(EventoForm, self).__init__(*args, **kwargs)
-
-        for field in self.fields.values():
-            field.widget.attrs.update({'class': 'form-control'})
-
-        self.workspace = workspace
-        self.initial['workspace'] = self.workspace
 
         # input_formats parses HTML5 datetime-local input to datetime field
         self.fields['inicio'].input_formats = ('%Y-%m-%dT%H:%M',)
@@ -195,6 +197,28 @@ class EventoForm(ModelForm):
 
         if termino <= inicio:
             self._errors['termino'] = [_('O término do evento deve ser posterior ao seu início.')]
+
+        if self.cleaned_data['simultaneo'] != True:
+
+            inicio_concomitante = Evento.objects.filter(workspace=self.initial['workspace'], 
+                                                        inicio__lte=self.cleaned_data['inicio'], termino__gte=self.cleaned_data['inicio'])
+
+            if self.instance.pk != None:
+                inicio_concomitante = inicio_concomitante.filter(~Q(pk=self.instance.pk))
+
+            if inicio_concomitante.count() > 0:
+                self._errors['inicio'] = [_('Há ' + str(inicio_concomitante.count()) + ' evento(s) marcado(s) para essa data/hora de início.')]
+                self._errors['simultaneo'] = [_('Para ignorar a verificação de eventos simultâneos, marque Sim nessa opção')]
+
+            termino_concomitante = Evento.objects.filter(workspace=self.initial['workspace'], 
+                                                         inicio__lte=self.cleaned_data['termino'], termino__gte=self.cleaned_data['termino'])
+
+            if self.instance.pk != None:
+                termino_concomitante = termino_concomitante.filter(~Q(pk=self.instance.pk))       
+
+            if termino_concomitante.count() > 0:
+                self._errors['termino'] = [_('Há ' + str(termino_concomitante.count()) + ' evento(s) marcado(s) para esta data/hora de término.')]
+                self._errors['simultaneo'] = [_('Para ignorar a verificação de eventos simultâneos, marque Sim nessa opção')]
 
 class ContatoForm(ModelForm):
 
@@ -3163,6 +3187,7 @@ class ContatosExportaFilterSet(FilterSet):
             ('telefone', 4),
             ('tipo_autoridade', 4),
             ('cargo', 4),
+            ('pk_selecionados', 12),
         ])
 
         col2 = to_row([
@@ -3609,6 +3634,191 @@ class MalaDiretaFilterSet(FilterSet):
 
 
 
+class EventoFilterSet(FilterSet):
+
+    filter_overrides = {models.DateTimeField: {
+        'filter_class': MethodFilter,
+        'extra': lambda f: {
+            'label': '%s (%s)' % (f.verbose_name, _('período')),
+            'widget': RangeWidgetOverride}
+    }}
+
+
+    search = MethodFilter()
+
+    bairro = MethodModelMultipleChoiceFilter(
+        required=False,
+        label=_('Bairro (' + settings.DADOS_MUNICIPIO + ')'),
+        queryset=None) # Será carregado no final do código
+
+    municipio = MethodModelMultipleChoiceFilter(
+        required=False,
+        label=_('Município (' + settings.DADOS_UF + ')'), 
+        queryset=None) # Será carregado no final do código
+
+    pk_selecionados = MethodFilter(
+        required=False,
+        action=filter_pk_selecionados,
+        )
+
+
+    def filter_search(self, queryset, value):
+
+        query = normalize(value)
+
+        query = query.split(' ')
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                # Remove acentos dos campos que estão no banco
+                q = q & Q(search__unaccent__icontains=item)
+
+            if q:
+                queryset = queryset.filter(q)
+        return queryset
+ 
+    def filter_search(self, queryset, value):
+
+        query = normalize(value)
+
+        query = query.split(' ')
+        if query:
+            q = Q()
+            for item in query:
+                if not item:
+                    continue
+                # Remove acentos dos campos que estão no banco
+                q = q & (Q(title__unaccent__icontains=item) | 
+                         Q(description__unaccent__icontains=item) |
+                         Q(location__unaccent__icontains=item))
+
+            if q:
+                queryset = queryset.filter(q)
+        return queryset
+
+
+    def filter_inicio(self, queryset, value):
+
+        if not value[0] and not value[1]:
+            return queryset
+
+        inicial = None
+        final = None
+
+        if(value[0] != ''):
+            inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        if(value[1] != ''):
+            final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+   
+        if(inicial != None and final != None):
+            if inicial > final:
+                inicial, final = final, inicial
+            range_select = Q(inicio__range=[inicial, final])
+        elif(inicial != None):
+            range_select = Q(inicio__gte=inicial)
+        elif(final != None):
+            range_select = Q(inicio__lte=final)
+
+        # Run the query.
+        return queryset.filter(range_select)
+
+    def filter_termino(self, queryset, value):
+
+        if not value[0] and not value[1]:
+            return queryset
+
+        inicial = None
+        final = None
+
+        if(value[0] != ''):
+            inicial = datetime.datetime.strptime(value[0], "%d/%m/%Y").date()
+        if(value[1] != ''):
+            final = datetime.datetime.strptime(value[1], "%d/%m/%Y").date()
+   
+        if(inicial != None and final != None):
+            if inicial > final:
+                inicial, final = final, inicial
+            range_select = Q(termino__range=[inicial, final])
+        elif(inicial != None):
+            range_select = Q(termino__gte=inicial)
+        elif(final != None):
+            range_select = Q(termino__lte=final)
+
+        # Run the query.
+        return queryset.filter(range_select)
+
+    def filter_bairro(self, queryset, value):
+        if value:
+            queryset = queryset.filter(
+                bairro__in=value).distinct()
+
+        return queryset
+
+    def filter_municipio(self, queryset, value):
+        if value:
+            queryset = queryset.filter(
+                    municipio__in=value).distinct()
+
+        return queryset
+
+    class Meta:
+        model = Evento
+        fields = ['search',
+                  'inicio',
+                  'termino',
+                  ]
+
+    def __init__(self, data=None,
+                 queryset=None, prefix=None, strict=None, **kwargs):
+
+        workspace = kwargs.pop('workspace')
+ 
+        super(EventoFilterSet, self).__init__(
+            data=data,
+            queryset=queryset, prefix=prefix, strict=strict, **kwargs)
+
+        fields = to_row([
+            ('search', 12),
+            ('inicio', 6),
+            ('termino', 6),
+            ('bairro', 6),
+            ('municipio', 6),
+            ('pk_selecionados', 12),
+        ])
+
+        row = to_row([(
+        Fieldset(
+            _('Busca por Evento'),
+            fields,
+            to_row([
+                (SubmitFilterPrint(
+                    'filter',
+                    value=_('Filtrar'),
+                    css_class='btn-default pull-right',
+                    type='submit'),2),
+                (SubmitFilterPrint(
+                    'print',
+                    value=_('Imprimir'),
+                    css_class='btn-primary pull-right',
+                    type='submit'),2)
+            ])), 12),])
+
+        self.form.helper = FormHelper()
+        self.form.helper.form_method = 'GET'
+        self.form.helper.layout = Layout(
+            row,
+        )
+
+        self.form.fields['pk_selecionados'].label = _('Códigos selecionados')
+        self.form.fields['search'].label = 'Título, descrição ou localização'
+        self.form.fields['inicio'].label = 'Início do evento (intervalo de datas)'
+        self.form.fields['termino'].label = 'Término do evento (intervalo de datas)'
+
+        self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk)
+        self.form.fields['municipio'].queryset = Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk)
+
 
 
 class AgendaFilterSet(FilterSet):
@@ -3616,7 +3826,7 @@ class AgendaFilterSet(FilterSet):
     filter_overrides = {models.DateTimeField: {
         'filter_class': MethodFilter,
         'extra': lambda f: {
-            'label': '%s (%s)' % (f.verbose_name, _('período')),
+            'label': '%s (%s)' % (f.verbose_name, _('intervalo de datas')),
             'widget': RangeWidgetOverride}
     }}
 
@@ -3797,8 +4007,8 @@ class AgendaFilterSet(FilterSet):
         )
 
         self.form.fields['search'].label = 'Título, descrição ou localização'
-        self.form.fields['inicio'].label = 'Início do evento (período)'
-        self.form.fields['termino'].label = 'Término do evento (período)'
+        self.form.fields['inicio'].label = 'Início do evento (intervalo de datas)'
+        self.form.fields['termino'].label = 'Término do evento (intervalo de datas)'
 
         self.form.fields['bairro'].queryset = Bairro.objects.filter(municipio=Municipio.objects.get(nome=settings.DADOS_MUNICIPIO, estado=Estado.objects.get(sigla=settings.DADOS_UF)).pk)
         self.form.fields['municipio'].queryset = Municipio.objects.filter(estado=Estado.objects.get(sigla=settings.DADOS_UF).pk)

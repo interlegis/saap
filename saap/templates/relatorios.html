@@ -18,7 +18,7 @@
           <td> Lista completa de contatos, em PDF, contendo algumas informações.</td>
         </tr>
         <tr>
-          <td><a href="{% url 'saap.cerimonial:print_contato' %}">{% trans "Dados detalhados" %}</a></td>
+          <td><a href="{% url 'saap.cerimonial:print_contato' %}">{% trans "Detalhamento" %}</a></td>
           <td> Ficha completa, com todos os dados de um contato.</td>
         </tr>
     </tbody>
@@ -34,7 +34,7 @@
           <td> Lista completa de processos, em PDF, contendo algumas informações.</td>
         </tr>
         <tr>
-          <td><a href="{% url 'saap.cerimonial:print_processo' %}">{% trans "Dados detalhados" %}</a></td>
+          <td><a href="{% url 'saap.cerimonial:print_processo' %}">{% trans "Detalhamento" %}</a></td>
           <td> Ficha completa, com todos os dados de um processo.</td>
         </tr>
     </tbody>
@@ -47,9 +47,12 @@
     <table class="table">
     <tbody>
         <tr>
-        <tr>
-          <td width="30%"><a href="{% url 'saap.cerimonial:print_agenda' %}">{% trans "Listagem" %}</a></td>
+          <td width="30%"><a href="{% url 'saap.cerimonial:print_rel_agenda' %}">{% trans "Listagem" %}</a></td>
           <td> Lista completa de eventos e compromissos, em PDF.</td>
+        </tr>
+        <tr>
+          <td width="30%"><a href="{% url 'saap.cerimonial:print_evento' %}">{% trans "Detalhamento" %}</a></td>
+          <td> Ficha completa, com todos os dados de um evento.</td>
         </tr>
     </tbody>
     </table>

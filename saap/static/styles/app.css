@@ -1284,6 +1284,14 @@ nav .dropdown-menu > li > a {
   font-weight: bold;
 }
 
+.calendario .hoje {
+  background: #d6e1e5;
+}
+
+.calendario .passado {
+  background: #b9b9b9;
+}
+
 .left {
   float: left;
 }
@@ -1313,4 +1321,16 @@ nav .dropdown-menu > li > a {
 
 .evento .form-control {
   margin-bottom: 10px;
+}
+
+.evento-longo {
+  color: #cc0c0c;
+}
+
+.evento-concomitante { 
+  color: #1919ec;
+}
+
+.evento-passado {
+  color: #a0a0a0;
 }

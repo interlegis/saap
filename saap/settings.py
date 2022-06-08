@@ -57,11 +57,10 @@ DADOS_TELEFONE = config('DADOS_TELEFONE');
 DADOS_SITE = config('DADOS_SITE');
 BRASAO_PROPRIO = config('BRASAO_PROPRIO');
 
-VERSION='3.1.1'
+VERSION='3.1.2'
 
 INSTALLED_APPS = (
-    #'django_admin_bootstrapped',
-    'bootstrap_admin',
+    'django_admin_bootstrapped',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -73,7 +72,7 @@ INSTALLED_APPS = (
     #'social_django',
 
     # more
-#    'import_export',
+    #'import_export',
     'smart_selects',
     'django_extensions',
     'djangobower',
@@ -88,18 +87,11 @@ INSTALLED_APPS = (
     # 'haystack',
     # "elasticstack",
 
-    'debug_toolbar',
     'taggit',
     'modelcluster',
-    'easyaudit',
 )
 
 INSTALLED_APPS = INSTALLED_APPS + SAAP_APPS
-
-
-# if DEBUG and 'debug_toolbar' not in INSTALLED_APPS:
-#    INSTALLED_APPS += ('debug_toolbar',)
-
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -111,14 +103,19 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
 )
+
+try:
+    import debug_toolbar
+    MIDDLEWARE_CLASSES += (
+       'debug_toolbar.middleware.DebugToolbarMiddleware',
+    )
+    INSTALLED_APPS += ('debug_toolbar',)
+except ImportError:
+    pass
 
 if DEBUG:
    INTERNAL_IPS = ('127.0.0.1', 'localhost', '172.27.80.68')
-   MIDDLEWARE_CLASSES += (
-       'debug_toolbar.middleware.DebugToolbarMiddleware',
-   )
 
    DEBUG_TOOLBAR_PANELS = [
        'debug_toolbar.panels.versions.VersionsPanel',

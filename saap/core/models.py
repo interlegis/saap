@@ -882,3 +882,43 @@ class Filiacao(models.Model):
         return _('%(parlamentar)s - %(partido)s') % {
             'parlamentar': self.parlamentar, 'partido': self.partido
         }
+
+
+class AuditLog(models.Model):
+
+    operation = ('C', 'D', 'U')
+
+    MAX_DATA_LENGTH = 4096  # 4KB de texto
+
+    username = models.CharField(max_length=100,
+                                verbose_name=_('username'),
+                                blank=True,
+                                db_index=True)
+    operation = models.CharField(max_length=1,
+                                 verbose_name=_('operation'),
+                                 db_index=True)
+    timestamp = models.DateTimeField(verbose_name=_('timestamp'),
+                                     db_index=True)
+    object = models.CharField(max_length=MAX_DATA_LENGTH,
+                              blank=True,
+                              verbose_name=_('object'))
+    object_id = models.PositiveIntegerField(verbose_name=_('object_id'),
+                                            db_index=True)
+    model_name = models.CharField(max_length=100, verbose_name=_('model'),
+                                  db_index=True)
+    app_name = models.CharField(max_length=100,
+                                verbose_name=_('app'),
+                                db_index=True)
+
+    class Meta:
+        verbose_name = _('AuditLog')
+        verbose_name_plural = _('AuditLogs')
+        ordering = ('-id',)
+
+    def __str__(self):
+        return "[%s] %s %s.%s %s" % (self.timestamp,
+                                     self.operation,
+                                     self.app_name,
+                                     self.model_name,
+                                     self.username,
+                                     )

@@ -62,7 +62,6 @@ CMD rm /usr/local/lib/python*/site-packages/rest_framework/* -R
 RUN cp /var/interlegis/saap/config/django_db_models/base.py /usr/local/lib/python*/site-packages/django/db/models/
 RUN cp /var/interlegis/saap/config/django_core_management/base.py /usr/local/lib/python*/site-packages/django/core/management/
 RUN cp /var/interlegis/saap/config/rest_framework/* /usr/local/lib/python*/site-packages/rest_framework/ -R
-RUN cp /var/interlegis/saap/config/bootstrap_admin/filter.html /usr/local/lib/python*/site-packages/bootstrap_admin/templates/admin/
 RUN cp /var/interlegis/saap/config/smart-selects/* /usr/local/lib/python*/site-packages/smart_selects/static/smart-selects/admin/js/
 RUN cp /var/interlegis/saap/config/reportlab/* /usr/local/lib/python*/site-packages/reportlab/platypus/
 RUN cp /var/interlegis/saap/config/image_cropping/* /usr/local/lib/python*/site-packages/image_cropping
