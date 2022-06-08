@@ -6,3 +6,6 @@ class AppConfig(apps.AppConfig):
     name = 'saap.core'
     label = 'core'
     verbose_name = _('Ajustes principais')
+
+    def ready(self):
+        from saap.core import receivers

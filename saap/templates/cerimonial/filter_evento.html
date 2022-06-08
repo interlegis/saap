@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load i18n common_tags crispy_forms_tags%}
+
+{% block base_content %}
+  <div class="context-actions clearfix">
+      {% if filter.form %}
+        {% crispy filter.form %}
+      {% endif %}
+  </div>
+  {% block extra_content %} {% endblock %}
+  <div class="container-table">
+    <div class="result-count">{% blocktrans with verbose_name_plural=view.verbose_name_plural %}{{ verbose_name_plural }} encontrados: <strong>{{count}}</strong>{% endblocktrans %}</div>
+
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="pk_all" name="pk_all" onclick="select_all_pk(this)" selected="false"></th>
+          <th>Código</th>
+          <th>Título</th>
+          <th>Descrição</th>
+          <th>Município</th>
+          <th>Início</th>
+          <th>Término</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for obj in page_obj %}
+        <tr>
+	  <td>
+              <input type="checkbox" id="{{obj.pk|safe}}" name="pk_alone" selected="false">
+	  </td>
+          <td>
+              <a href="{{ obj.url|safe }}">{{ obj.pk|safe }}</a>
+          </td>
+          <td>
+              {{ obj.titulo|safe }}
+          </td>
+          <td>
+              {{ obj.descricao|safe }}
+          </td>
+          <td>
+              {% if obj.municipio != None %}
+                  {{ obj.municipio }}
+              {% else %}
+                  -
+              {% endif %}
+          </td>
+          <td>
+              {{ obj.inicio|safe }}
+          </td>
+          <td>
+              {{ obj.termino|safe }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    </table>
+  </div>
+  {% include "paginacao.html" %}
+{% endblock %}
+
+{% block extra_js %}
+  <script type="text/javascript">
+    $(document).on("keypress", "form", function(event) {
+        return event.keyCode != 13;
+    });
+
+    var pk_selecionados = $('[name="pk_selecionados"]');
+          
+    var select_all_pk = function(source) {
+  	checkboxes = document.getElementsByName('pk_alone');
+	for(var i=0, n=checkboxes.length;i<n;i++) {
+ 	   checkboxes[i].checked = source.checked;
+  	}
+    }
+
+    var add_pks = function(){
+        pk_selecionados.attr("value", "");
+	checkboxes = document.getElementsByName('pk_alone');
+	for(var i=0, n=checkboxes.length;i<n;i++) {
+	   if(checkboxes[i].checked == true)
+	   {
+		if(pk_selecionados.attr("value") == "")
+       		{
+           	    pk_selecionados.attr("value", checkboxes[i].id);
+       		}
+		else
+		{
+		    var new_value = pk_selecionados.attr("value") + "," + checkboxes[i].id;
+               	    pk_selecionados.attr("value", new_value);
+		}
+            }
+  	}
+
+    }
+
+    pk_selecionados.attr("readonly", "readonly");
+
+    document.getElementById('submit-id-print').addEventListener("click", function(){ add_pks(); }); 
+
+  </script>
+{% endblock %}

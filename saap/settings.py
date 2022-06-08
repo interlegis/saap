@@ -57,11 +57,11 @@ DADOS_TELEFONE = config('DADOS_TELEFONE');
 DADOS_SITE = config('DADOS_SITE');
 BRASAO_PROPRIO = config('BRASAO_PROPRIO');
 
-VERSION='3.1.1'
+VERSION='3.1.2'
 
 INSTALLED_APPS = (
-    #'django_admin_bootstrapped',
-    'bootstrap_admin',
+    'django_admin_bootstrapped',
+    #'bootstrap_admin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -73,7 +73,7 @@ INSTALLED_APPS = (
     #'social_django',
 
     # more
-#    'import_export',
+    #'import_export',
     'smart_selects',
     'django_extensions',
     'djangobower',
@@ -91,7 +91,7 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'taggit',
     'modelcluster',
-    'easyaudit',
+#    'easyaudit',
 )
 
 INSTALLED_APPS = INSTALLED_APPS + SAAP_APPS
@@ -111,7 +111,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
+#    'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
 )
 
 if DEBUG:

@@ -115,6 +115,10 @@ As configurações e instruções de uso para o Git estão espalhadas pela Inter
 
     mkvirtualenv -a /var/interlegis/saap -p python3 -r requirements/requirements.txt saap
 
+::
+
+    pip install -r /var/interlegis/saap/requirements/dev-requirements.txt
+
 5) Configurar o banco de dados PostgreSQL
 -----------------------------------------------------
 
@@ -266,12 +270,6 @@ Lembrando, antes, que [PYTHON] deve ser trocada pela pasta com a versão do Pyth
 
     cp /var/interlegis/saap/config/rest_framework/* /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/rest_framework/ -R 
 
-* Bootstrap 
-
-::
-
-    cp /var/interlegis/saap/config/bootstrap_admin/filter.html /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/bootstrap_admin/templates/admin/ 
-
 * Smart Selects (usado para carregar os campos de Estado, Município, Bairro...)
 
 ::
@@ -323,8 +321,10 @@ Após isto, é necessário fazer a carga de dados básicos. Para isto, rode os c
     sudo -u postgres psql saap < config/initial_data/django_content_type.sql
 
 ::
-   
-    ./manage.py loaddata config/initial_data/*.json
+  
+    ./manage.py loaddata config/initial_data/auth_permission.json
+    ./manage.py loaddata config/initial_data/auth_group.json
+    ./manage.py loaddata config/initial_data/saap*.json
 
 Para concluir, é necessário criar o super-usuário, que terá permissão de admin. Ele solicitará e-mail e senha.
 

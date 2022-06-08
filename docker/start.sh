@@ -55,9 +55,6 @@ load_db() {
     echo "[LOAD_DB] Creating database structure..."
     yes yes | python3 manage.py migrate
     
-    echo "[LOAD_DB] Loading initial data..."
-    python3 manage.py loaddata /var/interlegis/saap/config/initial_data/*.json
-
     echo "[LOAD_DB] Creating extension..."
     psql -h saapdb -c "CREATE EXTENSION unaccent;"
 

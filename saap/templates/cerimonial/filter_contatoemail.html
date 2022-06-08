@@ -8,7 +8,9 @@
       {% endif %}
   </div>
   {% block extra_content %} {% endblock %}
- 
+   Obs.: Contatos que não possuem e-mail cadastrado e marcado como para contato possuem seu nome destacado em <span class="evento-longo"><b>vermelho</b></span>.
+   <br><br>
+
   <div class="container-table">
     <div class="result-count">{% blocktrans with verbose_name_plural=view.verbose_name_plural %}Total de {{ verbose_name_plural }} selecionados: <strong>{{count}}</strong>{% endblocktrans %}</div>
     <table class="table table-striped table-hover">
@@ -29,11 +31,13 @@
           <td>
               <center><a href="{% url 'saap.cerimonial:contato_list' %}{{obj.pk|safe}}">{{ obj.pk|safe }}</a></center>
           </td> 
+          {% if obj.email == '' %}
+              <td class='erro'><b>{{ obj.nome|safe }}</b></td>
+          {% else %}
+              <td><b>{{ obj.nome|safe }}</b></td>
+          {% endif %} 
           <td>
-              <b>{{ obj.nome|safe }}</b>
-          </td>
-          <td>
-              {{ obj.email|safe }}
+              <b>{{ obj.email|safe }}</b>
           </td>
           <td>
               {{ obj.bairro|safe }}

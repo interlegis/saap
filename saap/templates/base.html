@@ -98,7 +98,16 @@
 
                   {# if perms.core.menu_agenda #} 
                   {% if perms.core.menu_contatos %} {# Permissão temporária. Criar no futuro #}
-                    <li><a href="{% url 'saap.cerimonial:agenda' %}">{% trans "Agenda" %}</a></li>
+                    <li class="dropdown">
+                      <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Agenda" %}<span class="caret"></span></a>
+                      <ul class="dropdown-menu menu-right">
+ 	                 <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:agenda' %}">{% trans "Calendário" %}</a></li>
+ 	                 <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:evento_list' %}">{% trans "Eventos e compromissos" %}</a></li>
+ 	                 <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:aniversarios' %}">{% trans "Aniversários" %}</a></li>
+                      </ul>
+                    <li>
+
+
                   {% endif %}
 
                   {# if perms.core.menu_correspondencias #} 
@@ -107,7 +116,7 @@
                       <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Correspondências" %}<span class="caret"></span></a>
                       <ul class="dropdown-menu menu-right">
  	                 <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:print_impressoenderecamento' %}">{% trans "Envelopes e etiquetas" %}</a></li>
- 	                 <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:print_maladireta' %}">{% trans "Exportação para mala direta" %}</a></li>
+ 	                 <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:print_maladireta' %}">{% trans "Exportação de e-mails" %}</a></li>
                       </ul>
                     <li>
                   {% endif %}

@@ -13,11 +13,8 @@ from smart_selects.db_fields import ChainedForeignKey
 
 from django.utils import timezone
 
-from django.core.urlresolvers import reverse
-
 from exclusivebooleanfield.fields import ExclusiveBooleanField
 
-from pytz import timezone as pytz_timezone
 
 FEMININO = 'F'
 MASCULINO = 'M'
@@ -209,23 +206,38 @@ class OperadoraTelefonia(DescricaoAbstractModel):
         verbose_name = _('Operadora de telefonia')
         verbose_name_plural = _('Operadoras de telefonia')
 
-#class Evento(SaapAuditoriaModelMixin):
-class Evento(models.Model):
+class Evento(SaapAuditoriaModelMixin):
 
-    titulo = models.CharField(max_length=200, default='Evento', blank=False, verbose_name=_('Título'))
+    titulo = models.CharField(
+        max_length=200, 
+        default='Evento', 
+        blank=False,
+        verbose_name=_('Título'))
 
-    descricao = models.TextField(blank=True, default='', verbose_name=_('Descrição'))
+    descricao = models.TextField(
+        blank=True,
+        default='',
+        verbose_name=_('Descrição'))
 
-    localizacao = models.TextField(blank=True, default='', verbose_name=_('Localização'))
+    localizacao = models.TextField(
+        blank=True, 
+        default='', 
+        verbose_name=_('Localização'))
 
-    inicio = models.DateTimeField(default=timezone.now, blank=False, verbose_name=_('Início'))
+    inicio = models.DateTimeField(
+        default=timezone.now, 
+        blank=False, 
+        verbose_name=_('Início'))
 
-    termino = models.DateTimeField(default=timezone.now, blank=False, verbose_name=_('Término'))
+    termino = models.DateTimeField(
+        default=timezone.now,
+        blank=False, 
+        verbose_name=_('Término'))
 
     workspace = models.ForeignKey(
         AreaTrabalho,
         verbose_name=_('Área de trabalho'),
-        blank=True, null=True, on_delete=PROTECT)
+        blank=False, null=False, on_delete=PROTECT)
 
     estado = models.ForeignKey(
         Estado,
@@ -259,34 +271,11 @@ class Evento(models.Model):
  
     @cached_property
     def fields_search(self):
-        return ['title',
-                'description',]
+        return ['titulo',
+                'descricao',]
 
-    @property
-    def get_html_url(self):
-        url = reverse('saap.cerimonial:evento_edit', args=(self.id,))
-        fmt = "%d/%m/%Y às %H:%M"
-        self.inicio = self.inicio.astimezone(pytz_timezone('America/Sao_Paulo'))
-        self.termino = self.termino.astimezone(pytz_timezone('America/Sao_Paulo'))
-
-        if(self.bairro != None):
-            str_bairro = self.bairro.nome
-        else:
-            str_bairro = ''
-
-        if(self.municipio != None):
-            str_municipio = self.municipio.nome
-        else:
-            str_municipio = ''
-
-        text = "Descrição: " + self.descricao + "\n\n" + \
-               "Local: " + self.localizacao + "\n" + \
-               "Bairro: " + str_bairro + "\n" + \
-               "Município: " + str_municipio + "\n\n" + \
-               "Início: " + self.inicio.strftime(fmt) + "\n" + \
-               "Término: " + self.termino.strftime(fmt) 
-        hora_inicio = self.inicio.strftime("%H:%M")
-        return f'&nbsp;<b>{hora_inicio}</b>&nbsp;<a href="{url}" title="{text}">{self.titulo}</a>'
+    def __str__(self):
+        return self.titulo
 
 class Contato(SaapSearchMixin, SaapAuditoriaModelMixin):
 
@@ -901,8 +890,8 @@ class EnderecoPerfil(Endereco):
         verbose_name = _('Endereço do perfil')
         verbose_name_plural = _('Endereços do perfil')
 
-    def get_absolute_url(self):
-        return reverse('view_mymodel', args=(self.pk,))
+#    def get_absolute_url(self):
+#        return reverse('view_mymodel', args=(self.pk,))
 
 
 class FiliacaoPartidaria(SaapAuditoriaModelMixin):

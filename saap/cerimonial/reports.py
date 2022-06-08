@@ -28,7 +28,8 @@ from reportlab.platypus.tables import TableStyle, LongTable
 from reportlab.lib.units import mm
 
 from saap.cerimonial.forms import ImpressoEnderecamentoFilterSet,\
-    ProcessosFilterSet, ContatosFilterSet, ContatosExportaFilterSet, ProcessoIndividualFilterSet, ContatoIndividualFilterSet, MalaDiretaFilterSet, AgendaFilterSet
+    ProcessosFilterSet, ContatosFilterSet, ContatosExportaFilterSet, ProcessoIndividualFilterSet, ContatoIndividualFilterSet, \
+    MalaDiretaFilterSet, AgendaFilterSet, EventoFilterSet
 from saap.cerimonial.models import Contato, Processo, Telefone, Email, GrupoDeContatos, Endereco, \
                                    AssuntoProcesso, TopicoProcesso, LocalTrabalho, Dependente, FiliacaoPartidaria, \
                                    Bairro, Municipio, Estado, IMPORTANCIA_CHOICE, Evento
@@ -3015,7 +3016,7 @@ class RelatorioAgendaView(RelatorioProcessosView):
             fmt = "%d/%m/%Y às %H:%M"
             agenda.inicio = agenda.inicio.strftime(fmt)
             agenda.termino = agenda.termino.strftime(fmt)
-            agenda.url = reverse('saap.cerimonial:evento_edit', args=(agenda.id,))
+            agenda.url = "/eventos/" + str(agenda.id) 
 
         return context
 
@@ -3182,26 +3183,6 @@ class RelatorioAgendaView(RelatorioProcessosView):
 
         return agenda
 
-#    def validate_data(self):
-#        contatos = []
-#        consulta_agregada = self.object_list.order_by('nome',)
-#        consulta_agregada = consulta_agregada.values_list(
-#            'id',
-#        )
-#
-#        total_erros = 0
-#
-#        for contato in consulta_agregada.all():
-#            query = (Q(permite_contato=True))
-#            query.add(Q(contato__id=contato[0]), Q.AND)
-#
-#            email = Email.objects.filter(query).count()
-#
-#            if(email == 0):
-#                total_erros = total_erros + 1
-#
-#        return total_erros
-
     def set_cabec(self, h5):
         cabec = [Paragraph(_('Título'), h5)]
         cabec.append(Paragraph(_('Descrição'), h5))
@@ -3221,7 +3202,316 @@ class RelatorioAgendaView(RelatorioProcessosView):
 
         corpo_relatorio.append(self.cabec)
 
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 
+class RelatorioEventoView(PermissionRequiredMixin, FilterView):
+    #permission_required = 'cerimonial.print_rel_agenda'
+    #permission_required = 'core.menu_agenda'
+    permission_required = 'core.menu_contatos'
+    filterset_class = EventoFilterSet
+    model = Evento
+    template_name = "cerimonial/filter_evento.html"
+    container_field = 'workspace__operadores'
+
+    paginate_by = 100
+
+    def __init__(self):
+        super().__init__()
+        self.ctx_title = 'Relatório detalhado de um evento'
+        self.relat_title = 'Detalhamento de Informações do Evento'
+        self.nome_objeto = 'Evento'
+        self.filename = 'Detalhamento_Evento'
+
+    @cached_property
+    def is_contained(self):
+        return True
+
+    @property
+    def verbose_name(self):
+        return self.model._meta.verbose_name
+
+    @property
+    def verbose_name_plural(self):
+        return self.model._meta.verbose_name_plural
+
+    def get(self, request, *args, **kwargs):
+        filterset_class = self.get_filterset_class()
+        self.filterset = self.get_filterset(filterset_class)
+
+        self.object_list = self.filterset.qs
+
+        if len(request.GET) and not len(self.filterset.form.errors)\
+                and not self.object_list.exists():
+            messages.error(request, _(
+                'Não existe {} com as '
+                'condições definidas na busca!'.format(self.nome_objeto)
+            ))
+
+        if 'print' in request.GET and self.object_list.exists():
+            if self.filterset.form.cleaned_data['pk_selecionados']:
+                filename = str(self.filename) + "_" + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
+                response = HttpResponse(content_type='application/pdf')
+                content = 'inline; filename="%s.pdf"' % filename
+                response['Content-Disposition'] = content
+                self.build_pdf(response)
+                return response
+            else:
+                messages.error(request, _('Não há Evento selecionado. Marque ao menos um contato para gerar o relatório'))
+                
+        context = self.get_context_data(filter=self.filterset,
+                                        object_list=self.object_list)
+
+        return self.render_to_response(context)
+
+    def get_filterset(self, filterset_class):
+        kwargs = self.get_filterset_kwargs(filterset_class)
+        try:
+            kwargs['workspace'] = AreaTrabalho.objects.filter(
+                operadores=self.request.user.pk)[0]
+        except:
+            raise PermissionDenied(_('Sem permissão de acesso!'))
+
+        return filterset_class(**kwargs)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        kwargs = {}
+        if self.container_field:
+            kwargs[self.container_field] = self.request.user.pk
+
+        return qs.filter(**kwargs)
+
+    def get_context_data(self, **kwargs):
+        count = self.object_list.count()
+        context = super(RelatorioEventoView,
+                        self).get_context_data(**kwargs)
+
+        context['count'] = count
+        context['title'] = _(self.ctx_title)
+
+        paginator = context['paginator']
+        page_obj = context['page_obj']
+
+        context['page_range'] = make_pagination(
+            page_obj.number, paginator.num_pages)
+
+        qr = self.request.GET.copy()
+        if 'page' in qr:
+            del qr['page']
+        context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
+
+        for agenda in page_obj:
+            fmt = "%d/%m/%Y às %H:%M"
+            agenda.inicio = agenda.inicio.strftime(fmt)
+            agenda.termino = agenda.termino.strftime(fmt)
+            agenda.url = "/eventos/" + str(agenda.id) 
+
+        return context
+
+    def build_pdf(self, response):
+
+        elements = []
+
+        style = TableStyle([
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('LEADING', (0, 0), (-1, -1), 7),
+            #('GRID', (0, 0), (-1, -1), 0.1, colors.black),
+            #('INNERGRID', (0, 0), (-1, -1), 0.1, colors.black),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+        ])
+        style.add('VALIGN', (0, 0), (-1, -1), 'TOP')
+
+        eventos = Evento.objects.filter(pk__in=self.filterset.form.cleaned_data['pk_selecionados'].split(','))
+
+        for e in eventos:
+            data = self.get_data(e)
+
+            for i, value in enumerate(data):
+                if len(value) <= 1:
+                    style.add('SPAN', (0, i), (-1, i))
+
+            t = LongTable(data, rowHeights=None, splitByRow=True)
+            #t = LongTable(data, rowHeights=rowHeights, splitByRow=True)
+
+            t.setStyle(style)
+
+            t._argW[0] = 3 * cm
+            t._argW[1] = 15 * cm
+
+            elements.append(t)
+
+            elements.append(PageBreak())
+
+        doc = SimpleDocTemplate(
+            response,
+            pagesize=A4,
+            title=self.relat_title,
+            rightMargin=1.25 * cm,
+            leftMargin=1.25 * cm,
+            topMargin=1.1 * cm,
+            bottomMargin=0.8 * cm)
+ 
+        doc.build(elements)
+
+    def get_data(self, processo):
+        self.set_headings()
+        self.set_styles()
+
+        cleaned_data = self.filterset.form.cleaned_data
+
+        #where = self.object_list.query.where
+ 
+        return self.set_body_data(processo)
+
+    def set_headings(self):
+        self.h_style = getSampleStyleSheet()
+        self.h3 = self.h_style["Heading3"]
+        self.h3.fontName = _baseFontNameB
+        self.h3.alignment = TA_CENTER
+
+        self.h4 = self.h_style["Heading4"]
+        self.h4.fontName = _baseFontNameB
+
+        self.h5 = self.h_style["Heading5"]
+        self.h5.fontName = _baseFontNameB
+        self.h5.alignment = TA_CENTER
+
+        self.h_style = self.h_style["BodyText"]
+        self.h_style.wordWrap = None  # 'LTR'
+        self.h_style.spaceBefore = 0
+        self.h_style.fontSize = 8
+        self.h_style.leading = 8
+        self.h_style.fontName = _baseFontNameB
+
+    def set_styles(self):
+        self.s_min = getSampleStyleSheet()
+        self.s_min = self.s_min["BodyText"]
+        self.s_min.wordWrap = None  # 'LTR'
+        self.s_min.spaceBefore = 0
+        self.s_min.fontSize = 6
+        self.s_min.leading = 8
+
+        self.s_center = getSampleStyleSheet()
+        self.s_center = self.s_center["BodyText"]
+        self.s_center.wordWrap = None  # 'LTR'
+        self.s_center.spaceBefore = 0
+        self.s_center.alignment = TA_CENTER
+        self.s_center.fontSize = 8
+        self.s_center.leading = 8
+
+        self.s_left = getSampleStyleSheet()
+        self.s_left = self.s_left["BodyText"]
+        self.s_left.wordWrap = None  # 'LTR'
+        self.s_left.spaceBefore = 0
+        self.s_left.alignment = TA_LEFT
+        self.s_left.fontSize = 8
+        self.s_left.leading = 8
+
+        self.s_right = getSampleStyleSheet()
+        self.s_right = self.s_right["BodyText"]
+        self.s_right.wordWrap = None  # 'LTR'
+        self.s_right.spaceBefore = 0
+        self.s_right.alignment = TA_RIGHT
+        self.s_right.fontSize = 8
+        self.s_right.leading = 8
+
+    def add_relat_title(self, data):
+        tit_relatorio = _(self.relat_title)
+        tit_relatorio = force_text(tit_relatorio) + ' '
+
+        data.append([Paragraph(tit_relatorio, self.h3)])
+
+    def build_query(self, contato, where):
+        p_filter = (('contato_set__' + self.agrupamento, contato),)
+        if not processo:
+            p_filter = (
+                (p_filter[0][0] + '__isnull', True),
+                (p_filter[0][0] + '__exact', '')
+            )
+
+        q = Q()
+        for filtro in p_filter:
+            filtro_dict = {filtro[0]: filtro[1]}
+            q = q | Q(**filtro_dict)
+
+        eventos_query = Evento.objects.all()
+        eventos_query.query.where = where.clone()
+        eventos_query = eventos_query.filter(q)
+
+        params = {self.container_field: self.request.user.pk}
+        eventos_query = eventos_query.filter(**params)
+
+        eventos_query = eventos_query.order_by(
+           'inicio')
+        return contatos_query
+
+    def set_body_data(self, p):
+
+        legenda = self.h_style
+        conteudo = self.s_left
+
+        data = []
+
+        self.add_relat_title(data)
+        
+        line = []
+        line.append(Paragraph("<br/>", conteudo))
+        line.append(Paragraph("<br/>", conteudo))
+        data.append(line)
+       
+        line = []
+        line.append(Paragraph("Título:", legenda))
+        line.append(Paragraph(p.titulo, conteudo))
+        data.append(line)
+ 
+        if(p.descricao):
+            line = []
+            line.append(Paragraph("Descrição:", legenda))
+            line.append(Paragraph(strip_tags(p.descricao), conteudo))
+            data.append(line)
+
+        if(p.localizacao):
+            line = []
+            line.append(Paragraph("Localização:", legenda))
+            line.append(Paragraph(strip_tags(p.localizacao), conteudo))
+            data.append(line)
+
+        if(p.bairro):
+            line = []
+            line.append(Paragraph("Bairro:", legenda))
+            line.append(Paragraph(p.bairro.nome, conteudo))
+            data.append(line)
+
+        if(p.municipio):
+            line = []
+            line.append(Paragraph("Município:", legenda))
+            line.append(Paragraph(('%s/%s' % (p.municipio.nome, p.estado.sigla)), conteudo))
+            data.append(line)
+
+        line = []
+        line.append(Paragraph("Início:", legenda))
+        line.append(Paragraph(p.inicio.strftime('%d/%m/%Y às %H:%M'), conteudo))
+        data.append(line)
+
+        line = []
+        line.append(Paragraph("Término:", legenda))
+        line.append(Paragraph(p.termino.strftime('%d/%m/%Y às %H:%M'), conteudo))
+        data.append(line)
+
+
+        return data
 
 #
 #
@@ -3237,7 +3527,7 @@ class MalaDiretaView(RelatorioProcessosView):
     permission_required = 'core.menu_contatos'
     filterset_class = MalaDiretaFilterSet
     model = Contato
-    template_name = 'cerimonial/filter_contatos.html'
+    template_name = 'cerimonial/filter_contatoemail.html'
     container_field = 'workspace__operadores'
 
     def __init__(self):

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n crispy_forms_tags common_tags %}
+
+{% block base_content %}
+
+  <fieldset>
+
+  <div class="clearfix">
+	<a class="btn btn-info" href="{% url 'saap.cerimonial:aniversarios' %}?{{ prev_year }}"> Ano anterior </a>
+	<a class="btn btn-info" href="{% url 'saap.cerimonial:aniversarios' %}?{{ prev_month }}"> Mês anterior </a>
+	<a class="btn btn-inverse" href="{% url 'saap.cerimonial:aniversarios' %}?{{ this_month }}"> Mês atual </a>
+	<a class="btn btn-info" href="{% url 'saap.cerimonial:aniversarios' %}?{{ next_month }}"> Próximo mês </a>
+	<a class="btn btn-info" href="{% url 'saap.cerimonial:aniversarios' %}?{{ next_year }}"> Próximo ano </a>
+   </div>
+    <br> O número à direita do Contato representa quantos anos o mesmo está completando naquele dia, mês e ano. 
+    {{ calendar }}
+
+</fieldset>
+
+{% endblock %}

@@ -33,26 +33,16 @@ Com isto, ele coletará todos os arquivos estáticos do projeto e os guardará n
 3) Instalar pacotes
 ----------------------------------------------------------------------------------------   
 
-Instale o NGINX:
+Instale o NGINX e o Supervisor
 
 ::
 
-    sudo apt-get install nginx -y
+    sudo apt-get install nginx supervisor -y
 
-Em seguida, instale o Gunicorn:
-
-:: 
-
-    sudo pip3 install gunicorn  
-
-Por fim, instale o Supervisor:
-
-::
-
-    sudo apt-get install supervisor -y
+Lembrando que o Gunicorn já foi adicionado nas dependências, durante o processo de instalação pra desenvolvimento
 
 
-3) Preparar o NGINX
+4) Preparar o NGINX
 ----------------------------------------------------------------------------------------   
 
 Crie o arquivo de configuração:
@@ -111,7 +101,7 @@ Em seguida, é necessário criar o link simbólico para este arquivo que criamos
    
     sudo ln -s /etc/nginx/sites-available/saap.conf /etc/nginx/sites-enabled/saap
 
-4) Preparar o Gunicorn
+5) Preparar o Gunicorn
 ----------------------------------------------------------------------------------------   
    
 Nesse passo, você deve estar atento para duas variáveis, que podem ser manipuladas:

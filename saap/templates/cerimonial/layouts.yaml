@@ -219,3 +219,10 @@ ProcessoLayoutForForm:
 GrupoDeContatosLayoutForForm:
   {% trans 'Dados básicos' %}:
   - nome
+Evento:
+  {% trans 'Evento' %}:
+  - titulo
+  - descricao
+  - localizacao
+  - estado municipio bairro
+  - inicio termino
