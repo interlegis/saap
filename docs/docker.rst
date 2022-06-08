@@ -83,7 +83,7 @@ Para que o sistema esteja com os dados iniciais, além das configurações de pe
 
 :: 
 
-    sudo docker exec -i saap bash
+    sudo docker exec -it saap bash
     ./manage.py loaddata config/initial_data/auth_permission.json
     ./manage.py loaddata config/initial_data/auth_group.json
     ./manage.py loaddata config/initial_data/saap_*.json
