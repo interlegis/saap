@@ -4,7 +4,7 @@ from braces.views import PermissionRequiredMixin
 from compressor.utils.decorators import cached_property
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.forms.utils import ErrorList
 from django.http.response import HttpResponse
 from django.template.defaultfilters import lower
@@ -33,11 +33,13 @@ from saap.cerimonial.forms import ImpressoEnderecamentoFilterSet,\
 from saap.cerimonial.models import Contato, Processo, Telefone, Email, GrupoDeContatos, Endereco, \
                                    AssuntoProcesso, TopicoProcesso, LocalTrabalho, Dependente, FiliacaoPartidaria, \
                                    Bairro, Municipio, Estado, IMPORTANCIA_CHOICE, Evento
-from saap.core.models import AreaTrabalho
+from saap.core.models import AreaTrabalho, OperadorAreaTrabalho
 from saap.crud.base import make_pagination
 from saap.utils import strip_tags, calcularIdade
 
 import time, datetime, xlwt
+import pdfkit 
+
 
 #
 #
@@ -112,8 +114,7 @@ class RelatorioProcessosView(PermissionRequiredMixin, FilterView):
     def get_filterset(self, filterset_class):
         kwargs = self.get_filterset_kwargs(filterset_class)
         try:
-            kwargs['workspace'] = AreaTrabalho.objects.filter(
-                operadores=self.request.user.pk)[0]
+            kwargs['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
         except:
             raise PermissionDenied(_('Sem permissão de Acesso!'))
 
@@ -350,7 +351,7 @@ class RelatorioProcessosView(PermissionRequiredMixin, FilterView):
         corpo_relatorio.append([Paragraph(paragrafo, self.h4)])
 
         corpo_relatorio.append(self.cabec)
-
+    """
     def build_query(self, processo, where):
         p_filter = (('processo_set__' + self.agrupamento, processo),)
         if not processo:
@@ -381,7 +382,7 @@ class RelatorioProcessosView(PermissionRequiredMixin, FilterView):
             'processo_set__data_abertura',
            'nome')
         return contatos_query
-
+    """
     def set_body_data(self, where):
 
         data = []
@@ -676,8 +677,7 @@ class RelatorioProcessoIndividualView(PermissionRequiredMixin, FilterView):
     def get_filterset(self, filterset_class):
         kwargs = self.get_filterset_kwargs(filterset_class)
         try:
-            kwargs['workspace'] = AreaTrabalho.objects.filter(
-                operadores=self.request.user.pk)[0]
+            kwargs['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
         except:
             raise PermissionDenied(_('Sem permissão de Acesso!'))
 
@@ -830,7 +830,7 @@ class RelatorioProcessoIndividualView(PermissionRequiredMixin, FilterView):
         tit_relatorio = force_text(tit_relatorio) + ' '
 
         data.append([Paragraph(tit_relatorio, self.h3)])
-
+    """
     def build_query(self, processo, where):
         p_filter = (('processo_set__' + self.agrupamento, processo),)
         if not processo:
@@ -861,7 +861,7 @@ class RelatorioProcessoIndividualView(PermissionRequiredMixin, FilterView):
             'processo_set__data_abertura',
            'nome')
         return contatos_query
-
+    """
     def set_body_data(self, p):
 
         legenda = self.h_style
@@ -1195,8 +1195,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
     def get_filterset(self, filterset_class):
         kwargs = self.get_filterset_kwargs(filterset_class)
         try:
-            kwargs['workspace'] = AreaTrabalho.objects.filter(
-                operadores=self.request.user.pk)[0]
+            kwargs['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
         except:
             raise PermissionDenied(_('Sem permissão de Acesso!'))
 
@@ -1230,23 +1229,29 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
         context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
 
         for contato in context['page_obj']:            
-            endpref = contato.endereco_set.filter(principal=True).first()
-            grupo = contato.grupodecontatos_set.all()
-            
-            if endpref:
-                contato.bairro = endpref.bairro.nome if endpref.bairro else ''
-                contato.municipio = '%s/%s' % (endpref.municipio, endpref.estado.sigla) if endpref.municipio else ''
-            else:
-                contato.bairro = ''
-                contato.municipio = ''
 
-            contato.grupo = grupo
-           
-            telefone = contato.telefone_set.filter(principal=True).first()
-            contato.telefone = telefone.telefone if telefone else ''
-            
-            email = contato.email_set.filter(permite_contato=True).first()
-            contato.email = email.email if email else ''
+            enderecos = contato.endereco_set.all()
+            contato.endereco = ''
+            contato.municipio = ''          
+            for endpref in enderecos:
+                if endpref.permite_contato == True:
+                    contato.endereco = endpref.endereco if endpref.endereco else ''
+                    contato.municipio = '%s/%s' % (endpref.municipio.nome, endpref.estado.sigla)
+
+            telefones = contato.telefone_set.all()
+            contato.telefone = ''
+            for telpref in telefones:
+                if endpref.principal == True:
+                    contato.telefone = telpref.telefone
+
+            emails = contato.email_set.all()
+            contato.email = ''
+            for mailpref in emails:
+                if mailpref.principal == True:
+                    contato.email = mailpref.email
+
+
+            contato.grupo = contato.grupodecontatos_set.all()
 
         return context
 
@@ -1266,7 +1271,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
         ])
         style.add('VALIGN', (0, 0), (-1, -1), 'TOP')
 
-        contatos = Contato.objects.filter(pk__in=self.filterset.form.cleaned_data['pk_selecionados'].split(','))
+        contatos = self.object_list.all().filter(pk__in=self.filterset.form.cleaned_data['pk_selecionados'].split(','))
 
         for c in contatos:
             data = self.get_data(c)
@@ -1365,7 +1370,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
         tit_relatorio = force_text(tit_relatorio) + ' '
 
         data.append([Paragraph(tit_relatorio, self.h3)])
-
+    """
     def build_query(self, contato, where):
         p_filter = (('contato_set__' + self.agrupamento, contato),)
         if not processo:
@@ -1396,7 +1401,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
 #            'processo_set__data_abertura',
            'nome')
         return contatos_query
-
+    """
     def set_body_data(self, p):
 
         legenda = self.h_style
@@ -1533,7 +1538,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
             line.append(Paragraph(p.tipo_autoridade.descricao, conteudo))
             data.append(line)
 
-        grupos_set = GrupoDeContatos.objects.filter(contatos__id=p.id)
+        grupos_set = p.grupodecontatos_set.all()
         if(grupos_set):
             line = []
             line.append(Paragraph("Grupos:", legenda))
@@ -1552,7 +1557,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
             line.append(Paragraph(strip_tags(p.observacoes), conteudo))
             data.append(line)
 
-        enderecos_set = Endereco.objects.filter(contato__id=p.id).order_by('principal', 'permite_contato')
+        enderecos_set = p.endereco_set.all()
         if(enderecos_set):
             line = []
             line.append(Paragraph("<br/>", conteudo))
@@ -1604,7 +1609,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
                 line.append(Paragraph(enderecos, conteudo))
                 data.append(line)
 
-        telefones_set = Telefone.objects.filter(contato__id=p.id).order_by('principal', 'permite_contato')
+        telefones_set = p.telefone_set.all()
         if(telefones_set):
             line = []
             line.append(Paragraph("<br/>", conteudo))
@@ -1649,7 +1654,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
                 line.append(Paragraph(telefones, conteudo))
                 data.append(line)
 
-        emails_set = Email.objects.filter(contato__id=p.id).order_by('principal', 'permite_contato')
+        emails_set = p.email_set.all()
         if(emails_set):
             line = []
             line.append(Paragraph("<br/>", conteudo))
@@ -1678,7 +1683,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
                 line.append(Paragraph(emails, conteudo))
                 data.append(line)
             
-        locais_trabalho_set = LocalTrabalho.objects.filter(contato__id=p.id).order_by('principal')
+        locais_trabalho_set = p.localtrabalho_set.all()
         if(locais_trabalho_set):
             line = []
             line.append(Paragraph("<br/>", conteudo))
@@ -1734,7 +1739,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
                 line.append(Paragraph(locais_trabalho, conteudo))
                 data.append(line)
 
-        dependentes_set = Dependente.objects.filter(contato__id=p.id)
+        dependentes_set = p.dependente_set.all()
         if(dependentes_set):
             line = []
             line.append(Paragraph("<br/>", conteudo))
@@ -1773,7 +1778,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
                 line.append(Paragraph(dependentes, conteudo))
                 data.append(line)
 
-        partidos_set = FiliacaoPartidaria.objects.filter(contato__id=p.id).order_by('data_filiacao').reverse()
+        partidos_set = p.filiacaopartidaria_set.all()
         if(partidos_set):
             line = []
             line.append(Paragraph("<br/>", conteudo))
@@ -1802,7 +1807,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
             line.append(Paragraph(partidos, conteudo))
             data.append(line)
 
-        processos_set = Processo.objects.filter(contatos__id=p.id)
+        processos_set = p.processo_set.all()
         if(processos_set):
             line = []
             line.append(Paragraph("<br/>", conteudo))
@@ -1833,7 +1838,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
 #
 #
 
-class RelatorioContatosExportaView(RelatorioProcessosView):
+class ContatosExportaView(RelatorioProcessosView):
     #permission_required = 'cerimonial.print_rel_contatos'
     permission_required = 'core.menu_contatos'
     filterset_class = ContatosExportaFilterSet
@@ -1857,16 +1862,28 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
                 and not self.object_list.exists():
             messages.error(request, _('Não existe contato com as '
                                       'condições definidas na busca!'))
-        
         if 'print' in request.GET and self.object_list.exists():
-              filename = "Planilha_Contatos_"\
+
+            if self.filterset.form.cleaned_data['opcao_exportacao'] == 'REL':
+                filename = "Planilha_Contatos_"\
                      + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
 
-              response = HttpResponse(content_type='application/ms-excel')
-              content = 'attachment; filename="%s.xls"' % filename
-              response['Content-Disposition'] = content
-              self.build_xls(response)
-              return response
+                response = HttpResponse(content_type='application/ms-excel')
+                content = 'attachment; filename="%s.xls"' % filename
+                response['Content-Disposition'] = content
+                self.build_xls(response)
+                return response
+
+            elif self.filterset.form.cleaned_data['opcao_exportacao'] == 'SAP':
+                filename = "Exportacao_Contatos_"\
+                     + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
+
+                response = HttpResponse(content_type='application/ms-excel')
+                content = 'attachment; filename="%s.xls"' % filename
+                response['Content-Disposition'] = content
+                self.build_xls_exportacao(response)
+                return response
+
 
         context = self.get_context_data(filter=self.filterset,
                                         object_list=self.object_list)
@@ -1876,8 +1893,7 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
     def get_filterset(self, filterset_class):
         kwargs = self.get_filterset_kwargs(filterset_class)
         try:
-            kwargs['workspace'] = AreaTrabalho.objects.filter(
-                operadores=self.request.user.pk)[0]
+            kwargs['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
         except:
             raise PermissionDenied(_('Sem permissão de acesso!'))
 
@@ -1893,7 +1909,7 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
 
     def get_context_data(self, **kwargs):
         count = self.object_list.count()
-        context = super(RelatorioContatosExportaView,
+        context = super(ContatosExportaView,
                         self).get_context_data(**kwargs)
 
         context['count'] = count
@@ -1911,14 +1927,14 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
         context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
 
         for contato in context['page_obj']:            
-            endpref = contato.endereco_set.filter(permite_contato=True).first()
-            
-            if endpref:
-                contato.endereco = endpref.endereco if endpref.endereco else ''
-                contato.municipio = '%s/%s' % (endpref.municipio.nome, endpref.estado.sigla)
-            else:
-                contato.endereco = ''
-                contato.municipio = ''
+            enderecos = contato.endereco_set.all()
+
+            contato.endereco = ''
+            contato.municipio = ''          
+            for endpref in enderecos:
+                if endpref.permite_contato == True:
+                    contato.endereco = endpref.endereco if endpref.endereco else ''
+                    contato.municipio = '%s/%s' % (endpref.municipio.nome, endpref.estado.sigla)
 
             if contato.sexo != '':
                 if contato.sexo == 'M':
@@ -1930,37 +1946,202 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
 
         return context
 
-    def build_xls(self, response):
+
+    def build_xls_exportacao(self, response):
 
         CONTATO = 0
         ENDERECOS = 1
         TELEFONES = 2
         EMAILS = 3
-        GRUPOS = 4
-        NATURALIDADE = 5
 
-        ID = 0
         NOME = 1
-        STATUS = 2
         NASCIMENTO = 3
-        #NATURALIDADE = 4
-        #NATURALIDADE_ESTADO = 5
         SEXO = 6
-        ESTADO_CIVIL = 7
-        TEM_FILHOS = 8
-        QUANTOS_FILHOS = 9
-        NIVEL_INSTRUCAO = 10
-        PROFISSAO = 11
-        CARGO = 12
-        TIPO_AUTORIDADE = 13
-        CPF = 14
-        RG = 15
-        RG_ORGAO = 16
-        RG_DATA = 17
-        TITULO_ELEITOR = 18
-        NUMERO_SUS = 19
-        CNPJ = 20
-        IE = 21
+
+        colunas = [
+                    'nome',
+                    'nascimento',
+                    'sexo',
+                    'logradouro1',
+                    'numero1', 
+                    'complemento1', 
+                    'bairro1', 
+                    'cep1',
+                    'cidade1', 
+                    'estado1', 
+                    'logradouro2',
+                    'numero2', 
+                    'complemento2', 
+                    'bairro2', 
+                    'cep2',
+                    'cidade2', 
+                    'estado2',
+                    'telefone1', 
+                    'telefone2', 
+                    'email1',
+                    'email2', 
+                    ]
+
+        registros = self.object_list.order_by('nome',)
+
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet('Contatos')
+
+        # Fonte do cabeçalho
+        font_style = xlwt.XFStyle()
+        font_style.font.bold = True
+
+        lin_num = 0
+        col_num = 0
+
+        # Cria as colunas
+        for coluna in colunas:
+            ws.write(lin_num, col_num, colunas[col_num], font_style)
+            col_num += 1
+
+        # Fonte do corpo
+        font_style = xlwt.XFStyle()
+
+
+        # Cria os registros
+        for dados in registros:
+            col_num = 0
+            lin_num += 1
+            tam_linha = 1
+              
+            # Nome
+            ws.write(lin_num, col_num, dados.nome, font_style)
+            ws.col(col_num).width = 12000
+            col_num += 1
+
+            # Nascimento
+            if(dados.data_nascimento != '' and dados.data_nascimento != None):
+                nascimento = dados.data_nascimento.strftime('%d/%m/%Y')
+            else:
+                nascimento = ""
+                
+            ws.write(lin_num, col_num, nascimento, font_style)
+            ws.col(col_num).width = 3000
+            col_num += 1
+
+            # Sexo
+            if(dados.sexo != '' and dados.sexo != None):
+                sexo = dados.sexo
+            else:
+                sexo = ''
+
+            ws.write(lin_num, col_num, sexo, font_style)
+            ws.col(col_num).width = 2000
+            col_num += 1
+
+            # Endereços
+            endereco_logradouro = ['','']
+            endereco_numero = ['','']
+            endereco_complemento = ['','']
+            endereco_bairro = ['','']
+            endereco_cep = ['','']
+            endereco_municipio = ['','']
+            endereco_estado = ['','']
+
+            if(dados.endereco_set.all().count() > 0):
+                total_enderecos = 0
+                for endereco in dados.endereco_set.all():
+
+                    endereco_logradouro[total_enderecos] = endereco.endereco
+                    endereco_numero[total_enderecos] = endereco.numero
+                    endereco_complemento[total_enderecos] = endereco.complemento
+                    endereco_bairro[total_enderecos] = endereco.bairro.nome
+                    endereco_cep[total_enderecos] = endereco.cep
+                    endereco_municipio[total_enderecos] = endereco.municipio.nome
+                    endereco_estado[total_enderecos] = endereco.estado.sigla
+
+                    total_enderecos += 1
+
+                    if (total_enderecos >= 2):
+                        break
+
+            # Telefones 
+            telefone_telefone = ['','']
+
+            if(dados.telefone_set.all().count() > 0):
+                total_telefones = 0
+                for telefone in dados.telefone_set.all():  
+                    telefone_telefone[total_telefones] = telefone.telefone
+
+                    total_telefones += 1
+
+                    if (total_telefones >= 2):
+                        break
+
+            # Emails 
+            email_email = ['','']
+            if(dados.email_set.all().count() > 0):
+                total_emails = 0
+                for email in dados.email_set.all():
+                    email_email[total_emails] = email.email
+
+                    total_emails += 1
+
+                    if (total_emails >= 2):
+                        break
+
+
+            i = 0
+            while i < 2:
+                ws.write(lin_num, col_num, endereco_logradouro[i], font_style)
+                ws.col(col_num).width = 11000
+                col_num += 1
+
+                ws.write(lin_num, col_num, endereco_numero[i], font_style)
+                ws.col(col_num).width = 2500
+                col_num += 1
+
+                ws.write(lin_num, col_num, endereco_complemento[i], font_style)
+                ws.col(col_num).width = 3500
+                col_num += 1
+
+                ws.write(lin_num, col_num, endereco_bairro[i], font_style)
+                ws.col(col_num).width = 5000
+                col_num += 1
+
+                ws.write(lin_num, col_num, endereco_cep[i], font_style)
+                ws.col(col_num).width = 4000
+                col_num += 1
+
+                ws.write(lin_num, col_num, endereco_municipio[i], font_style)
+                ws.col(col_num).width = 6000
+                col_num += 1
+
+                ws.write(lin_num, col_num, endereco_estado[i], font_style)
+                ws.col(col_num).width = 2000
+                col_num += 1
+
+                i += 1
+
+            i = 0
+            while i < 2:
+
+                ws.write(lin_num, col_num, telefone_telefone[i], font_style)
+                ws.col(col_num).width = 5000
+                col_num += 1
+
+                i += 1
+
+            i = 0
+            while i < 2:
+ 
+                ws.write(lin_num, col_num, email_email[i], font_style)
+                ws.col(col_num).width = 9000
+                col_num += 1
+
+                i += 1
+
+
+        wb.save(response)
+
+        return response
+
+    def build_xls(self, response):
 
         col_codigo = -1
         col_status = -1
@@ -2083,7 +2264,7 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
                     qtde_campos_adicionais += 2
                     col_documentose = qtde_campos_adicionais 
 
-        registros = self.get_data()
+        registros = self.object_list.order_by('nome',)
 
         wb = xlwt.Workbook(encoding='utf-8')
         ws = wb.add_sheet('Contatos')
@@ -2110,17 +2291,17 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
             tam_linha = 1
               
             # Nome
-            ws.write(lin_num, col_nome, dados[CONTATO][NOME], font_style)
+            ws.write(lin_num, col_nome, dados.nome, font_style)
             ws.col(col_nome).width = 12000
 
             # Código 
             if(col_codigo != -1):
-                ws.write(lin_num, col_codigo, dados[CONTATO][ID], font_style)
+                ws.write(lin_num, col_codigo, dados.pk, font_style)
                 ws.col(col_codigo).width = 2500
       
             # Status
             if(col_status != -1):
-                if (dados[CONTATO][STATUS] == 1):
+                if (dados.ativo == 1):
                     ativo = "Sim"
                 else:
                     ativo = "Não"
@@ -2130,8 +2311,8 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
 
             # Nascimento
             if(col_nascimento != -1):
-                if(dados[CONTATO][NASCIMENTO] != '' and dados[CONTATO][NASCIMENTO] != None):
-                    nascimento = dados[CONTATO][NASCIMENTO].strftime('%d/%m/%Y')
+                if(dados.data_nascimento != '' and dados.data_nascimento != None):
+                    nascimento = dados.data_nascimento.strftime('%d/%m/%Y')
                 else:
                     nascimento = ""
                     
@@ -2140,8 +2321,8 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
 
             # Naturalidade
             if(col_naturalidade != -1):
-                if(dados[NATURALIDADE] != '' and dados[NATURALIDADE] != None):
-                    naturalidade = dados[NATURALIDADE]
+                if(dados.naturalidade != '' and dados.naturalidade != None):
+                    naturalidade = dados.naturalidade
                 else:
                     naturalidade = ""
 
@@ -2150,8 +2331,8 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
 
             # Idade
             if(col_idade != -1):
-                if(dados[CONTATO][NASCIMENTO] != '' and dados[CONTATO][NASCIMENTO] != None):
-                    idade = calcularIdade(dados[CONTATO][NASCIMENTO])
+                if(dados.data_nascimento != '' and dados.data_nascimento != None):
+                    idade = calcularIdade(dados.data_nascimento)
                 else:
                     idade = ""
                     
@@ -2160,19 +2341,21 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
 
             # Sexo
             if(col_sexo != -1):
-                if(dados[CONTATO][SEXO] != '' and dados[CONTATO][SEXO] != None):
-                    if dados[CONTATO][SEXO] == 'M':
+                if(dados.sexo != '' and dados.sexo != None):
+                    if dados.sexo == 'M':
                         sexo = 'Masculino'
-                    elif dados[CONTATO][SEXO] == 'F':
+                    elif dados.sexo == 'F':
                         sexo = 'Feminino'
+                else:
+                    sexo = ''
 
-                    ws.write(lin_num, col_sexo, sexo, font_style)
-                    ws.col(col_sexo).width = 2600
+                ws.write(lin_num, col_sexo, sexo, font_style)
+                ws.col(col_sexo).width = 2600
 
             # Estado civil
             if(col_estadocivil != -1):
-                if(dados[CONTATO][ESTADO_CIVIL] != '' and dados[CONTATO][ESTADO_CIVIL] != None):
-                    estado_civil = dados[CONTATO][ESTADO_CIVIL]
+                if(dados.estado_civil != '' and dados.estado_civil != None):
+                    estado_civil = dados.estado_civil
                 else:
                     estado_civil = ""
                     
@@ -2181,8 +2364,8 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
 
             # Filhos
             if(col_filhos != -1):
-                if(dados[CONTATO][TEM_FILHOS] != '' and dados[CONTATO][TEM_FILHOS] != None):
-                    filhos = "Sim (" + str(dados[CONTATO][QUANTOS_FILHOS]) + ")"
+                if(dados.tem_filhos != '' and dados.tem_filhos != None):
+                    filhos = "Sim (" + str(dados.quantos_filhos) + ")"
                 else:
                     filhos = "Não"
 
@@ -2202,10 +2385,10 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
                 cep_contato = ''
                 cep_outros = ''
                 
-                if(dados[ENDERECOS] != None):
+                if(dados.endereco_set.all().count() > 0):
                     i = 0
                     primeiro_outros = True
-                    for endereco in dados[ENDERECOS]:
+                    for endereco in dados.endereco_set.all():
 
                         endereco_completo = endereco.endereco
     
@@ -2287,10 +2470,10 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
                 telefone_contato = ''
                 outros_telefones = ''
 
-                if(dados[TELEFONES] != None):
+                if(dados.telefone_set.all().count() > 0):
                     i = 0
                     primeiro_outros = True
-                    for telefone in dados[TELEFONES]:
+                    for telefone in dados.telefone_set.all():
                         if (telefone.principal == True):
                             telefone_principal = telefone.telefone
                         elif (telefone.permite_contato == True):
@@ -2327,10 +2510,10 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
                 email_contato = ''
                 outros_emails = ''
 
-                if(dados[EMAILS] != None):
+                if(dados.email_set.all().count() > 0):
                     i = 0
                     primeiro_outros = True
-                    for email in dados[EMAILS]:
+                    for email in dados.email_set.all():
                         if (email.principal == True):
                             email_principal = email.email                         
                         elif (email.permite_contato == True):
@@ -2363,12 +2546,12 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
             # Grupos
             if(col_grupos != -1):
                 grupos = ''
-                if(dados[GRUPOS] != None):
+                if(dados.grupodecontatos_set.all().count() > 0):
                     i = 0
-                    for grupo in dados[GRUPOS]:
+                    for grupo in dados.grupodecontatos_set.all():
                         grupos += grupo.nome
                         i += 1
-                        if(i < len(dados[GRUPOS])):
+                        if(i < dados.grupodecontatos_set.all().count()):
                             grupos += "\n"
                     if(tam_linha < i):
                         tam_linha = i                
@@ -2377,8 +2560,8 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
                 ws.col(col_grupos).width = 7000
 
             if(col_nivelinstrucao != -1):
-                if(dados[CONTATO][NIVEL_INSTRUCAO] != '' and dados[CONTATO][NIVEL_INSTRUCAO] != None):
-                    nivel_instrucao = dados[CONTATO][NIVEL_INSTRUCAO]
+                if(dados.nivel_instrucao != '' and dados.nivel_instrucao != None):
+                    nivel_instrucao = dados.nivel_instrucao
                 else:
                     nivel_instrucao = ""
                     
@@ -2386,18 +2569,18 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
                 ws.col(col_nivelinstrucao).width = 8000
 
             if(col_cargo != -1):
-                if(dados[CONTATO][PROFISSAO] != '' and dados[CONTATO][PROFISSAO] != None):
-                    profissao = dados[CONTATO][PROFISSAO]
+                if(dados.profissao != '' and dados.profissao != None):
+                    profissao = dados.profissao
                 else:
                     profissao = ""
  
-                if(dados[CONTATO][CARGO] != '' and dados[CONTATO][CARGO] != None):
-                    cargo = dados[CONTATO][CARGO]
+                if(dados.cargo != '' and dados.cargo != None):
+                    cargo = dados.cargo
                 else:
                     cargo = ""
  
-                if(dados[CONTATO][TIPO_AUTORIDADE] != '' and dados[CONTATO][TIPO_AUTORIDADE] != None):
-                    tipo_autoridade = dados[CONTATO][TIPO_AUTORIDADE]
+                if(dados.tipo_autoridade != '' and dados.tipo_autoridade != None):
+                    tipo_autoridade = dados.tipo_autoridade
                 else:
                     tipo_autoridade = ""
                     
@@ -2409,33 +2592,33 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
                 ws.col(col_cargo).width = 8000
 
             if(col_documentosp != -1):
-                if(dados[CONTATO][CPF] != '' and dados[CONTATO][CPF] != None):
-                    cpf = dados[CONTATO][CPF]
+                if(dados.cpf != '' and dados.cpf != None):
+                    cpf = dados.cpf
                 else:
                     cpf = ""
  
-                if(dados[CONTATO][RG] != '' and dados[CONTATO][RG] != None):
-                    rg = dados[CONTATO][RG]
+                if(dados.rg != '' and dados.rg != None):
+                    rg = dados.rg
                 else:
                     rg = ""
  
-                if(dados[CONTATO][RG_ORGAO] != '' and dados[CONTATO][RG_ORGAO] != None):
-                    rg_orgao = dados[CONTATO][RG_ORGAO]
+                if(dados.rg_orgao_expedidor != '' and dados.rg_orgao_expedidor != None):
+                    rg_orgao = dados.rg_orgao_expedidor
                 else:
                     rg_orgao = ""
   
-                if(dados[CONTATO][RG_DATA] != '' and dados[CONTATO][RG_DATA] != None):
-                    rg_data = dados[CONTATO][RG_DATA].strftime('%d/%m/%Y')
+                if(dados.rg_data_expedicao != '' and dados.rg_data_expedicao != None):
+                    rg_data = dados.rg_data_expedicao.strftime('%d/%m/%Y')
                 else:
                     rg_data = ""
  
-                if(dados[CONTATO][TITULO_ELEITOR] != '' and dados[CONTATO][TITULO_ELEITOR] != None):
-                    titulo_eleitor = dados[CONTATO][TITULO_ELEITOR]
+                if(dados.titulo_eleitor != '' and dados.titulo_eleitor != None):
+                    titulo_eleitor = dados.titulo_eleitor
                 else:
                     titulo_eleitor = ""
 
-                if(dados[CONTATO][NUMERO_SUS] != '' and dados[CONTATO][NUMERO_SUS] != None):
-                    numero_sus = dados[CONTATO][NUMERO_SUS]
+                if(dados.numero_sus != '' and dados.numero_sus != None):
+                    numero_sus = dados.numero_sus
                 else:
                     numero_sus = ""
                     
@@ -2453,13 +2636,13 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
                 ws.col(col_documentosp).width = 5000
 
             if(col_documentose != -1):
-                if(dados[CONTATO][CNPJ] != '' and dados[CONTATO][CNPJ] != None):
-                    cnpj = dados[CONTATO][CNPJ]
+                if(dados.cnpj != '' and dados.cnpj != None):
+                    cnpj = dados.cnpj
                 else:
                     cnpj = ""
  
-                if(dados[CONTATO][IE] != '' and dados[CONTATO][IE] != None):
-                    ie = dados[CONTATO][IE]
+                if(dados.ie != '' and dados.ie != None):
+                    ie = dados.ie
                 else:
                     ie = ""
                 
@@ -2474,58 +2657,6 @@ class RelatorioContatosExportaView(RelatorioProcessosView):
         wb.save(response)
 
         return response
-
-    def get_data(self):
-        contatos = []
-        consulta_agregada = self.object_list.order_by('nome',)
-        consulta_agregada = consulta_agregada.values_list(
-            'id',
-            'nome',
-            'ativo',
-            'data_nascimento',
-            'naturalidade_id',
-            'estado_id',
-            'sexo',
-            'estado_civil__descricao',
-            'tem_filhos',
-            'quantos_filhos',
-            'nivel_instrucao__descricao',
-            'profissao',
-            'cargo',
-            'tipo_autoridade__descricao',
-            'cpf',
-            'rg',
-            'rg_orgao_expedidor',
-            'rg_data_expedicao',
-            'titulo_eleitor',
-            'numero_sus',
-            'cnpj',
-            'ie'
-        )
-
-        for contato in consulta_agregada.all():
-            query = (Q(contato__id=contato[0]))
-
-            endereco = Endereco.objects.filter(query)
-            telefone = Telefone.objects.filter(query)
-            email = Email.objects.filter(query)
-            grupos = GrupoDeContatos.objects.filter(contatos__id=contato[0])[:2]
-
-            if(contato[4] != '' and contato[4] != None):
-                naturalidade = Municipio.objects.get(id=contato[4], estado_id=contato[5]).nome + "/" + Estado.objects.get(id=contato[5]).sigla
-            else:
-                naturalidade = ""
-
-            contatos.append((contato, endereco, telefone, email, grupos, naturalidade))
-
-        return contatos
-
-    def validate_data(self):
-        contatos = []
-        consulta_agregada = self.object_list.order_by('nome',)
-        consulta_agregada = consulta_agregada.values_list(
-            'id',
-        )
 
 #
 #
@@ -2564,11 +2695,11 @@ class RelatorioContatosView(RelatorioProcessosView):
         if 'print' in request.GET and self.object_list.exists():
             filename = str("Contatos_") +\
                         str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
-            response = HttpResponse(content_type='application/pdf')
             content = 'inline; filename="%s.pdf"' % filename
-            #content = 'attachment; filename="%s.pdf"' % filename
+            content = 'attachment; filename="%s.pdf"' % filename
+            response = HttpResponse(self.build_pdf())
+            response['Content-Type'] = 'application/pdf'
             response['Content-Disposition'] = content
-            self.build_pdf(response)
             return response
         
         context = self.get_context_data(filter=self.filterset,
@@ -2579,8 +2710,7 @@ class RelatorioContatosView(RelatorioProcessosView):
     def get_filterset(self, filterset_class):
         kwargs = self.get_filterset_kwargs(filterset_class)
         try:
-            kwargs['workspace'] = AreaTrabalho.objects.filter(
-                operadores=self.request.user.pk)[0]
+            kwargs['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
         except:
             raise PermissionDenied(_('Sem permissão de acesso!'))
 
@@ -2614,66 +2744,100 @@ class RelatorioContatosView(RelatorioProcessosView):
         context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
 
         for contato in context['page_obj']:            
-            endpref = contato.endereco_set.filter(principal=True).first()
-            grupo = contato.grupodecontatos_set.all()
-            
-            if endpref:
-                contato.bairro = endpref.bairro.nome if endpref.bairro else ''
-                contato.municipio = '%s/%s' % (endpref.municipio, endpref.estado.sigla) if endpref.municipio else ''
-            else:
-                contato.bairro = ''
-                contato.municipio = ''
 
-            contato.grupo = grupo
-           
-            telefone = contato.telefone_set.filter(principal=True).first()
-            contato.telefone = telefone.telefone if telefone else ''
-            
-            email = contato.email_set.filter(permite_contato=True).first()
-            contato.email = email.email if email else ''
+            enderecos = contato.endereco_set.all()
+            contato.endereco = ''
+            contato.municipio = ''          
+            for endpref in enderecos:
+                if endpref.permite_contato == True:
+                    contato.endereco = endpref.endereco if endpref.endereco else ''
+                    contato.municipio = '%s/%s' % (endpref.municipio.nome, endpref.estado.sigla)
+
+            telefones = contato.telefone_set.all()
+            contato.telefone = ''
+            for telpref in telefones:
+                if endpref.principal == True:
+                    contato.telefone = telpref.telefone
+
+            emails = contato.email_set.all()
+            contato.email = ''
+            for mailpref in emails:
+                if mailpref.principal == True:
+                    contato.email = mailpref.email
+
+
+            contato.grupo = contato.grupodecontatos_set.all()
 
         return context
 
-    def build_pdf(self, response):
-        CONTATO = 0
-        ENDERECOS = 1
-        TELEFONES = 2
-        EMAILS = 3
-        GRUPOS = 4
+    def build_pdf(self):
 
-        ID = 0
-        NOME = 1
-        NASCIMENTO = 2
-
-        self.set_headings()
-        self.set_styles()
-        self.set_cabec(self.h5)
 
         if self.filterset.form.cleaned_data['orientacao'] == 'P':
-            estilo = ParagraphStyle(
-                name='Normal',
-                fontSize=8,
-            )   
+            fonte_tamanho = '13px'
         elif self.filterset.form.cleaned_data['orientacao'] == 'R':
-            estilo = ParagraphStyle(
-                name='Normal',
-                fontSize=7,
-            )   
-
-        corpo_relatorio = []
-        self.add_relat_title(corpo_relatorio)
-
+            fonte_tamanho = '11px'
+ 
         tipo_dado_contato = self.filterset.form.cleaned_data['tipo_dado_contato']
 
-        registros = self.get_data()
-        for dados in registros:
+        html = "\
+                <!DOCTYPE html>\
+                <html>\
+                <head>\
+                    <meta charset='utf-8'>\
+                    <style>\
+                        body {\
+                          font-family: 'Liberation Sans';\
+                        }\
+                        table, th, td {\
+                          border: 1px solid black;\
+                          border-collapse: collapse;\
+                          vertical-align: top;\
+                          padding: 5px;\
+                        }\
+                        th {\
+                          font-size: 16px;}\
+                        td {\
+                          font-size: " + fonte_tamanho + ";\
+                        } \
+                    </style>\
+                </head>\
+                <body>\
+                <center><h2>Relatório de Contatos</h2></center>\
+              "
 
+        tabela = "<table>\
+                    <colgroup>\
+                       <col span='1' style='width: 20%;'>\
+                       <col span='1' style='width: 10%;'>\
+                       <col span='1' style='width: 20%;'>\
+                       <col span='1' style='width: 15%;'>\
+                       <col span='1' style='width: 10%;'>\
+                       <col span='1' style='width: 15%;'>\
+                       <col span='1' style='width: 10%;'>\
+                    </colgroup>\
+                    <thead><tr>\
+                        <th>Nome</th>\
+                        <th>Nascimento</th>\
+                        <th>Endereço / Bairro</th>\
+                        <th>Cidade / CEP</th>\
+                        <th>Telefone</th>\
+                        <th>E-mail</th>\
+                        <th>Grupos</th>\
+                    </tr></thead>\
+                    <tbody>"
+
+        html += tabela 
+
+        registros = self.object_list
+        
+        for dados in registros:
             enderecos = ''      
             municipios = ''
 
-            if(dados[ENDERECOS] != None):
+            if(dados.endereco_set.all().count() > 0):
 
-                for endereco in dados[ENDERECOS]:
+                for endereco in dados.endereco_set.all():
 
                     if(endereco.endereco != '' and endereco.endereco != None):
                         
@@ -2723,13 +2887,13 @@ class RelatorioContatosView(RelatorioProcessosView):
 
             nascimento = ''
 
-            if(dados[CONTATO][NASCIMENTO] != '' and dados[CONTATO][NASCIMENTO] != None):
-                nascimento = dados[CONTATO][NASCIMENTO].strftime('%d/%m/%Y')
+            if(dados.data_nascimento != '' and dados.data_nascimento != None):
+                nascimento = dados.data_nascimento.strftime('%d/%m/%Y')
 
             telefones = ''
 
-            if(dados[TELEFONES] != None):
-                for telefone in dados[TELEFONES]:
+            if(dados.telefone_set.all().count() > 0):
+                for telefone in dados.telefone_set.all():
                     if ((tipo_dado_contato == 'P' and telefone.principal == True) or
                             (tipo_dado_contato == 'C' and telefone.permite_contato == True) or
                             (tipo_dado_contato == 'A')):
@@ -2745,8 +2909,8 @@ class RelatorioContatosView(RelatorioProcessosView):
              
             emails = ''
 
-            if(dados[EMAILS] != None):
-                for email in dados[EMAILS]:
+            if(dados.email_set.all().count() > 0):
+                for email in dados.email_set.all():
                      if ((tipo_dado_contato == 'P' and email.principal == True) or
                             (tipo_dado_contato == 'C' and email.permite_contato == True) or
                             (tipo_dado_contato == 'A')):
@@ -2762,166 +2926,43 @@ class RelatorioContatosView(RelatorioProcessosView):
 
             grupos = ''
 
-            if(dados[GRUPOS] != None):
-                for grupo in dados[GRUPOS]:
+            if(dados.grupodecontatos_set.all().count() > 0):
+                for grupo in dados.grupodecontatos_set.all():
                     grupos += grupo.nome + "<br/>"
 
+            html += "\
+                    <tr class='page-break'>\
+                        <td>" + dados.nome + "</td>\
+                        <td>" + nascimento + "</td>\
+                        <td>" + enderecos + "</td>\
+                        <td>" + municipios + "</td>\
+                        <td>" + telefones + "</td>\
+                        <td>" + emails + "</td>\
+                        <td>" + grupos + "</td>\
+                    </tr>"
 
-            item = [
-                Paragraph(dados[CONTATO][NOME], estilo),
-                Paragraph(nascimento, estilo),
-                Paragraph(enderecos, estilo),
-                Paragraph(municipios, estilo),
-                Paragraph(telefones, estilo),
-                Paragraph(emails, estilo),
-                Paragraph(grupos, estilo),
-            ]
-            corpo_relatorio.append(item)
-
-        style = TableStyle([
-            ('FONTSIZE', (0, 0), (-1, -1), 6),
-            ('LEADING', (0, 0), (-1, -1), 7),
-            ('GRID', (0, 0), (-1, -1), 0.1, colors.black),
-            ('INNERGRID', (0, 0), (-1, -1), 0.1, colors.black),
-            ('TOPPADDING', (0, 0), (-1, -1), 3),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
-            ('LEFTPADDING', (0, 0), (-1, -1), 3),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
-        ])
-        style.add('VALIGN', (0, 0), (-1, -1), 'TOP')
-
-        for i, value in enumerate(corpo_relatorio):
-            if len(value) <= 1:
-                style.add('SPAN', (0, i), (-1, i))
-
-            if len(value) == 0:
-                style.add('INNERGRID', (0, i), (-1, i), 0, colors.black),
-                style.add('GRID', (0, i), (-1, i), -1, colors.white)
-                style.add('LINEABOVE', (0, i), (-1, i), 0.1, colors.black)
-
-            if len(value) == 1:
-                style.add('LINEABOVE', (0, i), (-1, i), 0.1, colors.black)
+        html += "   </tbody>\
+                    </table>\
+                 </html>"
 
         if self.filterset.form.cleaned_data['orientacao'] == 'P':
-            if tipo_dado_contato == 'A':
-                rowHeights = 80
-            else:
-                rowHeights = 40
+            orientacao = 'landscape'
         elif self.filterset.form.cleaned_data['orientacao'] == 'R':
-            if tipo_dado_contato == 'A':
-                rowHeights = 100
-            else:
-                rowHeights = 50
+            orientacao = 'portrait'
 
-        t = LongTable(corpo_relatorio, rowHeights=None, splitByRow=True)
-        #t = LongTable(corpo_relatorio, rowHeights=rowHeights, splitByRow=True)
-        t.setStyle(style)
-       
-        if self.filterset.form.cleaned_data['orientacao'] == 'P':
-            t._argW[0] = 5 * cm
-            t._argW[1] = 2.5 * cm
-            t._argW[2] = 5 * cm
-            t._argW[3] = 3.5 * cm
-            t._argW[4] = 3 * cm
-            t._argW[5] = 5 * cm
-            t._argW[6] = 3 * cm
-        elif self.filterset.form.cleaned_data['orientacao'] == 'R':
-            t._argW[0] = 3.3 * cm
-            t._argW[1] = 2 * cm
-            t._argW[2] = 3.3 * cm
-            t._argW[3] = 3 * cm
-            t._argW[4] = 2.3 * cm
-            t._argW[5] = 3.3 * cm
-            t._argW[6] = 2 * cm
+        options = {
+            'page-size': 'A4',
+            'orientation': orientacao,
+            'margin-top': '0.40in',
+            'margin-right': '0.40in',
+            'margin-bottom': '0.40in',
+            'margin-left': '0.40in',
+            'encoding': "UTF-8",
+            'no-outline': None
+        }
 
-        #for i, value in enumerate(corpo_relatorio):
-        #    if len(value) == 0:
-        #        t._argH[i] = 7
-        #        continue
-        #    for cell in value:
-        #        if isinstance(cell, list):
-        #            t._argH[i] = (height) * (
-        #                len(cell) - (0 if len(cell) > 1 else 0))
-        #            break
+        return pdfkit.from_string(html, options=options) 
 
-        elements = [t]
-
-        if self.filterset.form.cleaned_data['orientacao'] == 'P':
-            orientacao = landscape(A4)
-        elif self.filterset.form.cleaned_data['orientacao'] == 'R':
-            orientacao = A4
-
-        doc = SimpleDocTemplate(
-            response,
-            title=self.relat_title,
-            pagesize=orientacao,
-            rightMargin=1.25 * cm,
-            leftMargin=1.25 * cm,
-            topMargin=1.1 * cm,
-            bottomMargin=0.8 * cm)
-        
-        doc.build(elements, canvasmaker=NumberedCanvas)
-
-    def get_data(self):
-        contatos = []
-        consulta_agregada = self.object_list.order_by('nome',)
-        consulta_agregada = consulta_agregada.values_list(
-            'id',
-            'nome',
-            'data_nascimento',
-        )
-
-        for contato in consulta_agregada.all():
-            query = (Q(principal=True))
-            query.add(Q(permite_contato=True), Q.OR)
-            query.add(Q(contato__id=contato[0]), Q.AND)
-
-            endereco = Endereco.objects.filter(query)
-            telefone = Telefone.objects.filter(query)
-            email = Email.objects.filter(query)
-            grupos = GrupoDeContatos.objects.filter(contatos__id=contato[0])[:2]
-
-            contatos.append((contato, endereco, telefone, email, grupos))
-
-        return contatos
-
-    def validate_data(self):
-        contatos = []
-        consulta_agregada = self.object_list.order_by('nome',)
-        consulta_agregada = consulta_agregada.values_list(
-            'id',
-        )
-
-        total_erros = 0
-
-        for contato in consulta_agregada.all():
-            query = (Q(permite_contato=True))
-            query.add(Q(contato__id=contato[0]), Q.AND)
-
-            email = Email.objects.filter(query).count()
-
-            if(email == 0):
-                total_erros = total_erros + 1
-
-        return total_erros
-
-    def set_cabec(self, h5):
-        cabec = [Paragraph(_('Nome'), h5)]
-        cabec.append(Paragraph(_('Nascimento'), h5))
-        cabec.append(Paragraph(_('Endereço / Bairro'), h5))
-        cabec.append(Paragraph(_('Cidade / CEP'), h5))
-        cabec.append(Paragraph(_('Telefone'), h5))
-        cabec.append(Paragraph(_('E-mail'), h5))
-        cabec.append(Paragraph(_('Grupos'), h5))
-        self.cabec = cabec
-
-    def add_relat_title(self, corpo_relatorio):
-        tit_relatorio = _(self.relat_title)
-        tit_relatorio = force_text(tit_relatorio) + ' '
-
-        corpo_relatorio.append([Paragraph(tit_relatorio, self.h3)])
-
-        corpo_relatorio.append(self.cabec)
 
 #
 #
@@ -2976,8 +3017,7 @@ class RelatorioAgendaView(RelatorioProcessosView):
     def get_filterset(self, filterset_class):
         kwargs = self.get_filterset_kwargs(filterset_class)
         try:
-            kwargs['workspace'] = AreaTrabalho.objects.filter(
-                operadores=self.request.user.pk)[0]
+            kwargs['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
         except:
             raise PermissionDenied(_('Sem permissão de acesso!'))
 
@@ -3275,8 +3315,7 @@ class RelatorioEventoView(PermissionRequiredMixin, FilterView):
     def get_filterset(self, filterset_class):
         kwargs = self.get_filterset_kwargs(filterset_class)
         try:
-            kwargs['workspace'] = AreaTrabalho.objects.filter(
-                operadores=self.request.user.pk)[0]
+            kwargs['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
         except:
             raise PermissionDenied(_('Sem permissão de acesso!'))
 
@@ -3432,7 +3471,7 @@ class RelatorioEventoView(PermissionRequiredMixin, FilterView):
         tit_relatorio = force_text(tit_relatorio) + ' '
 
         data.append([Paragraph(tit_relatorio, self.h3)])
-
+    """
     def build_query(self, contato, where):
         p_filter = (('contato_set__' + self.agrupamento, contato),)
         if not processo:
@@ -3456,7 +3495,7 @@ class RelatorioEventoView(PermissionRequiredMixin, FilterView):
         eventos_query = eventos_query.order_by(
            'inicio')
         return contatos_query
-
+    """
     def set_body_data(self, p):
 
         legenda = self.h_style
@@ -3532,7 +3571,7 @@ class MalaDiretaView(RelatorioProcessosView):
 
     def __init__(self):
         super().__init__()
-        self.ctx_title = 'Exportação para mala direta'
+        self.ctx_title = 'Exportação de e-mail'
         #self.relat_title = 'Mala Direta'
         self.nome_objeto = 'Contato'
         #self.filename = 'Mala_Direta'
@@ -3548,13 +3587,13 @@ class MalaDiretaView(RelatorioProcessosView):
                                       'condições definidas na busca!'))
         
         if 'print' in request.GET and self.object_list.exists():
-            total_erros = self.validate_data()
-            if(total_erros > 0):
+            erros_email = self.validate_data()
+            if(self.filterset.form.cleaned_data['ocultar_sem_email'] != True and erros_email > 0):
                 self.filterset.form._errors['ocultar_sem_email'] = ErrorList([_(
-                    'ATENÇÃO! Marcando Sim, você vai remover do relatório %s contatos que não tem e-mail' % (total_erros))])
+                    'ATENÇÃO! Marcando Sim, você vai remover do relatório %s contatos que não tem e-mail' % (erros_email))])
 
                 messages.error(request, _('Existem %s contatos na busca que não tem e-mail marcado para Contato.\
-                         <br>Revise-os antes de gerar a mala direta, ou se preferir, escolha Sim no campo "Ocultar sem e-mail"' % (total_erros)))
+                         <br>Revise-os antes de gerar a mala direta, ou se preferir, escolha Sim no campo "Ocultar sem e-mail"' % (erros_email)))
             else:
                 filename = str("Contatos_")\
                      + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
@@ -3573,8 +3612,7 @@ class MalaDiretaView(RelatorioProcessosView):
     def get_filterset(self, filterset_class):
         kwargs = self.get_filterset_kwargs(filterset_class)
         try:
-            kwargs['workspace'] = AreaTrabalho.objects.filter(
-                operadores=self.request.user.pk)[0]
+            kwargs['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
         except:
             raise PermissionDenied(_('Sem permissão de acesso!'))
 
@@ -3609,9 +3647,12 @@ class MalaDiretaView(RelatorioProcessosView):
 
 
         for contato in context['page_obj']:            
-            endpref = contato.endereco_set.filter(principal=True).first()
-            grupo = contato.grupodecontatos_set.all()
             
+            if(contato.endereco_set.all().count() > 0):
+                endpref = contato.endereco_set.all()[0]
+            else:
+                endpref = None
+
             if endpref:
                 contato.bairro = endpref.bairro.nome if endpref.bairro else ''
                 contato.municipio = '%s/%s' % (endpref.municipio, endpref.estado.sigla) if endpref.municipio else ''
@@ -3619,77 +3660,47 @@ class MalaDiretaView(RelatorioProcessosView):
                 contato.bairro = ''
                 contato.municipio = ''
 
+            grupo = contato.grupodecontatos_set.all()
             contato.grupo = grupo
-           
-            telefone = contato.telefone_set.filter(principal=True).first()
+          
+            if (contato.telefone_set.all().count() > 0): 
+                telefone = contato.telefone_set.all()[0]
+            else:
+                telefone = None
+
             contato.telefone = telefone.telefone if telefone else ''
-            
-            email = contato.email_set.filter(permite_contato=True).first()
+
+            if (contato.email_set.all().count() > 0): 
+                email = contato.email_set.all()[0]
+            else:
+                email = None
+
             contato.email = email.email if email else ''
 
         return context
 
     def build_txt(self, response):
-        CONTATO = 0
-        EMAILS = 3
 
-        NOME = 1
-
-        registros = self.get_data()
+        registros = self.object_list.order_by('nome')
 
         csv_data = []
 
-        for dados in registros:
-            sem_email = False
-            if(dados[EMAILS] != None):
-                for email in dados[EMAILS]:
-                    if email.permite_contato == True:
-                        csv_data.append([dados[CONTATO][NOME], email])
-                        sem_email = True
+        for contato in registros:
+            if contato.email_set.all().count() > 0:
+                email = contato.email_set.all()[0]
+                csv_data.append([contato.nome, email.email])
 
         t = loader.get_template('cerimonial/contato_email.txt')
-        response.write(t.render({'data': csv_data}))
+        response.write(t.render({'data': csv_data}).encode("utf-8"))
         return response
 
-    def get_data(self):
-        contatos = []
-        consulta_agregada = self.object_list.order_by('nome',)
-        consulta_agregada = consulta_agregada.values_list(
-            'id',
-            'nome',
-            'data_nascimento',
-        )
-
-        for contato in consulta_agregada.all():
-            query = (Q(principal=True))
-            query.add(Q(permite_contato=True), Q.OR)
-            query.add(Q(contato__id=contato[0]), Q.AND)
-
-            endereco = Endereco.objects.filter(query)
-            telefone = Telefone.objects.filter(query)
-            email = Email.objects.filter(query)
-            grupos = GrupoDeContatos.objects.filter(contatos__id=contato[0])[:2]
-
-            contatos.append((contato, endereco, telefone, email, grupos))
-
-        return contatos
-
     def validate_data(self):
-        contatos = []
         consulta_agregada = self.object_list.order_by('nome',)
-        consulta_agregada = consulta_agregada.values_list(
-            'id',
-        )
 
         total_erros = 0
 
         for contato in consulta_agregada.all():
-            query = (Q(permite_contato=True))
-            query.add(Q(contato__id=contato[0]), Q.AND)
-
-            email = Email.objects.filter(query).count()
-
-            if(email == 0):
+            if(contato.email_set.all().count() < 1):
                 total_erros = total_erros + 1
 
         return total_erros
@@ -3751,7 +3762,7 @@ class ImpressoEnderecamentoView(PermissionRequiredMixin, FilterView):
                 contatos_nao_casados = self.validate_estado_civil()
 
                 # Pessoas sem endereço cadastrado
-                if(self.filterset.form.cleaned_data['ocultar_sem_endereco'] != '2' and erros_endereco > 0):
+                if(self.filterset.form.cleaned_data['ocultar_sem_endereco'] != True and erros_endereco > 0):
                     self.filterset.form._errors['ocultar_sem_endereco'] = ErrorList([_(
                         'ATENÇÃO! Marcando Sim, você vai remover do relatório %s contatos que não tem endereço' % (erros_endereco))])
 
@@ -3767,8 +3778,8 @@ class ImpressoEnderecamentoView(PermissionRequiredMixin, FilterView):
                 # Pessoas não casadas usando a expressão "e esposo" ou "e esposa"
                 elif( (self.filterset.form.cleaned_data['pos_nome'] == 'EPO' and contatos_nao_casados > 0) or
                       (self.filterset.form.cleaned_data['pos_nome'] == 'EPA' and contatos_nao_casados > 0) ):
-                    messages.error(request, _('Existem contatos na busca que não são casados, e por isso não podem usar a expressão pós-nome escolhida.\
-                             <br>Escolha apenas contatos casados ou altere a expressão pós-nome escolhida'))
+                    messages.error(request, _('Existem %s contatos na busca que não são casados, e por isso não podem usar a expressão pós-nome escolhida.\
+                             <br>Escolha apenas contatos casados ou altere a expressão pós-nome escolhida' % (contatos_nao_casados)))
                 # Comentado devido a casamento entre pessoas do mesmo sexo
                 # elif( (self.filterset.form.cleaned_data['pos_nome'] == 'EPO' and erros_sexo[1] > 0) or
                 #       (self.filterset.form.cleaned_data['pos_nome'] == 'EPA' and erros_sexo[2] > 0) ):
@@ -3794,8 +3805,7 @@ class ImpressoEnderecamentoView(PermissionRequiredMixin, FilterView):
     def get_filterset(self, filterset_class):
         kwargs = self.get_filterset_kwargs(filterset_class)
         try:
-            kwargs['workspace'] = AreaTrabalho.objects.filter(
-                operadores=self.request.user.pk)[0]
+            kwargs['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
         except:
             raise PermissionDenied(_('Sem permissão de Acesso!'))
 
@@ -3829,11 +3839,10 @@ class ImpressoEnderecamentoView(PermissionRequiredMixin, FilterView):
         context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
 
         for contato in context['page_obj']:            
-            endpref = contato.endereco_set.filter(permite_contato=True).first()
-            
-            if endpref:
-                contato.endereco = endpref.endereco if endpref.endereco else ''
-                contato.municipio = '%s/%s' % (endpref.municipio.nome, endpref.estado.sigla)
+            if contato.endereco_set.all():
+                endereco_atual = contato.endereco_set.all()[0]
+                contato.endereco = endereco_atual.endereco if endereco_atual.endereco else ''
+                contato.municipio = '%s/%s' % (endereco_atual.municipio.nome, endereco_atual.estado.sigla)
             else:
                 contato.endereco = ''
                 contato.municipio = ''
@@ -3896,28 +3905,29 @@ class ImpressoEnderecamentoView(PermissionRequiredMixin, FilterView):
 
         i = -1
         for contato in self.object_list.all():
-            i += 1
-            if i != 0 and i % cr == 0:
-                p.showPage()
-
-                if impresso.rotate:
-                    p.translate(pagesize[1], 0)
-                    p.rotate(90)
-
-            q = floor(i / col) % row
-            r = i % int(col)
-
-            l = me + r * ec + r * le
-            b = ms - (q + 1) * ae - q * el
-
-            f = Frame(l, b, le, ae,
-                      leftPadding=fs / 3,
-                      bottomPadding=fs / 3,
-                      topPadding=fs / 3,
-                      rightPadding=fs / 3,
-                      showBoundary=0)
-            # f.drawBoundary(p)
-            f.addFromList(self.createParagraphs(contato, stylesheet), p)
+            if contato.endereco_set.all().count() > 0:
+                i += 1
+                if i != 0 and i % cr == 0:
+                    p.showPage()
+    
+                    if impresso.rotate:
+                        p.translate(pagesize[1], 0)
+                        p.rotate(90)
+    
+                q = floor(i / col) % row
+                r = i % int(col)
+    
+                l = me + r * ec + r * le
+                b = ms - (q + 1) * ae - q * el
+    
+                f = Frame(l, b, le, ae,
+                          leftPadding=fs / 3,
+                          bottomPadding=fs / 3,
+                          topPadding=fs / 3,
+                          rightPadding=fs / 3,
+                          showBoundary=0)
+                # f.drawBoundary(p)
+                f.addFromList(self.createParagraphs(contato, stylesheet), p)
 
         p.showPage()
         p.save()
@@ -4006,7 +4016,7 @@ class ImpressoEnderecamentoView(PermissionRequiredMixin, FilterView):
             story.append(
                 Paragraph(contato.cargo, stylesheet['endereco_style']))
 
-        endpref = contato.endereco_set.filter(permite_contato=True).first()
+        endpref = contato.endereco_set.all()[0]
 
         endereco = endpref.endereco
 
@@ -4057,31 +4067,19 @@ class ImpressoEnderecamentoView(PermissionRequiredMixin, FilterView):
         p.drawText(textobject)
 
     def validate_endereco(self):
-        contatos = []
         consulta_agregada = self.object_list.order_by('nome',)
-        consulta_agregada = consulta_agregada.values_list(
-            'id',
-        )
-
+    
         total_erros = 0
 
         for contato in consulta_agregada.all():
-            query = (Q(permite_contato=True))
-            query.add(Q(contato__id=contato[0]), Q.AND)
-
-            endereco = Endereco.objects.filter(query).count()
-
-            if(endereco == 0):
+            if(contato.endereco_set.all().count() < 1):
                 total_erros = total_erros + 1
 
         return total_erros
 
     def validate_sexo(self):
-        contatos = []
         consulta_agregada = self.object_list.order_by('nome')
-        consulta_agregada = consulta_agregada.values_list(
-            'sexo',
-        )
+        consulta_agregada = consulta_agregada.values_list('sexo',)
 
         total_erros = 0
 
@@ -4092,11 +4090,8 @@ class ImpressoEnderecamentoView(PermissionRequiredMixin, FilterView):
         return total_erros
 
     def validate_estado_civil(self):
-        contatos = []
         consulta_agregada = self.object_list.order_by('nome')
-        consulta_agregada = consulta_agregada.values_list(
-            'estado_civil',
-        )
+        consulta_agregada = consulta_agregada.values_list('estado_civil',)
 
         nao_casados = 0
 

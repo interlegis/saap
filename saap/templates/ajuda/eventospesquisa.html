@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Pesquisa de eventos</h1>
+
+<br />
+
+Ao acessar a tela de <b>Eventos</b>, é possível, além de adicionar um novo evento, fazer uma pesquisa no cadastro de eventos. <br />
+
+<h2>Campos para filtro</h2>
+
+Ainda não há campos para filtro. No futuro, serão disponibilizados. <br />
+
+<h2>Tabela de eventos</h2>
+
+Todos os eventos são exibidos em uma tabela. O <b>Total de Eventos</b> aparece no alto da tabela. <br />
+
+<br />
+
+Porém, para não sobrecarregar a exibição, quando há mais de 100 eventos, eles são divididos em páginas. É possível avançar para a página <b>Anterior</b> ou <b>Próxima</b>, assim como ir direto para uma página, clicando no número. A página atual é destacada com fundo <span class="paginacao">azul claro</span>. <br />
+
+<br />
+
+Na tabela, são exibidas quatro colunas: <b>Título</b>, <b>Bairro/Município</b>, <b>Início</b> e <b>Término</b>. Para ordenar os contatos por uma destas colunas, basta clicar em cima dela. Quando há uma seta para cima ao lado do nome, significa que a ordem é crescente ou A-Z. Quando a seta aponta para baixo, a ordem é decrescente ou Z-A. Lembre-se que se a ordem é crescente, os dados em branco aparecem primeiro, e se a ordem é descrescente, os dados em branco aparecem por último.<br/>
+
+<br />
+
+Para acessar os dados de um evento, basta clicar no seu título (coluna <b>Título</b>, em verde). <br />
+
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'eventoscadastro' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+  <a href="{% url 'saap.core:help_topic' 'aniversarios' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

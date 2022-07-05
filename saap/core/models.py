@@ -18,6 +18,8 @@ from saap.globalrules.globalrules import rules, GROUP_SOCIAL_USERS
 from saap.utils import get_settings_auth_user_model, normalize
 from saap.utils import YES_NO_CHOICES, restringe_tipos_de_arquivo_img
 
+from exclusivebooleanfield.fields import ExclusiveBooleanField
+
 from .rules import MENU_PERMS_FOR_USERS
 
 class UserManager(BaseUserManager):
@@ -508,6 +510,12 @@ class OperadorAreaTrabalho(SaapAuditoriaModelMixin):
         Group,
         verbose_name=_('Grupos associados'),
         related_name='operadorareatrabalho_set')
+
+    preferencial = ExclusiveBooleanField(
+        on=('user'),
+        choices=YES_NO_CHOICES,
+        blank=False, default=True, verbose_name=_('Preferencial'),
+        help_text=_("Se estiver 'Sim', após você salvar, este passa a ser a Área de Trabalho preferencial para o usuário"))
 
     @property
     def user_name(self):

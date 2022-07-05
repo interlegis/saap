@@ -55,9 +55,6 @@ load_db() {
     echo "[LOAD_DB] Creating database structure..."
     yes yes | python3 manage.py migrate
     
-    echo "[LOAD_DB] Creating extension..."
-    psql -h saapdb -U saap -c "CREATE EXTENSION unaccent;"
-
     echo "[LOAD_DB] Done!"
 }
 

@@ -55,7 +55,7 @@ def subnav(context, path=None):
             """
             yaml_template = template.loader.get_template(yaml_path)
             rendered = yaml_template.render()
-            menu = yaml.load(rendered)
+            menu = yaml.safe_load(rendered)
             resolve_urls_inplace(menu, root_pk, rm, context)
         except Exception as e:
             print(e)

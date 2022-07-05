@@ -30,6 +30,7 @@ from saap.globalrules.crud_custom import DetailMasterCrud,\
     MasterDetailCrudPermission
 from saap.utils import normalize
 
+from django.http import HttpResponseRedirect
 
 globalrules.rules.config_groups(rules_patterns)
 
@@ -170,7 +171,7 @@ class AreaTrabalhoCrud(DetailMasterCrud):
     model_set = 'operadorareatrabalho_set'
 
     class BaseMixin(DetailMasterCrud.BaseMixin):
-
+        
         list_field_names = ['nome', 'parlamentar', 'descricao']
 
         def get_context_data(self, **kwargs):
@@ -180,6 +181,13 @@ class AreaTrabalhoCrud(DetailMasterCrud):
 
     class DetailView(DetailMasterCrud.DetailView):
         list_field_names_set = []
+
+    def change(request, workspace_id=None):
+        workspaces = OperadorAreaTrabalho.objects.filter(user=request.user.pk)
+        workspaces.update(preferencial=False)
+        workspaces.filter(areatrabalho=workspace_id).update(preferencial=True)
+
+        return HttpResponseRedirect(reverse('saap.cerimonial:contato_list'))
 
 class OperadorAreaTrabalhoCrud(MasterDetailCrudPermission):
     parent_field = 'areatrabalho'

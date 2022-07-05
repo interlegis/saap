@@ -57,7 +57,7 @@ DADOS_TELEFONE = config('DADOS_TELEFONE');
 DADOS_SITE = config('DADOS_SITE');
 BRASAO_PROPRIO = config('BRASAO_PROPRIO');
 
-VERSION='3.1.2'
+VERSION='3.1.3'
 
 INSTALLED_APPS = (
     'django_admin_bootstrapped',
@@ -83,11 +83,11 @@ INSTALLED_APPS = (
     'floppyforms',
     'sass_processor',
     'rest_framework',
-
+    'import_export',
     # 'haystack',
     # "elasticstack",
 
-    'taggit',
+    #'taggit',
     'modelcluster',
 )
 
@@ -386,6 +386,26 @@ DEBUG_TOOLBAR_CONFIG = {
 
 USE_DJANGO_JQUERY = True
 
-DJANGO_EASY_AUDIT_WATCH_MODEL_EVENTS = True
-DJANGO_EASY_AUDIT_WATCH_AUTH_EVENTS = True
-DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS = True
+"""
+LOGGING = {
+    'version': 1,
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+        }
+    }
+}
+"""

@@ -373,3 +373,57 @@ def calcularIdade(born):
         return today.year - born.year - 1
     else: 
         return today.year - born.year 
+
+
+from datetime import datetime
+
+def import_date_valid(value):
+    try:
+        if value != datetime.strptime(value, "%d/%m/%Y").strftime('%d/%m/%Y'):
+            raise ValueError
+        return True
+    except ValueError:
+        return False
+
+def import_cep_valid(value):
+    value = str(value)
+    if value in EMPTY_VALUES:
+        return u''
+    if not value.isdigit():
+        value = re.sub("[-]", "", value)
+    orig_value = value[:]
+    try:
+        int(value)
+    except ValueError:
+        return False
+    if len(value) != 8:
+        return False
+
+    return True
+
+def import_telefone_valid(value):
+    value = str(value)
+
+    expression = '^\([1-9]{2}\)(?:[2-9]|9[1-9])[0-9]{3}\-[0-9]{4}$'
+
+    if re.search(r"\s", value):
+        return False
+
+    if (re.match(expression, value) == None):
+        return False
+
+    return True
+
+def import_email_valid(value):
+    value = str(value)
+
+    expression = '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}'
+
+    if re.search(r"\s", value):
+        return False
+
+    if (re.match(expression, value) == None):
+        return False
+
+    return True
+ 

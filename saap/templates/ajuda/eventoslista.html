@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Listagem de eventos da agenda</h1>
+
+<br />
+
+Para acessar o relatório de <b>Listagem de eventos</b>, clique no menu <b>Relatórios</b> e, depois, na opção <b>Listagem</b>.<br />
+
+<br />
+
+Esta tela permite gerar uma tabela em PDF, contendo os dados dos eventos filtrados. <br />
+
+<h2>Filtro de Contatos</h2>
+
+<ul>
+    <li><b>Título, descrição ou localização</b>: Campo que permite pesquisar pelo título do evento, descrição ou localização (campo preenchido, não os campos de bairro ou município). 
+    <li><b>Início do evento</b>: Campos de data que permitem pesquisar um período e retornar os eventos que tem início nesse período. Por exemplo, para obter todos os eventos que ocorrerão em julho de 2022, basta informar 01/07/2022 e 31/07/2022. Ao clicar nos campos, abre-se um mini calendário, permitindo a escolha da data. Lembrando que esse campo não observa os eventos que, eventualmente, iniciam no último dia informado mas que terminam posteriormente - por exemplo, inicia em 31/07 mas termina em 04/08.
+    <li><b>Término do evento</b>: Campos de data que permitem pesquisar um período e retornar os eventos que tem encerramento nesse período. Por exemplo,  para obter todos os eventos que ocorrerão em julho de 2022, mas que terminarão em julho de 2022, basta informar 01/07/2022 no primeiro campo <b>Início do evento</b> e 31/07/2022 no segundo campo <b>Término do evento</b>. Ao clicar nos campos, abre-se um mini calendário, permitindo a escolha da data. 
+    <li><b>Bairro</b>: Permite selecionar um ou mais bairros da cidade. Para selecionar um bairro, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar.
+    <li><b>Município</b>: Permite selecionar um ou mais municípios do estado. Para selecionar um município, basta clicar no mesmo. Para selecionar mais de um, basta pressionar a tecla Ctrl e ir clicando com o mouse para selecionar/desmarcar.
+</ul>
+
+Após preencher os filtros, clique em <b>Filtrar</b>. Se você não fizer o filtro antes de <b>Gerar o relatório</b>, ele será criado desconsiderando os filtros que você preencheu. Primeiro filtre, depois gere. <br />
+
+<h2>Impressão</h2>
+
+<ul>
+    <li><b>Orientação</b>: Define se as páginas serão geradas em modo Retrato (em pé) ou Paisagem (deitadas). O primeiro permite colocar mais eventos numa página, porém com colunas mais estreitas e as informações mais "apertadas". O segundo não consegue colocar tantos eventos numa página, porém as colunas ficam mais largas e as informações mais distribuídas.
+</ul>
+
+Escolhidas as opções, clique em <b>Gerar</b> para que o relatório seja gerado. <br />
+
+<h2>Imprimir relatório</h2>
+
+Recomendamos fortemente que, antes de imprimir, você baixe o arquivo, pois a impressão direto pelo navegador (Chrome, Firefox ou Edge) é mais lenta e acaba ficando com uma qualidade um pouco inferior. <br />
+
+<br />
+
+Escolha o local que deseja salvar, vá até o arquivo e, então, clique para abri-lo no programa leitor de PDF que você desejar ou utiliza. Para imprimir, basta clicar no ícone ou apertar as teclas Ctrl + P. A impressão é feita em tamanho A4. <br />
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'processosdetalhe' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+  <a href="{% url 'saap.core:help_topic' 'eventosdetalhe' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

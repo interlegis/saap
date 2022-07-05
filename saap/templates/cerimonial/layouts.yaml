@@ -49,6 +49,9 @@ Contato:
   - estado_civil tem_filhos:3 quantos_filhos:3
   {% trans 'Pais' %}:
   - nome_pai nome_mae
+  {% trans 'Redes sociais' %}:
+  - link_facebook link_instagram
+  - link_twitter link_site
   {% trans 'Documentos pessoais' %}:
   - numero_sus cpf titulo_eleitor
   - rg rg_orgao_expedidor rg_data_expedicao
@@ -68,6 +71,9 @@ ContatoLayoutForForm:
   - estado naturalidade
   - sexo:3 identidade_genero:3 nome_social apelido
   - estado_civil tem_filhos:3 quantos_filhos:3
+  {% trans 'Redes sociais' %}:
+  - link_facebook link_instagram
+  - link_twitter link_site 
   {% trans 'Pais' %}:
   - nome_pai nome_mae
   {% trans 'Documentos pessoais' %}:

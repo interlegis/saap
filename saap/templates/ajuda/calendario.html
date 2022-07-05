@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Calendário</h1>
+
+<br />
+
+A agenda do SAAP permite a visualização mensal de compromissos, possuindo várias funcionalidades para auxiliar essa tarefa.<br />
+
+ <br />
+
+A exibição dos compromissos em forma de calendário facilita a associação entre dia do mês e dia da semana - por exemplo, saber se em uma semana há muitos compromissos, ou se há compromissos no fim de semana. O dia atual é destacado em verde claro, enquanto os dias que já passaram ficam em cinza.<br />
+
+ <br />
+
+Os compromissos de um dia estão logo abaixo do número do dia do mês, em ordem crescente de horário. Cada compromisso possui, além do título, o horário de início e término. Caso o evento tenha seu término em dia posterior, ao lado aparecerá, em <span class="evento-longo">vermelho</span> quantos dias depois o mesmo terminará. Da mesma forma, se algum evento ocorre de modo simultâneo a outro, estará destacado em <span class="evento-concomitante">azul</span><br/>
+
+<br />
+
+Ao posicionar o mouse em cima do título do evento, são exibidas as informações de descrição, local, bairro, município, data e hora de início, data e hora de término. Além disto, ao clicar em cima do título do evento, o sistema redirecionará para o cadastro completo do mesmo.<br />
+
+ <br />
+
+Para navegar nos meses, basta usar os botões no alto do calendário:<br />
+
+ <br />
+
+<ul>
+    <li><b>Ano anterior</b>: Volta um ano em relação ao mês/ano exibido no calendário. Se o calendário mostra o mês de julho de 2022, ao clicar no botão é carregado o mês de julho de 2021.
+    <li><b>Mês anterior</b>: Volta um mês em relação ao mês exibido no calendário. Se o calendário mostra o mês de julho de 2022, ao clicar no botão é carregado o mês de junho de 2022.
+    <li><b>Mês atual</b>: Exibe o mês atual do calendário, independente do mês exibido no calendário. É o equivalente a clicar no menu <b>Agenda</b>
+    <li><b>Próximo mês</b>: Avança um mês em relação ao mês exibido no calendário. Se o calendário mostra o mês de julho de 2022, ao clicar no botão é carregado o mês de agosto de 2022.
+    <li><b>Próximo ano</b>: Avança um ano em relação ao mês/ano exibido no calendário. Se o calendário mostra o mês de julho de 2022, ao clicar no botão é carregado o mês de julho de 2023.
+</ul>
+
+ <br />
+Para adicionar um novo evento ou compromisso, basta clicar em <b>Adicionar evento</b>.<br />
+
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'agenda' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'eventoscadastro' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

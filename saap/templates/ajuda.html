@@ -29,7 +29,8 @@
                                     </ul>
 				<li><a href="{% url 'saap.core:help_topic' 'contatospesquisa' %}">Pesquisa</a></li>
 				<li><a href="{% url 'saap.core:help_topic' 'grupos' %}">Grupos de contatos</a></li>
-				<li><a href="{% url 'saap.core:help_topic' 'exportacao' %}">Exportação para planilha</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'contatosimportacao' %}">Importação</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'contatosexportacao' %}">Exportação</a></li>
 			</ul>
 		</li>
 
@@ -47,8 +48,13 @@
 		<li>
 			<a href="{% url 'saap.core:help_topic' 'agenda' %}">Agenda</a>
 			<ul>
-				<li><a href="{% url 'saap.core:help_topic' 'agendacalendario' %}">Calendário</a></li>
-				<li><a href="{% url 'saap.core:help_topic' 'agendaevento' %}">Evento</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'calendario' %}">Calendário</a></li>
+				<li>Eventos</li>
+                <ul>
+    				<li><a href="{% url 'saap.core:help_topic' 'eventoscadastro' %}">Cadastro de Eventos</a></li>
+				    <li><a href="{% url 'saap.core:help_topic' 'eventospesquisa' %}">Pesquisa de Eventos</a></li>
+                </ul>
+				<li><a href="{% url 'saap.core:help_topic' 'aniversarios' %}">Aniversários</a></li>
 			</ul>
 		</li>
 
@@ -56,7 +62,7 @@
 			<a href="{% url 'saap.core:help_topic' 'correspondencias' %}">Correspondências</a>
 			<ul>
 				<li><a href="{% url 'saap.core:help_topic' 'envelopesetiquetas' %}">Envelopes e etiquetas</a></li>
-				<li><a href="{% url 'saap.core:help_topic' 'maladireta' %}">Exportação para mala direta</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'maladireta' %}">Exportação de e-mails</a></li>
 			</ul>
 		</li>
 		<li>
@@ -66,7 +72,8 @@
 				<li><a href="{% url 'saap.core:help_topic' 'contatosdetalhe' %}">Dados detalhados do contato</a></li>
 				<li><a href="{% url 'saap.core:help_topic' 'processoslista' %}">Listagem de processos</a></li>
 				<li><a href="{% url 'saap.core:help_topic' 'processosdetalhe' %}">Dados detalhados do processo</a></li>
-				<li><a href="{% url 'saap.core:help_topic' 'agendalista' %}">Listagem de eventos da agenda</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'eventoslista' %}">Listagem de eventos da agenda</a></li>
+				<li><a href="{% url 'saap.core:help_topic' 'eventosdetalhe' %}">Dados detalhados do evento</a></li>
 			</ul>
 		</li>
 

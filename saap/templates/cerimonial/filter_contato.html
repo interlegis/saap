@@ -33,7 +33,7 @@
               <a href="{% url 'saap.cerimonial:contato_list' %}{{obj.pk|safe}}">{{ obj.pk|safe }}</a>
           </td> 
           <td>
-              {{ obj.nome|safe }}
+              <strong>{{ obj.nome|safe }}</strong>
           </td>
           <td>
               {{ obj.email|safe }}

@@ -69,12 +69,13 @@ Se a opção ``BRASAO_PROPRIO`` está com ``True``, é necessário atualizar a i
 ::
 
     sudo docker cp brasao-camara.png saap:/var/interlegis/saap/saap/static/img/brasao-camara.png
+    sudo docker cp brasao-camara.png saap:/var/interlegis/saap/collected_static/img/brasao-camara.png
 
 
-5) Fazer a carga inicial do banco
+5) Preparar o banco de dados
 ----------------------------------------------------------------------------------------
 
-Para que o sistema esteja com os dados iniciais, além das configurações de permissões, deve-se rodar os comandos a seguir, na ordem:
+Para que o sistema pronto, devemos carregar o banco com os dados iniciais, bem como as configurações de permissões. Para isto, deve-se rodar os comandos a seguir, na ordem:
 
 ::
 
@@ -88,6 +89,12 @@ Para que o sistema esteja com os dados iniciais, além das configurações de pe
     ./manage.py loaddata config/initial_data/auth_group.json
     ./manage.py loaddata config/initial_data/saap_*.json
     exit
+
+Para concluir, deve-se criar a função ``unaccent``, que será usada em diversas consultas dentro do SAAP:
+
+::
+
+    sudo docker exec -i postgres psql -U saap -c "CREATE EXTENSION unaccent;"
 
 
 Parar imagens

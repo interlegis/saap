@@ -22,8 +22,8 @@ ENV BUILD_PACKAGES apt-utils apt-file build-essential dialog graphviz-dev \
 
 # Pacotes usados na execucao da imagem
 ENV RUN_PACKAGES antiword bash curl default-jre fontconfig git graphviz jq \
-                 python python3-lxml python3-magic python3-psycopg2 python3-venv \
-                 nginx nodejs poppler-utils postgresql-client sudo ttf-dejavu tzdata vim
+                 python python3-lxml python3-magic python3-psycopg2 python3-venv nginx \
+                 nodejs poppler-utils postgresql-client sudo ttf-dejavu tzdata vim wkhtmltopdf
 
 # Instalacao dos pacotes
 RUN apt-get update -y &&\

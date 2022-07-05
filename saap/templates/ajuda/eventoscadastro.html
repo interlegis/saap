@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Cadastro de Eventos</h1>
+
+<br />
+
+Para cadastrar um novo evento ou compromisso, é necessário acessar o menu <b>Agenda</b>, ir em <b>Eventos</b> e clicar em <b>Adicionar evento</b> <br />
+
+<br />
+
+O formulário possui diversos campos, porém apenas aqueles que estão destacados em <span class='erro'>vermelho</span> são obrigatórios. No caso, os campos de <span class='erro'>Título</span>, <span class='erro'>Início</span> e <span class='erro'>Término</span>. <br />
+
+<h2>Evento</h2>
+
+<ul>
+    <li><b>Título</b>: Título ou nome do evento/compromisso. Procurar ser sucinto, pois é o que aparece no calendário.
+    <li><b>Descrição</b>
+    <li><b>Localização</b>: Informações sobre a localização do evento, como endereço, ponto de referência e proximidade. Não é necessário informar bairro, cidade ou estado, pois os mesmos possuem campos próprios. 
+    <li><b>Estado</b>: Exibe a lista de estados brasileiros.
+    <li><b>Cidade</b>: Exibe a lista de cidades do estado selecionado no campo anterior.
+    <li><b>Bairro</b>: Exibe a lista de bairros do município selecionado no campo anterior.
+    <li><b>Início</b>: Informação da data e hora de início do evento. 
+    <li><b>Término</b>: Informação da data e hora de término do evento. Precisa ser necessariamente posterior ao seu início, mesmo que seja no minuto seguinte.
+</ul>
+
+Após preencher os dados, basta clicar em <b>Salvar</b>. Caso algum dado tenha sido preenchido incorretamente, o formulário será recarregado e um alerta em <span class="erro">vermelho</span>, no alto, será exibido. O campo que estiver com problema será destacado em <span class="erro">vermelho</span>, e uma mensagem explicará qual o problema. <br />
+
+<br />
+
+Após isto, o evento será salvo. Na tela, será possível, não apenas visualizar os eventos cadastrados, como também <b>Editar</b> o evento, <b>Excluir</b> o evento, <b>Adicionar</b> um novo evento ou retornar a <b>Lista</b> de eventos e compromissos. <br />
+
+<h2>Editar ou Excluir</h2>
+
+Ao clicar em <b>Editar</b>, o SAAP abrirá o mesmo formulário, porém com os dados preenchidos, sendo possível sua alteração. <br />
+
+<br />
+
+Ao clicar em <b>Excluir</b>, o SAAP perguntará se o usuário deseja mesmo excluir o evento. Basta clicar em <b>Confirmar</b> para excluir, ou <b>Cancelar</b> a exclusão. <br />
+
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'calendario' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+  <a href="{% url 'saap.core:help_topic' 'eventospesquisa' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}
