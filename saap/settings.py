@@ -72,7 +72,7 @@ INSTALLED_APPS = (
     #'social_django',
 
     # more
-    #'import_export',
+    'import_export',
     'smart_selects',
     'django_extensions',
     'djangobower',
