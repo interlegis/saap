@@ -1241,7 +1241,7 @@ class RelatorioContatoIndividualView(PermissionRequiredMixin, FilterView):
             telefones = contato.telefone_set.all()
             contato.telefone = ''
             for telpref in telefones:
-                if endpref.principal == True:
+                if telpref.principal == True:
                     contato.telefone = telpref.telefone
 
             emails = contato.email_set.all()
@@ -2756,7 +2756,7 @@ class RelatorioContatosView(RelatorioProcessosView):
             telefones = contato.telefone_set.all()
             contato.telefone = ''
             for telpref in telefones:
-                if endpref.principal == True:
+                if telpref.principal == True:
                     contato.telefone = telpref.telefone
 
             emails = contato.email_set.all()
