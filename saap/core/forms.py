@@ -168,7 +168,8 @@ class OperadorAreaTrabalhoForm(ModelForm):
         fields = ['user',
                   'grupos_associados',
                   'preferencial',
-                  'areatrabalho']
+                  #'areatrabalho'
+                  ]
 
     def __init__(self, *args, **kwargs):
 
@@ -181,7 +182,7 @@ class OperadorAreaTrabalhoForm(ModelForm):
         self.fields['preferencial'].widget = forms.RadioSelect()
         self.fields['preferencial'].inline_class = True
 
-        self.fields['areatrabalho'].disabled = True
+        #self.fields['areatrabalho'].disabled = True
 
 class ImpressoEnderecamentoForm(ModelForm):
 
