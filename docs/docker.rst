@@ -4,6 +4,10 @@ Implantação do SAAP com container Docker
 
 Para implantar o SAAP utilizando o container docker, é necessário realizar os passos demonstrados nesse tutorial.
 
+Algumas vezes, não é possível executar os comandos ``docker`` sem usar ``sudo`` antes.
+
+
+
 1) Instalar pacotes
 ----------------------------------------------------------------------------------------
 
@@ -30,7 +34,7 @@ Para isto, use o arquivo `docker-compose.yml <https://github.com/interlegis/saap
 É importante verificar os seguintes itens:
 
 - Se os mapeamentos de volume estão corretos
-- Se a versão do SAAP referenciada no arquivo é a desejada - na dúvida, mantenha a expressão ``latest``
+- Se a versão do SAAP referenciada no arquivo é a desejada. É possível utilizar o número da versão, ou se preferir usar a expressão ``latest``
 - Se os dados da seção environment condizem com a Casa Legislativa.
 	
 	- O campo ``SITE_DOMAIN`` deve conter o endereço que será usado para acessar o SAAP
@@ -59,7 +63,6 @@ Então, basta rodar o ``docker-compose`` com a opção ``-d``:
 ::
 
     sudo docker-compose up -d
-
 
 4) Atualizar o brasão
 ----------------------------------------------------------------------------------------
@@ -95,6 +98,16 @@ Para concluir, deve-se criar a função ``unaccent``, que será usada em diversa
 ::
 
     sudo docker exec -i postgres psql -U saap -c "CREATE EXTENSION unaccent;"
+
+
+5) Atualizar o brasão
+----------------------------------------------------------------------------------------
+
+Se a opção ``BRASAO_PROPRIO`` está com ``True``, é necessário atualizar a imagem do brasão. Para isto, basta colocar a imagem desejada, em formado PNG, com o nome de ``brasao-camara.png``, e rodar o comando:
+
+::
+
+    sudo docker cp brasao-camara.png saap:/var/interlegis/saap/saap/static/img/brasao-camara.png
 
 
 Parar imagens
@@ -139,10 +152,12 @@ Em seguida, basta copiar o arquivo para dentro da imagem e fazer a importação:
 Atualizar imagem
 ----------------------------------------------------------------------------------------
 
-Para atualizar a imagem, é necessário, primeiramente, fazer o backup do banco, conforme explicado acima. Então, basta rodar o comando abaixo:
+Para atualizar a imagem, é necessário, primeiramente, fazer o backup do banco, conforme explicado acima. Então, basta rodar os comandos abaixo:
 
 ::
 
-    docker-compose up --force-recreate --build -d
+    sudo docker-compose down
+    sudo docker pull ojonathacardoso/saap:latest
+    sudo docker-compose up
 
-Por fim, restaurar o brasão, conforme passo 4, e restaurar o banco, conforme explicado acima.
+Por fim, restaurar o brasão, conforme passo 5. A princípio, a imagem estará atualizada, sem a necessidade de restaurar o banco.
