@@ -48,18 +48,27 @@
                 <li class="dropdown">
 
                  {% block base_workspace %}
-            	        {% for at in areatrabalho %}
-                            {% if forloop.counter == 1 %}         
-                                 <a href="#" class="dropdown-user" id="dropdown-user" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                     {{ usuario }}
-                                     <span class="caret"></span>
-        	                     <br><small> {{at.nome}}</small>
-                                 </a>
-                                 <ul class="dropdown-menu">
-                             {% else %}
-                                 <li><a href="/workspace/{{ at.pk }}">Mudar para <b>{{ at.nome }}</b></a></li>
-                             {% endif %}
-   	                {% endfor %}
+			 {% if areatrabalho|length > 0 %}
+                               {% for at in areatrabalho %}
+                                {% if forloop.counter == 1 %}
+                                     <a href="#" class="dropdown-user" id="dropdown-user" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                         {{ usuario }}
+                                         <span class="caret"></span>
+                                        <br><small> {{at.nome}}</small>
+                                     </a>
+                                     <ul class="dropdown-menu">
+                                 {% else %}
+                                     <li><a href="/workspace/{{ at.pk }}">Mudar para <b>{{ at.nome }}</b></a></li>
+                                 {% endif %}
+                               {% endfor %}
+                        {% else %}
+                            <a href="#" class="dropdown-user" id="dropdown-user" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            {{ usuario }}
+                            <span class="caret"></span>
+                               <br><small>Sem área de trabalho</small>
+                            </a>
+                            <ul class="dropdown-menu">
+                        {% endif %}
 	        {% endblock base_workspace %}
                     <!---<li><a href="{# url 'saap.cerimonial:perfil_detail' #}">{# trans "Meu perfil" #}</a></li>--->
                     <li><a href="{% url 'saap.core:password_change' %}">{% trans "Alterar minha senha" %}</a></li>
