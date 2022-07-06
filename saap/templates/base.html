@@ -26,6 +26,8 @@
 
       {# Scripts #}
       {# modernizr must be in head (see http://modernizr.com/docs/#installing) #}
+
+      {% block extra_head %}{% endblock %}
     {% endblock %}
 
   </head>
@@ -42,25 +44,41 @@
             <ul class="nav navbar-nav navbar-right" id="autenticacao">
               {% if user and not user.is_anonymous %}
                 <li><a href="{% url 'saap.core:help' %}{{view.help_topic}}"><img src="/static/img/manual.png"></a></li>
+
                 <li class="dropdown">
-                  <a href="#" class="dropdown-user" id="dropdown-user" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                    {{ user.get_full_name|default:user.email }}
 
-	             {% block base_workspace %}
-        	            {% for at in areatrabalho %}
-        	               <br><small> {{at.nome}}</small>
-	                    {% endfor %}
-	              {% endblock base_workspace %}
-
-                    <span class="caret"></span>
-                  </a>
-                  <ul class="dropdown-menu">
+                 {% block base_workspace %}
+			 {% if areatrabalho|length > 0 %}
+                               {% for at in areatrabalho %}
+                                {% if forloop.counter == 1 %}
+                                     <a href="#" class="dropdown-user" id="dropdown-user" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                         {{ usuario }}
+                                         <span class="caret"></span>
+                                        <br><small> {{at.nome}}</small>
+                                     </a>
+                                     <ul class="dropdown-menu">
+                                 {% else %}
+                                     <li><a href="/workspace/{{ at.pk }}">Mudar para <b>{{ at.nome }}</b></a></li>
+                                 {% endif %}
+                               {% endfor %}
+                        {% else %}
+                            <a href="#" class="dropdown-user" id="dropdown-user" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            {{ usuario }}
+                            <span class="caret"></span>
+                               <br><small>Sem área de trabalho</small>
+                            </a>
+                            <ul class="dropdown-menu">
+                        {% endif %}
+	        {% endblock base_workspace %}
                     <!---<li><a href="{# url 'saap.cerimonial:perfil_detail' #}">{# trans "Meu perfil" #}</a></li>--->
                     <li><a href="{% url 'saap.core:password_change' %}">{% trans "Alterar minha senha" %}</a></li>
                     <li><a href="{% url 'saap.core:logout' %}">{% trans "Sair" %}</a></li>
                   </ul>
 
+
+
                 </li>
+
               {% else %}
                 <li><a href="{% url 'saap.core:help' %}{{view.help_topic}}"><img src="/static/img/manual.png"></a></li>
                 <li><a href="{% url 'saap.core:login' %}"><img src="/static/img/user.png"></a></li>              
@@ -82,7 +100,8 @@
                          {# if perms.core.menu_grupocontatos #} {# Corrigir permissões no futuro #}
                              <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:grupodecontatos_list' %}">{% trans "Grupos de contatos" %}</a></li>
                          {# endif #}
-                             <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:print_rel_contatosexporta' %}">{% trans "Exportação para planilha" %}</a></li>
+                             <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:contatos_importa' %}">{% trans "Importação" %}</a></li>
+                             <li class="nav__sub-item"><a href="{% url 'saap.cerimonial:contatos_exporta' %}">{% trans "Exportação" %}</a></li>
                       </ul>
                     </li>
                   {% endif %}

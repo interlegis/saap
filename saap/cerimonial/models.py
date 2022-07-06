@@ -33,7 +33,6 @@ IMPORTANCIA_CHOICE = (
     (IMP_CRITICA, _('Crítica')),
 )
 
-
 class DescricaoAbstractModel(models.Model):
     descricao = models.CharField(
         default='', max_length=254, verbose_name=_('Nome / Descrição'))
@@ -340,6 +339,34 @@ class Contato(SaapSearchMixin, SaapAuditoriaModelMixin):
     nome_mae = models.CharField(
         max_length=100, blank=True, verbose_name=_('Nome da mãe'))
 
+    link_facebook = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name=_('Facebook')
+    )
+
+    link_instagram = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name=_('Instagram')
+    )
+
+    link_twitter = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name=_('Twitter')
+    )
+
+    link_site = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name=_('Site')
+    )
+
     numero_sus = models.CharField(max_length=20, blank=True, default='', verbose_name=_('Número do SUS'))
 
     cpf = models.CharField(max_length=14, blank=True, verbose_name=_('CPF'), validators=[validate_CPF])
@@ -368,7 +395,7 @@ class Contato(SaapSearchMixin, SaapAuditoriaModelMixin):
         AreaTrabalho,
         verbose_name=_('Área de trabalho'),
         related_name='contato_set',
-        blank=True, null=True, on_delete=PROTECT)
+        blank=False, null=True, on_delete=PROTECT)
 
     perfil_user = models.ForeignKey(
         get_settings_auth_user_model(),
@@ -973,14 +1000,14 @@ class Processo(SaapSearchMixin, SaapAuditoriaModelMixin):
         verbose_name=_('Número da matéria na Câmara')
     )
 
-    link_cam = models.CharField(
+    link_cam = models.URLField(
         max_length=1000,
         blank=True,
         null=True,
         verbose_name=_('Link para acompanhamento na Câmara')
     )
 
-    link_pref_orgao = models.CharField(
+    link_pref_orgao = models.URLField(
         max_length=1000,
         blank=True,
         null=True,
@@ -1135,7 +1162,6 @@ class Processo(SaapSearchMixin, SaapAuditoriaModelMixin):
                 'historico',
                 'solucao']
 
-
 class ProcessoContato(Processo):
 
     class Meta:
@@ -1157,8 +1183,7 @@ class GrupoDeContatos(SaapAuditoriaModelMixin):
     workspace = models.ForeignKey(
         AreaTrabalho,
         verbose_name=_('Área de trabalho'),
-        related_name='grupodecontatos_set',
-        on_delete=PROTECT)
+        blank=False, null=False, on_delete=PROTECT)
 
     class Meta:
         verbose_name = _('Grupo de contatos')
@@ -1167,4 +1192,6 @@ class GrupoDeContatos(SaapAuditoriaModelMixin):
 
     def __str__(self):
         return str(self.nome)
+
+
 

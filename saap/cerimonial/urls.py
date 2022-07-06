@@ -1,7 +1,8 @@
 from django.conf.urls import url, include
+from django.contrib.auth.decorators import login_required
 
 from saap.cerimonial.reports import ImpressoEnderecamentoView,\
-    RelatorioProcessosView, RelatorioContatosView, RelatorioContatosExportaView, \
+    RelatorioProcessosView, RelatorioContatosView, ContatosExportaView, \
     RelatorioContatoIndividualView, RelatorioProcessoIndividualView, \
     RelatorioAgendaView, RelatorioEventoView, MalaDiretaView
 from saap.cerimonial.views import ContatoCrud, TelefoneCrud, EmailCrud,\
@@ -14,7 +15,7 @@ from saap.cerimonial.views import ContatoCrud, TelefoneCrud, EmailCrud,\
     NivelInstrucaoCrud, PronomeTratamentoCrud, \
     ContatoFragmentFormPronomesView, StatusProcessoCrud, TopicoProcessoCrud,\
     ClassificacaoProcessoCrud, ProcessoMasterCrud, AssuntoProcessoCrud,\
-    ContatoFragmentFormSearchView, ProcessoContatoCrud,\
+    ContatoFragmentFormSearchView, ProcessoContatoCrud, ContatosImportaView,\
     GrupoDeContatosMasterCrud, CalendarioView, AniversariosView, EventoCrud \
 
 from .apps import AppConfig
@@ -55,10 +56,19 @@ urlpatterns = [
         ProcessoMasterCrud.get_urls()
     )),
 
-    url(r'^agenda/$', CalendarioView.as_view(), name='agenda'),
-    url(r'^contatos/aniversarios/$', AniversariosView.as_view(), name='aniversarios'),
+    url(r'^agenda/$', login_required(CalendarioView.as_view()), name='agenda'),
+
+    url(r'^contatos/aniversarios/$', login_required(AniversariosView.as_view()), name='aniversarios'),
 
     url(r'^eventos/', include(EventoCrud.get_urls())),
+
+    url(r'^contatos/importacao/$', login_required(
+        ContatosImportaView.as_view()),
+        name='contatos_importa'),
+
+    url(r'^contatos/exportacao/$', login_required(
+        ContatosExportaView.as_view()),
+        name='contatos_exporta'),
 
     url(r'^correspondencias/enderecamentos',
         ImpressoEnderecamentoView.as_view(),
@@ -87,10 +97,6 @@ urlpatterns = [
     url(r'^correspondencias/maladireta',
         MalaDiretaView.as_view(),
         name='print_maladireta'),
-
-    url(r'^relatorios/exporta/contatos',
-        RelatorioContatosExportaView.as_view(),
-        name='print_rel_contatosexporta'),
 
     url(r'^relatorios/individual/contato',
         RelatorioContatoIndividualView.as_view(),
@@ -129,9 +135,9 @@ urlpatterns = [
     url(r'^sistema/pronometratamento/',
         include(PronomeTratamentoCrud.get_urls())),
 
-    url(r'^relatorios/$', (
+    url(r'^relatorios/$', login_required(
         TemplateView.as_view(template_name='relatorios.html')),
-        name="relatorios"),
+        name='relatorios'),
 
 
 ]

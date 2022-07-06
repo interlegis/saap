@@ -10,6 +10,8 @@ from saap.core.views import CepCrud, RegiaoMunicipalCrud, DistritoCrud,\
     TrechoJsonSearchView, TrechoJsonView, AreaTrabalhoCrud, ParlamentarCrud, \
     OperadorAreaTrabalhoCrud, PartidoCrud, ImpressoEnderecamentoCrud, HelpTopicView, UserCrud
 
+from saap.core.utils import AreaTrabalho
+
 from .apps import AppConfig
 
 from django.contrib import admin
@@ -24,6 +26,9 @@ urlpatterns = [
                                     'extra_context': {'fluid': '-fluid'}
                                     }, name='login'),
     url(r'^logout/$', v_auth.logout, {'next_page': '/login'}, name='logout', ),
+
+#   url(r'^workspace/$', AreaTrabalhoCrud.change, name='workspace'),
+    url(r'^workspace/(?P<workspace_id>\d+)/$', AreaTrabalhoCrud.change, name='workspace'),
 
     url(r'^password_change/$', v_auth.password_change, {'template_name': 'core/password_change.html',
                                                         'password_change_form': NewPasswordForm,
@@ -56,7 +61,6 @@ urlpatterns = [
 
 #    url(r'^enderecos/', login_required(
 #       TrechoSearchView.as_view()), name='search_view'),
-
 
     url(r'^areatrabalho/', include(AreaTrabalhoCrud.get_urls() +
                                    OperadorAreaTrabalhoCrud.get_urls())),

@@ -1,8 +1,11 @@
 from _functools import reduce
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from decouple import config
 import datetime, operator
+import pandas, xlwt, time
 
+from django.http.response import HttpResponse
+ 
 from crispy_forms.bootstrap import FieldWithButtons, StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Field, Layout, Fieldset, Div, BaseInput
@@ -10,11 +13,12 @@ from dateutil.relativedelta import relativedelta
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple, AdminDateWidget
 from django.db import models
-from django.db.models import Q, F, Func, Value
+from django.db.models import Q, F, Func, Value, Prefetch
 #from django.forms.extras.widgets import SelectDateWidget
 from django.forms.widgets import SelectDateWidget, DateInput, DateTimeInput, RadioSelect
 from django.forms import DateInput
 
+from django.shortcuts import render
 from django.forms.models import ModelForm, ModelMultipleChoiceField
 from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
@@ -29,10 +33,11 @@ from saap import settings
 from saap.cerimonial.models import LocalTrabalho, Endereco,\
     TipoAutoridade, PronomeTratamento, Contato, Perfil, Processo, Dependente,\
     IMPORTANCIA_CHOICE, AssuntoProcesso, ClassificacaoProcesso, StatusProcesso, ProcessoContato,\
-    GrupoDeContatos, TopicoProcesso, Telefone, Email, EstadoCivil, Evento
+    GrupoDeContatos, TopicoProcesso, Telefone, Email, EstadoCivil, Evento, TipoTelefone
 from saap.core.forms import ListWithSearchForm
 from saap.core.models import Trecho, ImpressoEnderecamento, Bairro, NivelInstrucao
-from saap.utils import normalize, YES_NO_CHOICES, NONE_YES_NO_CHOICES
+from saap.utils import normalize, YES_NO_CHOICES, NONE_YES_NO_CHOICES,\
+    import_date_valid, import_cep_valid, import_telefone_valid, import_email_valid
 
 class ListTextWidget(forms.TextInput):
 
@@ -90,6 +95,450 @@ class LocalTrabalhoPerfilForm(ModelForm):
         # Utilizando template bootstrap3 customizado
         self.fields['principal'].widget = forms.RadioSelect()
         self.fields['principal'].inline_class = True
+
+
+class ContatosImportaForm(forms.Form):
+
+    planilha_contatos = forms.FileField(label=_('Arquivo'), required=False)
+
+    IMPORTACAO = (('IGN', _('Ignorar registro da planilha')),
+                  ('ADD', _('Adicionar endereço, telefone e e-mail ao contato')))
+
+    opcao_importacao = forms.ChoiceField(
+        required=False,
+        label=_('Tratamento para contatos já cadastrados'),
+        choices=IMPORTACAO)
+ 
+    class Meta:
+        fields = ['opcao_importacao','planilha_contatos']
+
+    def __init__(self, *args, **kwargs):
+
+        super(ContatosImportaForm, self).__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
+
+        col = to_row([
+            ('planilha_contatos', 8),
+            ('opcao_importacao', 4),
+        ])
+
+    def clean(self):
+        if(self.cleaned_data['planilha_contatos']):
+            planilha = self.cleaned_data['planilha_contatos']
+            if(planilha.name != 'contatos_importa.xlsx' and planilha.name != 'contatos_importa.ods'):
+                self._errors['planilha_contatos'] = [_('O arquivo selecionado é inválido! Utilize o modelo disponibilizado nesta página e tente novamente.')]
+            else:
+                encoding = 'utf-8'
+                nrows = 5002
+
+                engine = ''
+                if(planilha.name == 'contatos_importa.xlsx'):
+                    engine = 'openpyxl'
+                elif(planilha.name == 'contatos_importa.ods'):
+                    engine = 'odf'
+
+                lista_colunas = ['nome',
+                                 'sexo',
+                                 'nascimento',
+                                 'logradouro1',
+                                 'numero1', 
+                                 'complemento1', 
+                                 'bairro1', 
+                                 'cep1',
+                                 'cidade1', 
+                                 'estado1', 
+                                 'logradouro2',
+                                 'numero2', 
+                                 'complemento2', 
+                                 'bairro2', 
+                                 'cep2',
+                                 'cidade2', 
+                                 'estado2',
+                                 'telefone1', 
+                                 'tipotel1',
+                                 'telefone2', 
+                                 'tipotel2',
+                                 'email1',
+                                 'email2', 
+                                 ]
+
+                tipos_colunas = {'nome': str,
+                                    'sexo': str,
+                                    'nascimento': str,
+                                    'logradouro1': str,
+                                    'numero1': str, 
+                                    'complemento1': str, 
+                                    'bairro1': str, 
+                                    'cep1': str,
+                                    'cidade1': str, 
+                                    'estado1': str, 
+                                    'logradouro2': str,
+                                    'numero2': str, 
+                                    'complemento2': str, 
+                                    'bairro2': str, 
+                                    'cep2': str,
+                                    'cidade2': str, 
+                                    'estado2': str,
+                                    'telefone1': str, 
+                                    'tipotel1': str,
+                                    'telefone2': str, 
+                                    'tipotel2': str,
+                                    'email1': str,
+                                    'email2': str, 
+                                    }
+
+                df = pandas.read_excel(planilha, 
+                                        engine=engine,
+                                        sheet_name = "Contatos",
+                                        encoding=encoding,
+                                        nrows=nrows,
+                                        usecols = lista_colunas,
+                                        dtype = tipos_colunas,
+                                        index = "nome" 
+                                        )
+
+                NOME = 0
+                SEXO = 1
+                NASCIMENTO = 2
+
+                LOGRADOURO1 = 3
+                NUMERO1 = 4
+                COMPLEMENTO1 = 5
+                CEP1 = 7
+                BAIRRO1 = 6
+                CIDADE1 = 8
+                ESTADO1 = 9
+                
+                LOGRADOURO2 = 10
+                NUMERO2 = 11
+                COMPLEMENTO2 = 12
+                CEP2 = 14
+                BAIRRO2 = 13
+                CIDADE2 = 15
+                ESTADO2 = 16
+                
+                TELEFONE1 = 17
+                TIPOTEL1 = 18
+                TELEFONE2 = 19
+                TIPOTEL2 = 20
+                
+                EMAIL1 = 21
+                EMAIL2 = 22
+
+                contatos_novos = []
+                enderecos_novos = []
+                telefones_novos = []
+                emails_novos = []
+
+                total_erros = 0
+                limite_erros = 20
+                erros = []
+                totais = []
+               
+                df.dropna(subset = ["nome"], inplace=True)
+                
+                for index, contato in df.iterrows():
+                    mensagem_erro = "Erro na linha " + str(index+2) + ": "
+                    if(str(contato[SEXO]) == 'nan'):
+                        df.at[index, 'sexo'] = ""
+                    else:
+                        if(str(contato[SEXO]).strip() != 'M' and str(contato[SEXO]).strip() != 'F'):     
+                            erros.append(mensagem_erro + "Sexo inválido! Caso deseje informar, preencha com M ou F")
+                            total_erros += 1
+ 
+                    if(str(contato[NASCIMENTO]) == 'nan'):
+                        df.at[index, 'nascimento'] = None
+                    else:
+                        if(import_date_valid(str(contato[NASCIMENTO]).strip()) == False):     
+                            erros.append(mensagem_erro + "Data de nascimento inválida! Caso deseje informar, use o padrão DD/MM/AAAA")
+                            total_erros += 1
+                        else:
+                            df.at[index, 'nascimento'] = datetime.datetime.strptime(str(contato[NASCIMENTO]).strip(), "%d/%m/%Y").date()
+
+                    if(str(contato[LOGRADOURO1]) != 'nan'):
+                        if(len(str(contato[LOGRADOURO1]).strip()) < 2 or len(str(contato[LOGRADOURO1]).strip()) > 35):     
+                            erros.append(mensagem_erro + "Logradouro 1 inválido! O mesmo deve ter entre 2 e 35 caracteres.")
+                            total_erros += 1
+                        else:
+                            df.at[index, 'logradouro1'] = str(contato[LOGRADOURO1]).strip()
+ 
+                        if(str(contato[NUMERO1]) != 'nan'):
+                            if((str(contato[NUMERO1])).isnumeric() == False):
+                                erros.append(mensagem_erro + "Número do Logradouro 1 inválido! Informe um número válido, ou 0 caso não haja número.")
+                                total_erros += 1
+                        else:
+                            erros.append(mensagem_erro + "Número do Logradouro 1 não informado! ")
+                            total_erros += 1
+ 
+                        if(str(contato[COMPLEMENTO1]) == 'nan'):
+                            df.at[index, 'complemento1'] = ""
+                        else:
+                            if(len(str(contato[COMPLEMENTO1]).strip()) > 15):     
+                                erros.append(mensagem_erro + "Complemento do Logradouro 1 inválido! O mesmo deve ter no máximo 15 caracteres.")
+                                total_erros += 1
+                            else:
+                                df.at[index, 'complemento1'] = str(contato[COMPLEMENTO1]).strip()
+ 
+                        if(str(contato[CEP1]) != 'nan'):
+                            if(import_cep_valid(str(contato[CEP1]).strip()) == False):
+                                erros.append(mensagem_erro + "CEP do Logradouro 1 inválido! Informe um CEP válido, no formato XXXXX-XXX ou 00000-000 caso não haja CEP.")
+                                total_erros += 1
+                            else:
+                                df.at[index, 'cep1'] = str(contato[CEP1]).strip()
+                        else:
+                            erros.append(mensagem_erro + "CEP do Logradouro 1 não informado!")
+                            total_erros += 1
+
+                        if(str(contato[BAIRRO1]) == 'nan'):
+                            erros.append(mensagem_erro + "Bairro do Logradouro 1 não informado!")
+                            total_erros += 1
+                        elif(str(contato[CIDADE1]) == 'nan'):
+                            erros.append(mensagem_erro + "Cidade do Logradouro 1 não informado!")
+                            total_erros += 1
+                        elif(str(contato[ESTADO1]) == 'nan'):
+                            erros.append(mensagem_erro + "Estado do Logradouro 1 não informado!")
+                            total_erros += 1
+                        else:
+                            estado1 = Estado.objects.filter(sigla__iexact=str(contato[ESTADO1]).strip())
+                            if(len(estado1) != 1):
+                                erros.append(mensagem_erro + "Estado do Logradouro 1 inexistente. Verifique a sigla informada, com duas letras.")
+                                total_erros += 1
+                            else:
+                                municipio1 = Municipio.objects.filter(nome__iexact=str(contato[CIDADE1]).strip(), estado=estado1)
+                                if(len(municipio1) != 1):
+                                    erros.append(mensagem_erro + "Município do Logradouro 1 inexistente. Verifique o nome informado, e se necessário compare com o sistema.")
+                                    total_erros += 1
+                                else:
+                                    bairro1 = Bairro.objects.filter(nome__iexact=str(contato[BAIRRO1]).strip(), municipio=municipio1)
+                                    if(len(bairro1) != 1):
+                                        erros.append(mensagem_erro + "Bairro do Logradouro 1 inexistente. Verifique o nome informado, e se necessário compare com o sistema.")
+                                        total_erros += 1
+ 
+                        
+ 
+                        
+                    if(str(contato[TELEFONE1]) == 'nan'):
+                        df.at[index, 'telefone1'] = ""
+                        df.at[index, 'tipotel1'] = ""
+                    else:
+                        if(import_telefone_valid(str(contato[TELEFONE1]).strip()) == False):     
+                            erros.append(mensagem_erro + "Telefone 1 inválido! Caso deseje informar, use o padrão (XX)XXXXX-XXXX ou (XX)XXXX-XXXX")
+                            total_erros += 1
+                        elif(str(contato[TIPOTEL1]).strip() != 'Celular' and str(contato[TIPOTEL1]).strip() != 'Residencial'):
+                            erros.append(mensagem_erro + "Tipo do Telefone 1 inválido! Apenas as opções Celular e Residencial são permitidas")
+                            total_erros += 1
+                        else:
+                            tipo_telefone1 = TipoTelefone.objects.filter(descricao=str(contato[TIPOTEL1]).strip())
+
+                    if(str(contato[TELEFONE2]) == 'nan'):
+                        df.at[index, 'telefone2'] = ""
+                        df.at[index, 'tipotel2'] = ""
+                    else:
+                        if(import_telefone_valid(str(contato[TELEFONE2]).strip()) == False):     
+                            erros.append(mensagem_erro + "Telefone 2 inválido! Caso deseje informar, use o padrão (XX)XXXXX-XXXX ou (XX)XXXX-XXXX")
+                            total_erros += 1
+                        elif(str(contato[TIPOTEL2]).strip() != 'Celular' and str(contato[TIPOTEL2]).strip() != 'Residencial'):
+                            erros.append(mensagem_erro + "Tipo do Telefone 2 inválido! Apenas as opções Celular e Residencial são permitidas")
+                            total_erros += 1
+                        else:
+                            tipo_telefone2 = TipoTelefone.objects.filter(descricao=str(contato[TIPOTEL2]).strip())
+
+                    if(str(contato[EMAIL1]) == 'nan'):
+                        df.at[index, 'email1'] = ""
+                    else:
+                        if(import_email_valid(str(contato[EMAIL1]).strip().lower()) == False):     
+                            erros.append(mensagem_erro + "E-mail 1 inválido! Caso deseje informar, use o padrão usuario@dominio.xxx")
+                            total_erros += 1
+                        else:
+                            df.at[index, 'email1'] = str(contato[EMAIL1]).strip().lower()
+
+                    if(str(contato[EMAIL2]) == 'nan'):
+                        df.at[index, 'email2'] = ""
+                    else:
+                        if(import_email_valid(str(contato[EMAIL2]).strip().lower()) == False):     
+                            erros.append(mensagem_erro + "E-mail 2 inválido! Caso deseje informar, use o padrão usuario@dominio.xxx")
+                            total_erros += 1
+                        else:
+                            df.at[index, 'email2'] = str(contato[EMAIL2]).strip().lower()
+
+                    if total_erros >= limite_erros:
+                        erros.append(" ")
+                        erros.append("Revise com atenção a planilha importada. A lista de erros e problemas pode ser maior!")
+                        break
+
+                    if total_erros == 0:
+                        contato_novo = Contato(
+                                            nome=str(contato[NOME]),
+                                            sexo=str(contato[SEXO]),
+                                            data_nascimento=contato[NASCIMENTO],
+                                            workspace=self.initial['workspace'],
+                                            owner=self.initial['user'],
+                                            modifier=self.initial['user']
+                                            ) 
+
+                        endereco_novo = []
+
+                        if(str(contato[LOGRADOURO1]) != 'nan'):
+                            endereco_novo1 = Endereco(
+                                                endereco=str(contato[LOGRADOURO1]),
+                                                numero=int(contato[NUMERO1]),
+                                                complemento=str(contato[COMPLEMENTO1]),
+                                                cep=str(contato[CEP1]),
+                                                bairro=bairro1[0],
+                                                municipio=municipio1[0],
+                                                estado=estado1[0],
+                                                owner=self.initial['user'],
+                                                modifier=self.initial['user'],
+                                                )
+                            endereco_novo.append(endereco_novo1)
+
+                        if(str(contato[LOGRADOURO2]) != 'nan'):
+                            endereco_novo2 = Endereco(
+                                                endereco=str(contato[LOGRADOURO2]),
+                                                numero=int(contato[NUMERO2]),
+                                                complemento=str(contato[COMPLEMENTO2]),
+                                                cep=str(contato[CEP2]),
+                                                bairro=bairro2[0],
+                                                municipio=municipio2[0],
+                                                estado=estado2[0],
+                                                owner=self.initial['user'],
+                                                modifier=self.initial['user'],
+                                                )
+                            endereco_novo.append(endereco_novo2)
+
+
+                        telefone_novo = []
+                        if(str(contato[TELEFONE1]) != ''):
+                            telefone_novo1 = Telefone(
+                                                telefone=str(contato[TELEFONE1]),
+                                                tipo=tipo_telefone1[0],
+                                                owner=self.initial['user'],
+                                                modifier=self.initial['user'],
+                                                )
+                            telefone_novo.append(telefone_novo1)
+
+                        if(str(contato[TELEFONE2]) != ''):
+                            telefone_novo2 = Telefone(
+                                                telefone=str(contato[TELEFONE2]),
+                                                tipo=tipo_telefone2[0],
+                                                owner=self.initial['user'],
+                                                modifier=self.initial['user'],
+                                                )
+                            telefone_novo.append(telefone_novo2)
+
+                        email_novo = []
+
+                        if(str(contato[EMAIL1]) != ''):
+                            email_novo1 = Email(
+                                            email=str(contato[EMAIL1]),
+                                            owner=self.initial['user'],
+                                            modifier=self.initial['user'],
+                                            )
+                            email_novo.append(email_novo1)
+
+                        if(str(contato[EMAIL2]) != ''):
+                            email_novo2 = Email(
+                                            email=str(contato[EMAIL2]),
+                                            owner=self.initial['user'],
+                                            modifier=self.initial['user'],
+                                            )
+                            email_novo.append(email_novo2)
+
+
+                        contatos_novos.append(contato_novo)
+                        enderecos_novos.append(endereco_novo)
+                        telefones_novos.append(telefone_novo)
+                        emails_novos.append(email_novo)
+
+                if total_erros > 0:
+                    self._errors['planilha_contatos'] = erros
+                else:
+                    contatos_salvos = 0
+                    contatos_nao_salvos = 0
+                    contatos_atualizados = 0
+                    opcao_importacao = self.cleaned_data['opcao_importacao']
+                    index = 0
+
+                    if(opcao_importacao == 'IGN'):
+                        for contato in contatos_novos:
+                            busca_contato = Contato.objects.filter(
+                                                                nome=str(contato.nome),
+                                                                data_nascimento=contato.data_nascimento, 
+                                                                workspace=contato.workspace
+                                                                )
+                            if(len(busca_contato) > 0):
+                                contatos_nao_salvos += 1
+                            else:
+                                contato.save()
+
+                                for endereco in enderecos_novos[index]:
+                                    endereco.contato = contato
+                                    endereco.save()
+
+                                for telefone in telefones_novos[index]:
+                                    telefone.contato = contato
+                                    telefone.save()
+
+                                for email in emails_novos[index]:
+                                    email.contato = contato
+                                    email.save()
+
+                                contatos_salvos += 1
+
+                            index += 1
+ 
+                        totais.append("Total de contatos novos importados: " + str(contatos_salvos))
+                        totais.append("Total de contatos não importados por já existirem no banco: " + str(contatos_nao_salvos))
+
+                    elif(opcao_importacao == 'ADD'):
+                        for contato in contatos_novos:
+                            busca_contato = Contato.objects.filter(
+                                                                nome=str(contato.nome),
+                                                                data_nascimento=contato.data_nascimento, 
+                                                                workspace=contato.workspace
+                                                                )
+                            if(len(busca_contato) > 0):
+                                busca_contato = busca_contato[0]
+                                for endereco in enderecos_novos[index]:
+                                    endereco.contato = busca_contato
+                                    endereco.save()
+
+                                for telefone in telefones_novos[index]:
+                                    telefone.contato = busca_contato
+                                    telefone.save()
+
+                                for email in emails_novos[index]:
+                                    email.contato = busca_contato
+                                    email.save()
+
+                                contatos_atualizados += 1
+                            else:
+                                contato.save()
+                            
+                                for endereco in enderecos_novos[index]:
+                                    endereco.contato = contato
+                                    endereco.save()
+
+                                for telefone in telefones_novos[index]:
+                                    telefone.contato = contato
+                                    telefone.save()
+
+                                for email in emails_novos[index]:
+                                    email.contato = contato
+                                    email.save()
+
+                                contatos_salvos += 1
+                            
+                            index += 1
+ 
+                        totais.append("Total de contatos novos importados: " + str(contatos_salvos))
+                        totais.append("Total de contatos cujos dados foram atualizados: " + str(contatos_atualizados))
+
+                self._errors['opcao_importacao'] = totais
+        else:
+            self._errors['planilha_contatos'] = [_('O arquivo para importação não foi informado!')]
 
 class LocalTrabalhoForm(ModelForm):
 
@@ -220,6 +669,7 @@ class EventoForm(ModelForm):
                 self._errors['termino'] = [_('Há ' + str(termino_concomitante.count()) + ' evento(s) marcado(s) para esta data/hora de término.')]
                 self._errors['simultaneo'] = [_('Para ignorar a verificação de eventos simultâneos, marque Sim nessa opção')]
 
+
 class ContatoForm(ModelForm):
 
     class Meta:
@@ -242,6 +692,10 @@ class ContatoForm(ModelForm):
                   'nome_pai',
                   'nome_mae',
                   'numero_sus',
+                  'link_facebook',
+                  'link_instagram',
+                  'link_twitter',
+                  'link_site',
                   'cpf',
                   'cnpj',
                   'ie',
@@ -252,7 +706,8 @@ class ContatoForm(ModelForm):
                   'ativo',
                   'observacoes',
                   'cargo',
-                  'grupodecontatos_set'
+                  'grupodecontatos_set',
+#                  'workspace', 
                   ]
 
     grupodecontatos_set = ModelMultipleChoiceField(
@@ -275,6 +730,7 @@ class ContatoForm(ModelForm):
 
         if isinstance(self.instance, Contato):
             instance = self.instance
+
 
         self.fields['cpf'].widget.attrs['class'] = 'cpf'
         self.fields['cnpj'].widget.attrs['class'] = 'cnpj'
@@ -454,6 +910,8 @@ class PerfilForm(ModelForm):
             elif tem_filhos == True and quantos_filhos < 1: 
                 self._errors['quantos_filhos'] = [_('Se o contato tem filhos, informe mais que 0 no campo "Quantos filhos?".')]
 
+
+
 class ContatoFragmentPronomesForm(forms.Form):
 
     pronome_tratamento = forms.ModelChoiceField(
@@ -533,9 +991,7 @@ class EnderecoForm(ModelForm):
         self.fields['permite_contato'].widget = forms.RadioSelect()
         self.fields['permite_contato'].inline_class = True
 
-    def clean(self):
-
-        print('')
+#    def clean(self):
 
 #       principais = Endereco.objects.filter(
 
@@ -670,7 +1126,9 @@ class ProcessoForm(ModelForm):
                   'q',
                   'contatos',
                   'topicos',
-                  'assuntos']
+                  'assuntos',
+#                  'workspace',
+                  ]
 
     def __init__(self, *args, **kwargs):
         yaml_layout = kwargs.pop('yaml_layout')
@@ -865,6 +1323,7 @@ class GrupoDeContatosForm(ModelForm):
     class Meta:
         model = GrupoDeContatos
         fields = ['nome',
+#                  'workspace',
                   'q',
                   'contatos', ]
 
@@ -909,7 +1368,6 @@ class GrupoDeContatosForm(ModelForm):
         self.fields['contatos'].help_text = _(
             'Procure por contatos na caixa de buscas e arraste '
             'para esta caixa aqueles interessados neste processo.')
-
 
 class RangeWidgetNumber(forms.MultiWidget):
 
@@ -1416,6 +1874,19 @@ class ImpressoEnderecamentoFilterSet(FilterSet):
 
         workspace = kwargs.pop('workspace')
 
+        enderecos = Endereco.objects.filter(permite_contato=True)
+        queryset = Contato.objects.prefetch_related(
+                                    'email_set',
+                                    'telefone_set',
+                                    Prefetch('endereco_set', queryset=enderecos),
+                                    'endereco_set',
+                                    'endereco_set__estado',
+                                    'endereco_set__municipio',
+                                    'endereco_set__bairro',
+                                    'grupodecontatos_set').filter(
+                                        workspace=workspace,
+                                        ).order_by('nome')
+
         super(ImpressoEnderecamentoFilterSet, self).__init__(
             data=data,
             queryset=queryset, prefix=prefix, strict=strict, **kwargs)
@@ -1879,6 +2350,9 @@ class ProcessoIndividualFilterSet(FilterSet):
 
         workspace = kwargs.pop('workspace')
 
+        queryset = Processo.objects.filter(
+            workspace=workspace)
+
         super(ProcessoIndividualFilterSet, self).__init__(
             data=data,
             queryset=queryset, prefix=prefix, strict=strict, **kwargs)
@@ -2333,6 +2807,9 @@ class ProcessosFilterSet(FilterSet):
 
         workspace = kwargs.pop('workspace')
 
+        queryset = Processo.objects.filter(
+            workspace=workspace)
+
         super(ProcessosFilterSet, self).__init__(
             data=data,
             queryset=queryset, prefix=prefix, strict=strict, **kwargs)
@@ -2750,7 +3227,24 @@ class ContatoIndividualFilterSet(FilterSet):
                  queryset=None, prefix=None, strict=None, **kwargs):
 
         workspace = kwargs.pop('workspace')
- 
+
+        queryset = Contato.objects.prefetch_related(
+                                    'email_set',
+                                    'telefone_set',
+                                    'endereco_set',
+                                    'endereco_set',
+                                    'endereco_set__estado',
+                                    'endereco_set__municipio',
+                                    'endereco_set__bairro',
+                                    'grupodecontatos_set',
+                                    'dependente_set',
+                                    'localtrabalho_set',
+                                    'filiacaopartidaria_set',
+                                    'processo_set',
+                                    ).filter(
+                                        workspace=workspace,
+                                        ).order_by('nome')
+
         super(ContatoIndividualFilterSet, self).__init__(
             data=data,
             queryset=queryset, prefix=prefix, strict=strict, **kwargs)
@@ -2826,6 +3320,15 @@ class ContatosExportaFilterSet(FilterSet):
             'widget': RangeWidgetOverride}
     }}
 
+    EXPORTACAO = (
+                    ('SAP', _('Importação no SAAP')),
+                    ('REL', _('Relatório para análise')),
+                  )
+
+    opcao_exportacao = MethodChoiceFilter(
+        label=_('Layout de exportação'),
+        choices=EXPORTACAO)
+ 
     FEMININO = 'F'
     MASCULINO = 'M'
     AMBOS = ''
@@ -3085,6 +3588,9 @@ class ContatosExportaFilterSet(FilterSet):
     def filter_tipo_dado_contato(self, queryset, value):
         return queryset
 
+    def filter_opcao_exportacao(self, queryset, value):
+        return queryset
+
     def filter_search_endereco(self, queryset, value):
 
         query = normalize(value)
@@ -3164,6 +3670,18 @@ class ContatosExportaFilterSet(FilterSet):
 
         workspace = kwargs.pop('workspace')
  
+        queryset = Contato.objects.prefetch_related(
+                                    'email_set',
+                                    'telefone_set',
+                                    'endereco_set',
+                                    'endereco_set',
+                                    'endereco_set__estado',
+                                    'endereco_set__municipio',
+                                    'endereco_set__bairro',
+                                    'grupodecontatos_set').filter(
+                                        workspace=workspace,
+                                        ).order_by('nome')
+
         super(ContatosExportaFilterSet, self).__init__(
             data=data,
             queryset=queryset, prefix=prefix, strict=strict, **kwargs)
@@ -3187,10 +3705,10 @@ class ContatosExportaFilterSet(FilterSet):
             ('telefone', 4),
             ('tipo_autoridade', 4),
             ('cargo', 4),
-            ('pk_selecionados', 12),
         ])
 
         col2 = to_row([
+            ('opcao_exportacao', 12),
             ('campos_exportados', 12),
             ('tipo_dado_contato', 12)
         ])
@@ -3563,7 +4081,23 @@ class MalaDiretaFilterSet(FilterSet):
                  queryset=None, prefix=None, strict=None, **kwargs):
 
         workspace = kwargs.pop('workspace')
- 
+
+        enderecos = Endereco.objects.filter(principal=True)
+        telefones = Telefone.objects.filter(principal=True)
+        emails = Email.objects.filter(permite_contato=True)
+        queryset = Contato.objects.prefetch_related(
+                                    Prefetch('email_set', queryset=emails),
+                                    Prefetch('telefone_set', queryset=telefones),
+                                    Prefetch('endereco_set', queryset=enderecos),
+                                    'endereco_set',
+                                    'endereco_set__estado',
+                                    'endereco_set__municipio',
+                                    'endereco_set__bairro',
+                                    'grupodecontatos_set').filter(
+                                        workspace=workspace,
+                                        ).order_by('nome')
+
+
         super(MalaDiretaFilterSet, self).__init__(
             data=data,
             queryset=queryset, prefix=prefix, strict=strict, **kwargs)
@@ -3775,6 +4309,9 @@ class EventoFilterSet(FilterSet):
 
         workspace = kwargs.pop('workspace')
  
+        queryset = Evento.objects.filter(
+            workspace=workspace)
+
         super(EventoFilterSet, self).__init__(
             data=data,
             queryset=queryset, prefix=prefix, strict=strict, **kwargs)
@@ -3968,6 +4505,9 @@ class AgendaFilterSet(FilterSet):
 
         workspace = kwargs.pop('workspace')
  
+        queryset = Evento.objects.filter(
+            workspace=workspace)
+
         super(AgendaFilterSet, self).__init__(
             data=data,
             queryset=queryset, prefix=prefix, strict=strict, **kwargs)
@@ -4368,6 +4908,21 @@ class ContatosFilterSet(FilterSet):
 
         workspace = kwargs.pop('workspace')
  
+        enderecos = Endereco.objects.filter(Q(permite_contato=True) | Q(principal=True))
+        emails = Email.objects.filter(Q(permite_contato=True) | Q(principal=True))
+        telefones = Telefone.objects.filter(Q(permite_contato=True) | Q(principal=True))
+ 
+        queryset = Contato.objects.prefetch_related(
+                                    Prefetch('email_set', queryset=emails),
+                                    Prefetch('telefone_set', queryset=telefones),
+                                    Prefetch('endereco_set', queryset=enderecos),
+                                    'endereco_set__estado',
+                                    'endereco_set__municipio',
+                                    'endereco_set__bairro',
+                                    'grupodecontatos_set').filter(
+                                        workspace=workspace,
+                                        ).order_by('nome')
+
         super(ContatosFilterSet, self).__init__(
             data=data,
             queryset=queryset, prefix=prefix, strict=strict, **kwargs)

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<div id="conteudo">
+
+<h1 class="firstHeading">Importação de contatos</h1>
+
+<br />
+
+Para facilitar o processo de cadastro de contatos em grande quantidade, ou mesmo a reimportação de dados previamente utilizados, o SAAP possui a tela de Importação de Contatos. Por meio dela, o usuário, ao preencher corretamente uma planilha, tem seus dados de contatos importados - incluindo endereço, telefone e e-mail - em segundos ou minutos, conforme a quantidade de registros. <br/>
+
+<br/>
+
+Primeiramente, o usuário deve baixar uma das planilhas, nos formatos para Microsoft Excel e LibreOffice Calc, sendo que o primeiro possui processo mais rápido. Em seguida, devem ser preenchidos os campos, sendo que há as instruções de preenchimento na tela, os quais devem ser seguidas rigorosamente, sob pena de não ser realizada a importação. O único dado obrigatório é o de nome - embora, ao preencher um logradouro, todo o endereço deve ser preenchido. <br/>
+
+<br/>
+
+A tabela possui colunas de validação e verificação, e que são úteis para o usuário saber se há algo de errado. Porém, ao importar o arquivo, serão feitas diversas validações, até confirmar que o arquivo está apto para ser importado, ou mesmo alertar o usuário dos erros e linhas com problemas.<br/>
+
+<br/>
+
+O campo <b>Tratamento para Contatos já cadastrados</b> permite escolher o comportamento quando encontra-se um registro de um contato já cadastrado: <b>Ignorar registro</b>, adicionando apenas os novos, ou <b>Adicionar endereço, telefone e e-mail ao contato</b>, onde esses três dados serão incluídos no contato já existente.<br/>
+
+<br/>
+
+É fundamental ler as instruções da tela, pois se algo não for obedecido, há riscos de problemas.<br/>
+
+<br />
+<br />
+  <a href="{% url 'saap.core:help_topic' 'grupos' %}">Anterior</a> |
+  <a href="{% url 'saap.core:help'%}">&Iacute;ndice</a> |
+   <a href="{% url 'saap.core:help_topic' 'contatosexportacao' %}">Pr&oacute;xima</a>
+<br />
+
+</div>
+
+{% endblock base_content %}

@@ -26,6 +26,7 @@ from saap.crud.base import Crud, CrudBaseMixin, CrudListView, CrudCreateView,\
 
 from saap.cerimonial.forms import PerfilForm
 from saap.cerimonial.models import Perfil
+from saap.core.models import OperadorAreaTrabalho
 from saap.globalrules.globalrules import GROUP_SOCIAL_USERS
 from saap.utils import normalize
 
@@ -289,20 +290,22 @@ class DetailMasterCrud(Crud):
 
             if self.container_field:
                 container = self.container_field.split('__')
+                print(getattr(self.model, container[0]).field.related_model)
 
                 if len(container) > 1:
-                    container_model = getattr(
-                        self.model, container[0]).field.related_model
+                    #container_model = getattr(
+                    #    self.model, container[0]).field.related_model
 
-                    params = {}
-                    params['__'.join(
-                        container[1:])] = self.request.user.pk
+                    #params = {}
+                    #params['__'.join(
+                    #    container[1:])] = self.request.user.pk
 
-                    if 'pk' in self.kwargs:
-                        params['pk'] = self.kwargs['pk']
+                    #if 'pk' in self.kwargs:
+                    #    params['pk'] = self.kwargs['pk']
 
-                    container_data = container_model.objects.filter(
-                        **params).first()
+                    container_data = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
+                    #container_data = container_model.objects.filter(
+                    #   **params).first()
 
                     if not container_data:
                         raise Exception(

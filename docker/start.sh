@@ -55,9 +55,6 @@ load_db() {
     echo "[LOAD_DB] Creating database structure..."
     yes yes | python3 manage.py migrate
     
-    echo "[LOAD_DB] Creating extension..."
-    psql -h saapdb -U saap -c "CREATE EXTENSION unaccent;"
-
     echo "[LOAD_DB] Done!"
 }
 
@@ -89,6 +86,9 @@ load_db
 
 create_superuser
 
+gunicorn saap.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 960 &
+/usr/sbin/nginx -g "daemon off;"
+
 echo "-----------------------------------"
 echo "| ███████╗ █████╗  █████╗ ██████╗ |"
 echo "| ██╔════╝██╔══██╗██╔══██╗██╔══██╗|"
@@ -97,6 +97,3 @@ echo "| ╚════██║██╔══██║██╔══██║
 echo "| ███████║██║  ██║██║  ██║██║     |"
 echo "| ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     |"
 echo "-----------------------------------"
-
-gunicorn saap.wsgi:application --bind 0.0.0.0:8000 &
-/usr/sbin/nginx -g "daemon off;"

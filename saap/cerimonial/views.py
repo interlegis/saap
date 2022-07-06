@@ -1,23 +1,26 @@
-from django.core.exceptions import PermissionDenied
 from django.db.models.aggregates import Max
 from django.db.models import Q, F, Func, Value
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.edit import FormView
+from django.core.files.storage import FileSystemStorage
+from django.db import transaction
+from django.contrib.messages.views import SuccessMessageMixin
+from django.http import Http404, HttpResponse, HttpResponseForbidden
 
 from django.utils.safestring import mark_safe
 from django.shortcuts import render
 from django.views import generic
-
+from django.shortcuts import redirect
 from _functools import reduce
-from datetime import date, timedelta, datetime
 import datetime
-
+from datetime import date, timedelta, datetime
 import operator
+import time, datetime
 
 from saap.cerimonial.forms import LocalTrabalhoForm, EnderecoForm,\
     TipoAutoridadeForm, LocalTrabalhoPerfilForm,\
-    ContatoFragmentPronomesForm, ContatoForm, ProcessoForm,\
-    ContatoFragmentSearchForm, ProcessoContatoForm,\
+    ContatoFragmentPronomesForm, ContatoForm, ProcessoForm, \
+    ContatoFragmentSearchForm, ProcessoContatoForm, ContatosImportaForm,\
     ListWithSearchProcessoForm, ListWithSearchContatoForm,\
     GrupoDeContatosForm, TelefoneForm, EmailForm, EventoForm
 from saap.cerimonial.models import TipoTelefone, TipoEndereco,\
@@ -36,7 +39,8 @@ from saap.cerimonial.utils import CalendarAgenda, CalendarAniversarios, \
 from saap.utils import normalize
 
 from saap.core.forms import ListWithSearchForm
-from saap.core.models import AreaTrabalho
+from saap.core.models import AreaTrabalho, OperadorAreaTrabalho,\
+   Estado, Municipio, Bairro, User
 from saap.crispy_layout_mixin import CrispyLayoutFormMixin
 
 from saap.globalrules import globalrules
@@ -132,10 +136,9 @@ class ContatoCrud(DetailMasterCrud):
             initial = {}
 
             try:
-                initial['workspace'] = AreaTrabalho.objects.filter(
-                    operadores=self.request.user.pk)[0]
+                initial['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
             except:
-                raise PermissionDenied(_('Sem permissão de Acesso!'))
+                raise PermissionDenied(_('Sem permissão de acesso!'))
 
             return initial
 
@@ -359,9 +362,20 @@ class ContatoCrud(DetailMasterCrud):
 
                 queryset = queryset.filter(data_nascimento__lte=data)
 
+            queryset = queryset.filter(workspace=OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho)
             queryset = queryset.order_by('nome')
 
             return queryset
+
+    class DetailView(DetailMasterCrud.DetailView):
+
+        def get_object(self, queryset=None):
+
+           if self.object.workspace == OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho:
+               return self.object
+           else:
+               raise Http404
+
 
     class CreateView(DetailMasterCrud.CreateView):
         form_class = ContatoForm
@@ -383,7 +397,17 @@ class ContatoCrud(DetailMasterCrud):
         layout_key = 'ContatoLayoutForForm'
         template_name = 'cerimonial/contato_form.html'
 
+        def get(self, request, *args, **kwargs):
+            self.object = self.get_object()
+
+            if self.object.workspace == OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho:
+                return super(DetailMasterCrud.UpdateView, self).get(request, *args, **kwargs)
+            else:
+                raise Http404
+
+
         def form_valid(self, form):
+            
             response = super().form_valid(form)
 
             grupos = list(form.cleaned_data['grupodecontatos_set'])
@@ -415,7 +439,7 @@ class CalendarioView(generic.ListView):
 
         d = get_date(self.request.GET.get('mes', None))
 
-        workspace = AreaTrabalho.objects.filter(operadores=self.request.user.pk)[0]
+        workspace = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
         eventos = Evento.objects.filter(inicio__year=d.year, inicio__month=d.month, workspace=workspace).order_by('inicio')
         cal = CalendarAgenda(d.year, d.month, eventos)
 
@@ -439,7 +463,7 @@ class AniversariosView(generic.ListView):
 
         d = get_date(self.request.GET.get('mes', None))
 
-        workspace = AreaTrabalho.objects.filter(operadores=self.request.user.pk)[0]
+        workspace = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
         contatos = Contato.objects.prefetch_related('email_set', 'telefone_set', 'endereco_set', 'endereco_set__estado', 'endereco_set__municipio', 'endereco_set__bairro').filter(                                                                            data_nascimento__month=d.month, workspace=workspace).order_by('data_nascimento')
         cal = CalendarAniversarios(d.year, d.month, contatos)
 
@@ -453,7 +477,25 @@ class AniversariosView(generic.ListView):
         context['this_month'] = this_month()
         return context
 
+class ContatosImportaView(FormView):
+    template_name = 'cerimonial/contato_importa.html'
+    form_class = ContatosImportaForm
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "Importação de Contatos"
+        return context
+
+    def get_initial(self):
+            initial = {}
+
+            try:
+                initial['user'] = User.objects.filter(pk=self.request.user.pk)[0]
+                initial['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
+            except:
+                raise PermissionDenied(_('Sem permissão de acesso!'))
+
+            return initial
 
 class EventoCrud(DetailMasterCrud):
     model = Evento
@@ -468,12 +510,12 @@ class EventoCrud(DetailMasterCrud):
             context['subnav_template_name'] = None
             return context
 
+
         def get_initial(self):
             initial = {}
 
             try:
-                initial['workspace'] = AreaTrabalho.objects.filter(
-                    operadores=self.request.user.pk)[0]
+                initial['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
             except:
                 raise PermissionDenied(_('Sem permissão de acesso!'))
 
@@ -489,7 +531,7 @@ class EventoCrud(DetailMasterCrud):
         def get_queryset(self):
             queryset = DetailMasterCrud.ListView.get_queryset(self)
 
-            queryset = queryset.filter(workspace=AreaTrabalho.objects.filter(operadores=self.request.user.pk)[0])
+            queryset = queryset.filter(workspace=OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho)
             queryset = queryset.order_by('inicio')
 
             return queryset
@@ -498,9 +540,40 @@ class EventoCrud(DetailMasterCrud):
         form_class = EventoForm
         layout_key = 'Evento'
 
+    class DeleteView(DetailMasterCrud.DeleteView):
+        form_class = EventoForm 
+        layout_key = 'Evento'
+
+        def get(self, request, *args, **kwargs):
+            self.object = self.get_object()
+
+            if self.object.workspace == OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho:
+                return super(DetailMasterCrud.DeleteView, self).get(request, *args, **kwargs)
+            else:
+               raise Http404
+
+
     class UpdateView(DetailMasterCrud.UpdateView):
         form_class = EventoForm 
         layout_key = 'Evento'
+
+        def get(self, request, *args, **kwargs):
+            self.object = self.get_object()
+
+            if self.object.workspace == OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho:
+                return super(DetailMasterCrud.UpdateView, self).get(request, *args, **kwargs)
+            else:
+               raise Http404
+
+    class DetailView(DetailMasterCrud.DetailView):
+
+        def get_object(self, queryset=None):
+
+           if self.object.workspace == OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho:
+               return self.object
+           else:
+               raise Http404
+
 
 class FiliacaoPartidariaCrud(MasterDetailCrudPermission):
     model = FiliacaoPartidaria
@@ -725,10 +798,9 @@ class ProcessoMasterCrud(DetailMasterCrud):
             initial = {}
 
             try:
-                initial['workspace'] = AreaTrabalho.objects.filter(
-                    operadores=self.request.user.pk)[0]
+                initial['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
             except:
-                raise PermissionDenied(_('Sem permissão de Acesso!'))
+                raise PermissionDenied(_('Sem permissão de acesso!'))
 
             return initial
 
@@ -910,6 +982,7 @@ class ProcessoMasterCrud(DetailMasterCrud):
 
                 queryset = queryset.filter(data_protocolo__lte=data)
 
+            queryset = queryset.filter(workspace=OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho)
             queryset = queryset.order_by('titulo')
 
             return queryset
@@ -922,6 +995,23 @@ class ProcessoMasterCrud(DetailMasterCrud):
         form_class = ProcessoForm
         layout_key = 'ProcessoLayoutForForm'
 
+        def get(self, request, *args, **kwargs):
+            self.object = self.get_object()
+
+            if self.object.workspace == OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho:
+                return super(DetailMasterCrud.UpdateView, self).get(request, *args, **kwargs)
+            else:
+               raise Http404
+
+    class DetailView(DetailMasterCrud.DetailView):
+
+        def get_object(self, queryset=None):
+
+           if self.object.workspace == OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho:
+               return self.object
+           else:
+               raise Http404
+
 
 class ContatoFragmentFormSearchView(FormView):
     form_class = ContatoFragmentSearchForm
@@ -931,13 +1021,12 @@ class ContatoFragmentFormSearchView(FormView):
         initial = FormView.get_initial(self)
 
         try:
-            initial['workspace'] = AreaTrabalho.objects.filter(
-                operadores=self.request.user.pk)[0]
+            initial['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
             initial['q'] = self.request.GET[
                 'q'] if 'q' in self.request.GET else ''
             initial['pks_exclude'] = self.request.GET.getlist('pks_exclude[]')
         except:
-            raise PermissionDenied(_('Sem permissão de Acesso!'))
+            raise PermissionDenied(_('Sem permissão de acesso!'))
 
         return initial
 
@@ -960,10 +1049,9 @@ class ProcessoContatoCrud(MasterDetailCrudPermission):
             initial = {}
 
             try:
-                initial['workspace'] = AreaTrabalho.objects.filter(
-                    operadores=self.request.user.pk)[0]
+                initial['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
             except:
-                raise PermissionDenied(_('Sem permissão de Acesso!'))
+                raise PermissionDenied(_('Sem permissão de acesso!'))
 
             return initial
 
@@ -1007,6 +1095,16 @@ class GrupoDeContatosMasterCrud(DetailMasterCrud):
         list_field_names_set = ['nome', 'telefone_set', 'email_set']
         layout_key = 'GrupoDeContatosLayoutForForm'
 
+        def get_initial(self):
+            initial = {}
+
+            try:
+                initial['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
+            except:
+                raise PermissionDenied(_('Sem permissão de acesso!'))
+
+            return initial
+
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
             context[
@@ -1027,6 +1125,18 @@ class GrupoDeContatosMasterCrud(DetailMasterCrud):
 
             kwargs.update({'yaml_layout': self.get_layout()})
             return kwargs
+
+    class ListView(DetailMasterCrud.ListView):
+
+        def get_queryset(self):
+
+            queryset = DetailMasterCrud.ListView.get_queryset(self)
+
+            queryset = queryset.filter(workspace=OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho)
+
+            queryset = queryset.order_by('nome')
+
+            return queryset
 
     class CreateView(DetailMasterCrud.CreateView):
         template_name = 'cerimonial/crispy_form_with_contato_search.html'

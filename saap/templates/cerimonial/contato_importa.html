@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load i18n crispy_forms_tags common_tags %}
+
+{% block base_content %}
+
+{% if form.errors %}
+    {% for field in form %}
+        {% if field.name == 'opcao_importacao' and field.errors|length > 0 %} 
+            <div class="alert alert-success alert-dismissible fade in">
+            <strong>Importação realizada com sucesso!</strong> <br>
+        {% elif field.name == 'planilha_contatos' and field.errors|length > 0 %}
+            <div class="alert alert-danger alert-dismissible fade in">
+            <strong>Importação não realizada.</strong> <br>
+        {% endif %}
+        {% for error in field.errors %}
+            {{ error|escape }} <br>
+        {% endfor %}
+    {% endfor %}
+    </div>
+{% endif %}
+
+  <br>  Para realizar a importação de contatos em lote, você deve efetuar o procedimento descrito abaixo. Siga atentamente todas as instruções, para evitar retrabalho e problemas: <br/> <br/>
+  <ol>
+
+    <li>Fazer o <em>download</em> do arquivo  que contém a planilha padrão para importação, conforme o <em>software</em> a ser usado. Salientando que <u>não pode ser usada nenhuma outra planilha para o procedimento</u>.
+    <ul>
+       <li>Planilha XLSX para Microsoft Excel (recomendado): <a href="/static/contatos_importa.xlsx">Clique aqui</a>
+       <li>Planilha ODS para LibreOffice Calc: <a href="/static/contatos_importa.ods">Clique aqui</a>
+    </ul><br/>
+    <li>Preencher os dados, <b>conforme as orientações a seguir</b>:
+    <ol>
+        <li><strong>Nome: </strong>Campo livre. Recomendamos que os nomes não estejam em <u>CAIXA ALTA</u>.
+        <li><strong>Sexo: </strong>Informar <b>M</b> para Masculino ou <b>F</b> para Feminino. 
+        <li><strong>Nascimento: </strong>Usar o formato <u>DD/MM/AAAA</u>. Se não souber o ano, colocar 1900.
+        <li><strong>Logradouro: </strong>Máximo de 35 caracteres - para logradouros longos, usar abreviaturas. Informar apenas o nome da via, sem número ou complemento.
+        <li><strong>Número: </strong>Se o endereço não tiver número, colocar 0.
+        <li><strong>Complemento: </strong>Não é obrigatório, porém se informado, deve conter no máximo 15 caracteres.
+        <li><strong>Bairro: </strong>Deve ser escrito exatamente como informado no SAAP - em caso de dúvidas, abrir a lista de bairros dentro do endereço de um contato. Se não houver bairro, colocar “– N/E” (sem as aspas). 
+        <li><strong>CEP: </strong>Usar o formato <u>00000-000</u>. Se não houver o CEP cadastrado, colocar 00000-000
+        <li><strong>Município: </strong>Nome completo, sem abreviaturas - em caso de dúvidas, abrir a lista de municípios dentro do endereço de um contato.
+        <li><strong>Estado: </strong>Sigla com duas letras.
+        <li><strong>Telefone: </strong>Formato <u>(XX)XXXX-XXXX</u> ou <u>(XX)XXXXX-XXXX</u>, com DDD entre parênteses, sem espaço em branco e um “-” separando os dois blocos. Ao informar o telefone, a coluna Tipo será automaticamente preenchida, entre Celular (início com 9 ou 8) e Residencial.
+        <li><strong>E-mail: </strong>Usar o formato <u>usuario@dominio.nnn</u>, com as letras em minúsculo.<br/><br/>
+        <ul>
+        <li><em>Obs. 1: É possível informar até dois endereços, dois telefones e dois endereços de e-mail - para isso, há os campos Logradouro 1 e 2, Bairro 1 e 2, Telefone 1 e 2, e demais. Para adicionar mais dados, informe manualmente.</em>
+        <li><em>Obs. 2: A combinação Bairro + Município + Estado deve ser válida, ou seja, não é possível informar um município de um estado, e a sigla de outro.</em>
+        <li><em>Obs. 3: Caso tenha dúvida no nome do bairro, município ou estado, abra o endereço de um contato e verifique os três campos.</em>
+        </ul>
+    </ol><br/>
+
+    <li>Atentar para as <b>colunas de validação:</b>
+    <ol>
+        <li><b>Coluna B: </b>Verifica se há pessoas com <b>Nome</b> iguais. Para alertar isso, aparecerá a informação <b class="erro">DUPL</b> na respectiva linha. Isso é apenas informativo, pois dependendo da opção no campo <b>Tratamento para Contatos já cadastados</b> e da data de nascimento na planilha, o cadastro pode ser ou não realizado.
+        <li><b>Coluna D: </b>Verifica se o <b>Sexo</b> informado é <u>M</u> ou <u>F</u>. Em caso de erro, aparecerá a informação <b class="erro">ERRO</b> na respectiva linha.
+        <li><b>Coluna F: </b>Verifica se a <b>Data de nascimento</b> informada possui 10 caracteres, igual ao padrão <u>DD/MM/AAAA</u>. Em caso de erro, aparecerá a informação <b class="erro">ERRO</b> na respectiva linha.
+        <li><b>Colunas H e X: </b>Verifica se algum dos campos <b>Logradouro</b>, <b>Número</b>, <b>Bairro</b>, <b>CEP</b>, <b>Cidade</b> e <b>Estado</b> apresentam erro - a coluna H se refere ao Endereço 1 e a coluna X, ao Endereço 2. Caso seja preenchido o <b>Logradouro</b>, é obrigatório informar todos estes campos. Em caso de erro, aparecerá a informação <b class="erro">ERRO</b> na respectiva linha.
+        <li><b>Colunas J e Z: </b>Verifica se o <b>Logradouro</b> informado possui mais que 35 caracteres. Em caso de erro, aparecerá o número <b class="erro">100</b> na respectiva linha.
+        <li><b>Colunas L e AB: </b>Verifica se foi informado um <b>Número</b> inválido para o logradouro. Em caso de erro, aparecerá o número <b class="erro">100</b> na respectiva linha.
+        <li><b>Colunas N e AD: </b>Verifica se o <b>Complemento</b> informado possui mais que 15 caracteres. Em caso de erro, aparecerá a informação <b class="erro">ERRO</b> na respectiva linha. 
+        <li><b>Colunas P e AF: </b>Verifica se o Bairro não foi informado. Em caso de erro, aparecerá o número <b class="erro">100</b> na respectiva linha.
+        <li><b>Colunas R e AH: </b>Verifica se o CEP informado possui 9 caracteres e está no padrão <u>00000-000</u>. Em caso de erro, aparecerá o número <b class="erro">100</b> na respectiva linha.
+        <li><b>Colunas T e AJ: </b>Verifica se a Cidade informada possui ao menos 2 caracteres. Em caso de erro, aparecerá o número <b class="erro">100</b> na respectiva linha.
+        <li><b>Colunas V e AL: </b>Verifica se o Estado informado possui 2 caracteres. Em caso de erro, aparecerá o número <b class="erro">100</b> na respectiva linha.
+        <li><b>Colunas AP e AS: </b>Verifica se o Telefone informado está no padrão <u>(XX)XXXX-XXXX</u> ou <u>(XX)XXXXX-XXXX</u>. Em caso de erro, aparecerá o número <b class="erro">ERRO</b> na respectiva linha.
+        <li><b>Colunas AV e AX: </b>Verifica se o E-mail informado possui o formato <u>usuario@dominio.nnn</u>. Em caso de erro, aparecerá a informação <b class="erro">ERRO</b> na respectiva linha.
+        <ul><br/>
+        <li><em>Obs. 1: No alto de cada coluna de validação, há um totalizador de erros, indicando quantas linhas estão com aquele problema. Caso desejado, é possível filtrar para exibir apenas as linhas com o respectivo erro.</em>
+        <li><em>Obs. 2: Caso seja preenchido o Logradouro, 1 ou 2, será necessário preencher os dados de Número, Bairro, CEP, Cidade e Estado. Por outro lado, caso não seja preenchido Logradouro, independente se os demais campos forem preenchidos, o endereço não será cadastrado.</em>
+        <li><em>Obs. 3: As informações de erro servem de orientação para correções, visto que durante a importação os campos passarão por diversos processos de verificação e validação.</em>
+        <li><em>Obs. 4: Para facilitar a visualização, as seções da planilha são separadas por uma linha espessa preta. Além disso, as colunas de validação possuem cores diferentes a cada seção.</em>
+        </ul>
+    </ol><br/>
+
+    <li>Salvar o arquivo com o mesmo nome, formato e <em>layout</em> interno. <u>Caso haja alteração, a importação não será realizada!</u><br/><br/>
+
+    <li>Escolher a opção do campo <strong>Tratamento para Contatos já cadastrados</strong>, que define o que deve ser feito ao encontrar um registro da planilha que corresponda a um Contato já cadastrado:
+    <ul>
+    <li><b>Ignorar registro:</b> Contatos já cadastrados serão ignorados, enquanto apenas os novos serão inseridos.
+    <li><b>Adicionar endereço, telefone e e-mail ao contato:</b> Nos contatos já cadastrados, as informações de endereço, telefone e e-mail serão adicionadas. Contatos novos serão inseridos.
+    </ul><br/>
+
+    <li>Selecionar o arquivo no campo <strong>Arquivo</strong> abaixo e clicar em <strong>Enviar</strong>. 
+  </ol><br/>
+  Caso o arquivo não atenda a alguma das orientações dos passos acima, a página será recarregada exibindo os primeiros 20 (vinte) erros identificados.
+  <br>
+  <br>
+
+  <center>
+        <div id='loader' class="loader" style="display:none"></div>
+        <div id='mensagem' style="display:none"><b>Aguarde, enquanto os dados estão sendo carregados. <br>Dependendo da quantidade de registros, o processo pode demorar alguns minutos.</b></div>
+  </center>
+
+  <br>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <style>ul.errorlist { display:none; }</style>
+    <div class="form-group col-md-6 mb-0">
+    Arquivo: {{ form.planilha_contatos }}
+    </div>
+    <div class="form-group col-md-6 mb-0">
+    Tratamento para Contatos já cadastrados: {{ form.opcao_importacao }}
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-default" onclick="load()">Enviar</button>
+  </form>
+
+{% endblock %}
+
+{% block extra_js %}
+  <script type="text/javascript">
+          
+    var load = function(source) {
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('mensagem').style.display = 'block';
+  	}
+  </script>
+
+{% endblock %}

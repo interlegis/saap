@@ -50,13 +50,17 @@ class UserAdmin(BaseUserAdmin, ImageCroppingMixin, admin.ModelAdmin):
     ordering = ('first_name',)
     filter_horizontal = ('groups', 'user_permissions',)
 
-class ParlamentarAdmin(admin.ModelAdmin):
-    list_display = ('nome')
+#class ParlamentarAdmin(admin.ModelAdmin):
+#    list_display = ('nome')
 
-admin.site.register(get_user_model(), UserAdmin)
 #admin.site.register(get_user_model(), ParlamentarAdmin)
 
+admin.site.register(get_user_model(), UserAdmin)
+
 register_all_models_in_admin(__name__)
+
+admin.site.site_title = 'Administração - SAAP'
+admin.site.site_header = 'Administração - SAAP'
 
 class AuditLogAdmin(admin.ModelAdmin):
     pass
@@ -84,5 +88,4 @@ class AuditLogAdmin(admin.ModelAdmin):
 admin.site.unregister(AuditLog)
 admin.site.register(AuditLog, AuditLogAdmin)
 
-admin.site.site_title = 'Administração - SAAP'
-admin.site.site_header = 'Administração - SAAP'
+

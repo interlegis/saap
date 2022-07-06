@@ -67,3 +67,35 @@
   </div>
   {% include "paginacao.html" %}
 {% endblock %}
+
+{% block extra_js %}
+  <script type="text/javascript">
+    $(document).on("keypress", "form", function(event) {
+        return event.keyCode != 13;
+    });
+
+    var change_opcao_exportacao = function() {
+      var campos_exportados = $('[name="campos_exportados"]');
+      var tipo_dado_contato = $('[name="tipo_dado_contato"]');
+      var _this = this;
+      if ($('[name="opcao_exportacao"]').val() == "REL") {
+        campos_exportados.removeAttr("disabled");
+        campos_exportados.closest('.form-group').removeClass("disabled");
+        tipo_dado_contato.removeAttr("disabled");
+        tipo_dado_contato.closest('.form-group').removeClass("disabled");
+      }
+      else {
+        campos_exportados.attr("disabled", "disabled");
+        campos_exportados.closest('.form-group').addClass("disabled");
+        tipo_dado_contato.attr("disabled", "disabled");
+        tipo_dado_contato.closest('.form-group').addClass("disabled");
+      }
+    }
+
+    $('[name="opcao_exportacao"]').on('change', change_opcao_exportacao);
+    $('[name="opcao_exportacao"]').trigger('change');
+
+  </script>
+{% endblock %}
+
+

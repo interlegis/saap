@@ -60,7 +60,10 @@ def get_field_display(obj, fieldname):
     if value is None:
         display = ''
     elif 'date' in str(type(value)):
-        display = formats.date_format(value, "SHORT_DATE_FORMAT")
+        if str(field.__class__).find('DateTimeField') >= 0:
+            display = formats.date_format(value, "d/m/Y - H:m")
+        else:
+            display = formats.date_format(value, "SHORT_DATE_FORMAT")
     elif 'bool' in str(type(value)):
         display = _('Sim') if value else _('Não')
     elif 'ImageFieldFile' in str(type(value)):
@@ -83,6 +86,13 @@ def get_field_display(obj, fieldname):
         display += '</ul>'
         if not verbose_name:
             verbose_name = str(field.related_model._meta.verbose_name_plural)
+    elif str(field.__class__).find('URLField') >= 0:
+        if value:
+            display = '<a href="{}">{}</a>'.format(
+                value,
+                value)
+        else:
+            display = ''
     else:
         display = str(value)
     return verbose_name, display
