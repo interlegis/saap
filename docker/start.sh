@@ -86,9 +86,6 @@ load_db
 
 create_superuser
 
-gunicorn saap.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 960 &
-/usr/sbin/nginx -g "daemon off;"
-
 echo "-----------------------------------"
 echo "| ███████╗ █████╗  █████╗ ██████╗ |"
 echo "| ██╔════╝██╔══██╗██╔══██╗██╔══██╗|"
@@ -97,3 +94,6 @@ echo "| ╚════██║██╔══██║██╔══██║
 echo "| ███████║██║  ██║██║  ██║██║     |"
 echo "| ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     |"
 echo "-----------------------------------"
+
+gunicorn saap.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 960 &
+/usr/sbin/nginx -g "daemon off;"
