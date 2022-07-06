@@ -100,16 +100,6 @@ Para concluir, deve-se criar a função ``unaccent``, que será usada em diversa
     sudo docker exec -i postgres psql -U saap -c "CREATE EXTENSION unaccent;"
 
 
-5) Atualizar o brasão
-----------------------------------------------------------------------------------------
-
-Se a opção ``BRASAO_PROPRIO`` está com ``True``, é necessário atualizar a imagem do brasão. Para isto, basta colocar a imagem desejada, em formado PNG, com o nome de ``brasao-camara.png``, e rodar o comando:
-
-::
-
-    sudo docker cp brasao-camara.png saap:/var/interlegis/saap/saap/static/img/brasao-camara.png
-
-
 Parar imagens
 ----------------------------------------------------------------------------------------
 
