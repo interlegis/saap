@@ -57,7 +57,7 @@ AreaTrabalho:
   - descricao
 OperadorAreaTrabalho:
   {% trans 'Operador de Área de Trabalho' %}:
-  - user preferencial areatrabalho
+  - user preferencial #areatrabalho
   - grupos_associados
 ImpressoEnderecamento:
   {% trans 'Dados Básicos' %}:
