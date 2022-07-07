@@ -89,6 +89,27 @@
     <div class="homeBlock">
         <div class="homeFront">
             <div class="homeIcon">
+                <img src="{% static 'img/index_importacao.png' %}" alt="Importação">
+            </div>
+            <h2>Importação de contatos</h2>
+        </div>
+        <div class="homeContent">
+            <div class="homeTitle">
+                <img src="{% static 'img/index_importacao.png' %}">
+                <h2>Importação de contatos</h2>
+            </div>
+            <p>
+                Para facilitar o processo de cadastro de contatos, o SAAP oferece a funcionalidade de importação de contatos, endereços, telefones e e-mails usando planilha, conforme as instruções da tela..
+		</p>
+        </div>
+        <a href="{% url 'saap.cerimonial:contatos_importa' %}"></a>
+    </div>
+
+
+
+    <div class="homeBlock">
+        <div class="homeFront">
+            <div class="homeIcon">
                 <img src="{% static 'img/index_etiquetas.png' %}" alt="Impressos">
             </div>
             <h2>Envelopes e etiquetas</h2>
@@ -104,6 +125,26 @@
         </div>
         <a href="{% url 'saap.cerimonial:print_impressoenderecamento' %}"></a>
     </div>
+
+    <div class="homeBlock">
+        <div class="homeFront">
+            <div class="homeIcon">
+                <img src="{% static 'img/index_aniversarios.png' %}" alt="Aniversários">
+            </div>
+            <h2>Aniversariantes</h2>
+        </div>
+        <div class="homeContent">
+            <div class="homeTitle">
+                <img src="{% static 'img/index_aniversarios.png' %}">
+                <h2>Aniversariantes</h2>
+            </div>
+            <p>
+                Em formato de agenda, é possível visualizar os aniversariantes do dia, da semana e do mês, bem como saber quantos anos está comemorando e seus dados principais de contato. 
+		</p>
+        </div>
+        <a href="{% url 'saap.cerimonial:aniversarios' %}"></a>
+    </div>
+
 
 
     <div class="homeBlock">

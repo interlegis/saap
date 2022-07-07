@@ -2322,7 +2322,7 @@ class ContatosExportaView(RelatorioProcessosView):
             # Naturalidade
             if(col_naturalidade != -1):
                 if(dados.naturalidade != '' and dados.naturalidade != None):
-                    naturalidade = dados.naturalidade
+                    naturalidade = dados.naturalidade.nome
                 else:
                     naturalidade = ""
 
@@ -2355,7 +2355,7 @@ class ContatosExportaView(RelatorioProcessosView):
             # Estado civil
             if(col_estadocivil != -1):
                 if(dados.estado_civil != '' and dados.estado_civil != None):
-                    estado_civil = dados.estado_civil
+                    estado_civil = dados.estado_civil.descricao
                 else:
                     estado_civil = ""
                     
@@ -2561,7 +2561,7 @@ class ContatosExportaView(RelatorioProcessosView):
 
             if(col_nivelinstrucao != -1):
                 if(dados.nivel_instrucao != '' and dados.nivel_instrucao != None):
-                    nivel_instrucao = dados.nivel_instrucao
+                    nivel_instrucao = dados.nivel_instrucao.descricao
                 else:
                     nivel_instrucao = ""
                     
@@ -2580,7 +2580,7 @@ class ContatosExportaView(RelatorioProcessosView):
                     cargo = ""
  
                 if(dados.tipo_autoridade != '' and dados.tipo_autoridade != None):
-                    tipo_autoridade = dados.tipo_autoridade
+                    tipo_autoridade = dados.tipo_autoridade.descricao
                 else:
                     tipo_autoridade = ""
                     
