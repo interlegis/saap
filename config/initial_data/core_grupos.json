@@ -1,0 +1,10 @@
+[
+{
+    "model": "core.user_groups",
+    "pk": 34,
+    "fields": {
+        "user": 1,
+        "group": 21
+    }
+}
+]

@@ -1,2 +1,2 @@
-
+pytest
 django-debug-toolbar==1.5

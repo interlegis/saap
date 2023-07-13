@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-LATEST_VERSION=3.1.0
+LATEST_VERSION=3.1.4
 REPOSITORY="interlegis"
 
 docker build --no-cache -t $REPOSITORY/saap:$LATEST_VERSION .

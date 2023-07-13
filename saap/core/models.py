@@ -181,7 +181,6 @@ class SaapSearchMixin(models.Model):
                         pass
                 else:
                     _self = self
-                    print (str(fields))
                     for field in fields:
                         #print (field)
                         _self = getattr(_self, field)
@@ -364,7 +363,7 @@ class Parlamentar(models.Model):
     nome_parlamentar = models.CharField(
         max_length=50,
         verbose_name=_('Nome do parlamentar'))
-    ativo = models.BooleanField(verbose_name=_('Ativo na Casa?'))
+    ativo = models.BooleanField(choices=YES_NO_CHOICES, verbose_name=_('Ativo na Casa?'))
     sexo = models.CharField(
         max_length=1, verbose_name=_('Sexo'), choices=SEXO_CHOICE)
     data_nascimento = models.DateField(
@@ -416,7 +415,7 @@ class Parlamentar(models.Model):
         blank=True,
         verbose_name=_('Fax residencial'))
     endereco_web = models.URLField(
-        max_length=100, blank=True, verbose_name=_('HomePage'))
+        max_length=100, blank=True, verbose_name=_('Página na Internet'))
     locais_atuacao = models.CharField(
         max_length=100,
         blank=True,
@@ -457,6 +456,8 @@ class Partido(models.Model):
         return _('%(sigla)s - %(nome)s') % {
             'sigla': self.sigla, 'nome': self.nome
         }
+
+
 # - - - - - - - - - - - - - - - - - #
 # FIM - Modelos importados do SAPL. #
 # - - - - - - - - - - - - - - - - - #
@@ -478,6 +479,7 @@ class AreaTrabalho(SaapAuditoriaModelMixin):
 
     operadores = models.ManyToManyField(
         get_settings_auth_user_model(),
+        verbose_name=_('Operadores'),
         through='OperadorAreaTrabalho',
         through_fields=('areatrabalho', 'user'),
         symmetrical=False,
@@ -874,23 +876,26 @@ class ImpressoEnderecamento(models.Model):
 
 class Filiacao(models.Model):
     data = models.DateField(verbose_name=_('Data de filiação'))
-    parlamentar = models.ForeignKey(Parlamentar)
+    parlamentar = models.ForeignKey(Parlamentar, verbose_name=_('Parlamentar'))
     partido = models.ForeignKey(Partido, verbose_name=_('Partido'))
     data_desfiliacao = models.DateField(
         blank=True, null=True, verbose_name=_('Data de desfiliação'))
 
+    @property
+    def data_desfiliacao_with_default(self):
+        return self.data_desfiliacao or ''
+
     class Meta:
-        verbose_name = _('Filiação')
-        verbose_name_plural = _('Filiações')
+        verbose_name = _('Filiação Partidária de parlamentar')
+        verbose_name_plural = _('Filiações Partidárias de parlamentares')
         # A ordenação descrescente por data é importante para listagem de
         # parlamentares e tela de Filiações do Parlamentar
         ordering = ('parlamentar', '-data', '-data_desfiliacao')
 
     def __str__(self):
-        return _('%(parlamentar)s - %(partido)s') % {
+        return _('%(parlamentar)s :: %(partido)s') % {
             'parlamentar': self.parlamentar, 'partido': self.partido
         }
-
 
 class AuditLog(models.Model):
 

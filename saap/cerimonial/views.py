@@ -44,8 +44,14 @@ from saap.core.models import AreaTrabalho, OperadorAreaTrabalho,\
 from saap.crispy_layout_mixin import CrispyLayoutFormMixin
 
 from saap.globalrules import globalrules
+
 from saap.globalrules.crud_custom import DetailMasterCrud,\
     MasterDetailCrudPermission, PerfilAbstractCrud, PerfilDetailCrudPermission
+
+from saap.globalrules.crud_custom_saap import DetailMasterCrudSaap,\
+    MasterDetailCrudSaapPermission, PerfilAbstractCrudSaap, PerfilDetailCrudSaapPermission
+
+from saap.crud.base_saap import CrudSaap, make_pagination
 
 globalrules.rules.config_groups(rules_patterns)
 
@@ -61,8 +67,52 @@ StatusProcessoCrud = DetailMasterCrud.build(
     StatusProcesso, None, 'statusprocesso')
 ClassificacaoProcessoCrud = DetailMasterCrud.build(
     ClassificacaoProcesso, None, 'classificacaoprocesso')
-TopicoProcessoCrud = DetailMasterCrud.build(
-    TopicoProcesso, None, 'topicoprocesso')
+
+
+
+
+class TopicoProcessoCrud(CrudSaap):
+    help_text = 'topicoprocesso'
+    model = TopicoProcesso
+
+    class BaseMixin(CrudSaap.BaseMixin):
+        list_field_names = ['descricao']
+
+        def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            return context
+
+    class ListView(CrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 30
+
+        def get(self, request, *args, **kwargs):
+            return CrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = CrudSaap.ListView.get_context_data(self, **kwargs)
+            return context
+
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(descricao__icontains=q_param)
+                qs = qs.filter(q)
+
+            o_param = self.request.GET.get('o', '')
+            ordering='descricao'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='descricao'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
+
 
 
 # ---- Details Master Crud herança ---------------------------
@@ -86,12 +136,13 @@ class EstadoCivilCrud(DetailMasterCrud):
     model = EstadoCivil
     container_field_set = 'workspace__operadores'
 
+##############################################
 
-class PronomeTratamentoCrud(DetailMasterCrud):
+class PronomeTratamentoCrud(DetailMasterCrudSaap):
     help_text = 'pronometratamento'
     model = PronomeTratamento
 
-    class BaseMixin(DetailMasterCrud.BaseMixin):
+    class BaseMixin(DetailMasterCrudSaap.BaseMixin):
         list_field_names = [
             'nome_por_extenso',
             ('abreviatura_singular_m', 'abreviatura_plural_m',),
@@ -100,20 +151,92 @@ class PronomeTratamentoCrud(DetailMasterCrud):
             ('prefixo_nome_singular_m', 'prefixo_nome_singular_f'),
             'enderecamento_singular_m', ]
 
-        def get_context_data(self, **kwargs):
-            context = super().get_context_data(**kwargs)
+    class ListView(DetailMasterCrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
 
-            context['fluid'] = '-fluid'
+        def get(self, request, *args, **kwargs):
+            return DetailMasterCrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = DetailMasterCrudSaap.ListView.get_context_data(self, **kwargs)
             return context
 
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(nome_por_extenso__icontains=q_param)
+                q |= Q(abreviatura_singular_m__icontains=q_param)
+                q |= Q(vocativo_direto_singular_m__icontains=q_param)
+                q |= Q(vocativo_indireto_singular_m__icontains=q_param)
+                q |= Q(prefixo_nome_singular_m__icontains=q_param)
+                q |= Q(enderecamento_singular_m__icontains=q_param)
+                qs = qs.filter(q)
 
-class TipoAutoridadeCrud(DetailMasterCrud):
+            o_param = self.request.GET.get('o', '')
+            ordering='nome_por_extenso'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='nome_por_extenso'
+                elif abs(o_param) == 2:
+                    ordering='abreviatura_singular_m'
+                elif abs(o_param) == 3:
+                    ordering='vocativo_direto_singular_m'
+                elif abs(o_param) == 4:
+                    ordering='vocativo_indireto_singular_m'
+                elif abs(o_param) == 5:
+                    ordering='prefixo_nome_singular_m'
+                elif abs(o_param) == 6:
+                    ordering='enderecamento_singular_m'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
+
+##################################################
+
+class TipoAutoridadeCrud(DetailMasterCrudSaap):
     help_text = 'tipoautoriadade'
     model = TipoAutoridade
 
-    class BaseMixin(DetailMasterCrud.BaseMixin):
+    class BaseMixin(DetailMasterCrudSaap.BaseMixin):
         list_field_names = ['descricao']
         form_class = TipoAutoridadeForm
+
+    class ListView(DetailMasterCrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
+
+        def get(self, request, *args, **kwargs):
+            return DetailMasterCrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = DetailMasterCrudSaap.ListView.get_context_data(self, **kwargs)
+            return context
+
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(descricao__icontains=q_param)
+                qs = qs.filter(q)
+
+            o_param = self.request.GET.get('o', '')
+            ordering='descricao'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='descricao'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
 
 
 # ---- Contato Master e Details ----------------------------
@@ -687,13 +810,13 @@ class EnderecoPerfilCrud(PerfilDetailCrudPermission):
     class BaseMixin(PerfilDetailCrudPermission.BaseMixin):
         list_field_names = [('endereco', 'numero'), 'cep', 'bairro','municipio', 'principal', 'permite_contato']
 
-    class CreateView(PrincipalMixin, PerfilDetailCrudPermission.CreateView):
-        form_class = EnderecoForm
-        template_name = 'core/crispy_form_with_trecho_search.html'
+#    class CreateView(PrincipalMixin, PerfilDetailCrudPermission.CreateView):
+#        form_class = EnderecoForm
+        #template_name = 'core/crispy_form_with_trecho_search.html'
 
-    class UpdateView(PrincipalMixin, PerfilDetailCrudPermission.UpdateView):
-        form_class = EnderecoForm
-        template_name = 'core/crispy_form_with_trecho_search.html'
+#    class UpdateView(PrincipalMixin, PerfilDetailCrudPermission.UpdateView):
+#        form_class = EnderecoForm
+        #template_name = 'core/crispy_form_with_trecho_search.html'
 
 
 class TelefonePerfilCrud(PerfilDetailCrudPermission):
@@ -746,12 +869,14 @@ class DependentePerfilCrud(PerfilDetailCrudPermission):
 
 # ---- Processo Master e Details ----------------------------
 
-class AssuntoProcessoCrud(DetailMasterCrud):
+
+class AssuntoProcessoCrud(CrudSaap):
+    help_text = 'assuntoprocesso'
     model = AssuntoProcesso
-#    container_field = 'workspace__operadores'
     model_set = 'processo_set'
 
-    class BaseMixin(DetailMasterCrud.BaseMixin):
+    class BaseMixin(CrudSaap.BaseMixin):
+        list_field_names = ['descricao']
 
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
@@ -759,12 +884,41 @@ class AssuntoProcessoCrud(DetailMasterCrud):
                 'cerimonial/subnav_assuntoprocesso.yaml'
             return context
 
-    class DetailView(DetailMasterCrud.DetailView):
-        list_field_names_set = ['data',
-                                'titulo',
+    class DetailView(CrudSaap.DetailView):
+        list_field_names_set = ['titulo',
                                 'contatos'
                                 ]
 
+    class ListView(CrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 30
+
+        def get(self, request, *args, **kwargs):
+            return CrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = CrudSaap.ListView.get_context_data(self, **kwargs)
+            return context
+
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(descricao__icontains=q_param)
+                qs = qs.filter(q)
+
+            o_param = self.request.GET.get('o', '')
+            ordering='descricao'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='descricao'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
 
 class ProcessoMasterCrud(DetailMasterCrud):
     model = Processo
@@ -1085,12 +1239,12 @@ class ProcessoContatoCrud(MasterDetailCrudPermission):
             qs = qs.annotate(pk_unico=Max('pk'))
             return qs
 
-class GrupoDeContatosMasterCrud(DetailMasterCrud):
+class GrupoDeContatosMasterCrud(DetailMasterCrudSaap):
     model = GrupoDeContatos
     container_field = 'workspace__operadores'
     model_set = 'contatos'
 
-    class BaseMixin(DetailMasterCrud.BaseMixin):
+    class BaseMixin(DetailMasterCrudSaap.BaseMixin):
         list_field_names = ['nome']
         list_field_names_set = ['nome', 'telefone_set', 'email_set']
         layout_key = 'GrupoDeContatosLayoutForForm'
@@ -1107,8 +1261,7 @@ class GrupoDeContatosMasterCrud(DetailMasterCrud):
 
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
-            context[
-                'subnav_template_name'] = 'cerimonial/subnav_grupocontato.yaml'
+            context['subnav_template_name'] = None
             return context
 
         def get_form(self, form_class=None):
@@ -1126,22 +1279,48 @@ class GrupoDeContatosMasterCrud(DetailMasterCrud):
             kwargs.update({'yaml_layout': self.get_layout()})
             return kwargs
 
-    class ListView(DetailMasterCrud.ListView):
+    class ListView(DetailMasterCrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
+
+        def get(self, request, *args, **kwargs):
+            return DetailMasterCrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = DetailMasterCrudSaap.ListView.get_context_data(self, **kwargs)
+            context['subnav_template_name'] = None
+            return context
 
         def get_queryset(self):
 
-            queryset = DetailMasterCrud.ListView.get_queryset(self)
+            queryset = self.model.objects.all()
 
-            queryset = queryset.filter(workspace=OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho)
+            q = Q(workspace=OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho)
 
-            queryset = queryset.order_by('nome')
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q.add(Q(nome__icontains=q_param), Q.AND)
 
-            return queryset
+            queryset = queryset.filter(q)
 
-    class CreateView(DetailMasterCrud.CreateView):
+            o_param = self.request.GET.get('o', '')
+            ordering='nome'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='nome'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+
+            return queryset.order_by(ordering)
+
+    class CreateView(DetailMasterCrudSaap.CreateView):
         template_name = 'cerimonial/crispy_form_with_contato_search.html'
         form_class = GrupoDeContatosForm
 
-    class UpdateView(DetailMasterCrud.UpdateView):
+    class UpdateView(DetailMasterCrudSaap.UpdateView):
         template_name = 'cerimonial/crispy_form_with_contato_search.html'
         form_class = GrupoDeContatosForm

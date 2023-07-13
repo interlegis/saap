@@ -2,6 +2,11 @@
 Atualização da versão do SAAP
 ***********************************************
 
+Aviso
+----------------------------------------------------------------------------------------
+
+As orientações abaixo são aplicadas para o ambiente de desenvolvimento. Caso esteja sendo usado container Docker, seguir o respectivo `tópico <https://github.com/interlegis/saap/blob/master/docs/docker.rst#atualizar-imagem>`_.
+
 Para atualizar o SAAP para a última versão disponível, são feitos os seguintes passos - lembrando que, daqui pra frente, os comandos devem ser executados dentro da pasta ``/var/interlegis/saap``:
 
 1) Verificar atualizações locais

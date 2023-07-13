@@ -1,5 +1,6 @@
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.forms.utils import ErrorList
@@ -15,55 +16,563 @@ from rest_framework import viewsets, mixins
 from rest_framework.authentication import SessionAuthentication,\
     BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
-from saap.crud.base import Crud, make_pagination
+from saap.crud.base_saap import CrudSaap, make_pagination
 from saap.core.models import Partido, Filiacao
 
 from saap.core.forms import OperadorAreaTrabalhoForm, ImpressoEnderecamentoForm,\
-    ListWithSearchForm, UserForm
+    ListWithSearchForm, UserForm, UserAdminForm
 from saap.core.models import Cep, TipoLogradouro, Logradouro, RegiaoMunicipal,\
     Distrito, Bairro, Municipio, Estado, Trecho, AreaTrabalho, OperadorAreaTrabalho,\
     ImpressoEnderecamento, User, Parlamentar
 from saap.core.rules import rules_patterns
 from saap.core.serializers import TrechoSearchSerializer, TrechoSerializer
 from saap.globalrules import globalrules
-from saap.globalrules.crud_custom import DetailMasterCrud,\
-    MasterDetailCrudPermission
+from saap.globalrules.crud_custom_saap import DetailMasterCrudSaap,\
+    MasterDetailCrudSaapPermission
 from saap.utils import normalize
 
 from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 
 globalrules.rules.config_groups(rules_patterns)
 
-CepCrud = DetailMasterCrud.build(Cep, None, 'cep')
-RegiaoMunicipalCrud = DetailMasterCrud.build(
-    RegiaoMunicipal, None,  'regiao_municipal')
-DistritoCrud = DetailMasterCrud.build(Distrito, None, 'distrito')
-MunicipioCrud = DetailMasterCrud.build(Municipio, None, 'municipio')
-EstadoCrud = DetailMasterCrud.build(Estado, None, 'estado')
-BairroCrud = DetailMasterCrud.build(Bairro, None, 'bairro')
-TipoLogradouroCrud = DetailMasterCrud.build(TipoLogradouro, None, 'tipo_logradouro')
-LogradouroCrud = DetailMasterCrud.build(Logradouro, None, 'logradouro')
-ParlamentarCrud = DetailMasterCrud.build(Parlamentar, None, 'parlamentar')
-
-#UserCrud = DetailMasterCrud.build(User, None, 'usuario')
-
-class UserCrud(DetailMasterCrud):
+class UserCrud(CrudSaap):
     help_text = 'usuario'
-    model = User
+    model = get_user_model()
 
-    class BaseMixin(DetailMasterCrud.BaseMixin):
-         list_field_names = [
-            ('first_name', 'last_name'), 'email', 'groups', 'is_active']
+    class BaseMixin(CrudSaap.BaseMixin):
+        list_field_names = ['email', 'first_name', 'last_name', 'groups', 'is_active']
 
-class TrechoCrud(DetailMasterCrud):
+    class DetailView(CrudSaap.DetailView):
+        layout_key = 'UserDetail'
+
+        def get_context_data(self, **kwargs):
+            context = CrudSaap.DetailView.get_context_data(self, **kwargs)
+            context['title'] = '{} <br><small>{}</small>'.format(
+                self.object.get_full_name() or '...',
+                self.object.email
+            )
+            return context
+
+    class CreateView(CrudSaap.CreateView):
+        form_class = UserAdminForm
+
+        def form_valid(self, form):
+            form.instance.event_agency = self.request.user.pk
+            if form.is_valid():
+                form.save()
+                return HttpResponseRedirect(reverse('saap.core:user_list',))
+
+    class UpdateView(CrudSaap.UpdateView):
+        form_class = UserAdminForm
+
+        def form_valid(self, form):
+            form.instance.event_agency = self.request.user.pk
+            if form.is_valid():
+                form.save()
+                return HttpResponseRedirect(reverse('saap.core:user_detail', kwargs={'pk': self.kwargs['pk']}))
+
+    class ListView(CrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
+
+        def get(self, request, *args, **kwargs):
+            return CrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = CrudSaap.ListView.get_context_data(self, **kwargs)
+            context['subnav_template_name'] = None
+            context['title'] = _('Usuários')
+            return context
+
+        def hook_header_groups(self, *args, **kwargs):
+            return 'Grupos'
+
+        def hook_header_is_active(self, *args, **kwargs):
+            return 'Ativo?'
+
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(first_name__icontains=q_param)
+                q |= Q(last_name__icontains=q_param)
+                q |= Q(email__icontains=q_param)
+                q |= Q(groups__name__icontains=q_param)
+                qs = qs.filter(q)
+
+            o_param = self.request.GET.get('o', '')
+            ordering='first_name'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='email'
+                elif abs(o_param) ==2:
+                    ordering='first_name'
+                elif abs(o_param) ==3:
+                    ordering='last_name'
+                elif abs(o_param) ==4:
+                    ordering='groups__name'
+                elif abs(o_param) ==5:
+                    ordering='is_active'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
+
+class AreaTrabalhoCrud(DetailMasterCrudSaap):
+    help_text = 'area_trabalho'
+    model = AreaTrabalho
+    model_set = 'operadorareatrabalho_set'
+
+    class BaseMixin(DetailMasterCrudSaap.BaseMixin):
+        list_field_names = ['nome', 'parlamentar', 'descricao']
+
+#        def get_context_data(self, **kwargs):
+#            context = super().get_context_data(**kwargs)
+#            context['subnav_template_name'] = 'core/subnav_areatrabalho.yaml'
+#            return context
+
+    class DetailView(DetailMasterCrudSaap.DetailView):
+#        layout_key = 'AreaTrabalhoDetail'
+        list_field_names_set = ['user', 'grupos_associados']
+
+    def change(request, workspace_id=None):
+        workspaces = OperadorAreaTrabalho.objects.filter(user=request.user.pk)
+        workspaces.update(preferencial=False)
+        workspaces.filter(areatrabalho=workspace_id).update(preferencial=True)
+
+        return HttpResponseRedirect(reverse('saap.cerimonial:contato_list'))
+
+    class ListView(CrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
+
+        def get(self, request, *args, **kwargs):
+            return CrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = CrudSaap.ListView.get_context_data(self, **kwargs)
+            context['subnav_template_name'] = None
+            context['title'] = _('Áreas de Trabalho')
+            return context
+
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(nome__icontains=q_param)
+                q |= Q(parlamentar__nome_parlamentar__icontains=q_param)
+                q |= Q(descricao__icontains=q_param)
+                qs = qs.filter(q)
+
+            o_param = self.request.GET.get('o', '')
+            ordering='nome'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='nome'
+                elif abs(o_param) == 2:
+                    ordering='parlamentar'
+                elif abs(o_param) == 3:
+                    ordering='descricao'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
+
+class OperadorAreaTrabalhoCrud(DetailMasterCrudSaap):
+    parent_field = 'areatrabalho'
+    model = OperadorAreaTrabalho
+    help_path = 'operadorareatrabalho'
+
+    class BaseMixin(DetailMasterCrudSaap.BaseMixin):
+
+        list_field_names = ['user', 'areatrabalho', 'grupos_associados', 'preferencial']
+
+        def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            #ontext['subnav_template_name'] = 'core/subnav_areatrabalho.yaml'
+            return context
+
+    class UpdateView(DetailMasterCrudSaap.UpdateView):
+        form_class = OperadorAreaTrabalhoForm
+
+        def form_valid(self, form):
+            old = OperadorAreaTrabalho.objects.get(pk=self.object.pk)
+
+            groups = list(old.grupos_associados.values_list('name', flat=True))
+            globalrules.rules.groups_remove_user(old.user, groups)
+
+            response = super().form_valid(form)
+
+            groups = list(self.object.grupos_associados.values_list(
+                'name', flat=True))
+            globalrules.rules.groups_add_user(self.object.user, groups)
+
+            return response
+
+    class CreateView(DetailMasterCrudSaap.CreateView):
+        form_class = OperadorAreaTrabalhoForm
+
+        def form_valid(self, form):
+            self.object = form.save(commit=False)
+            oper = OperadorAreaTrabalho.objects.filter(
+                user_id=self.object.user_id,
+                areatrabalho_id=self.object.areatrabalho_id
+            ).first()
+
+            if oper:
+                form._errors['user'] = ErrorList([_(
+                    'Este Operador já está registrado '
+                    'nesta Área de Trabalho.')])
+                return self.form_invalid(form)
+
+            response = super().form_valid(form)
+
+            groups = list(self.object.grupos_associados.values_list(
+                'name', flat=True))
+            globalrules.rules.groups_add_user(self.object.user, groups)
+
+            return response
+
+    class DetailView(DetailMasterCrudSaap.DetailView):
+        layout_key = 'OperadorAreaTrabalhoDetail'
+
+        def get_context_data(self, **kwargs):
+            context = CrudSaap.DetailView.get_context_data(self, **kwargs)
+            context['title'] = '{} <br><small>{}</small>'.format(
+                self.object.user,
+                self.object.areatrabalho
+            )
+            return context
+
+ 
+    class DeleteView(CrudSaap.DeleteView):
+
+        def post(self, request, *args, **kwargs):
+
+            self.object = self.get_object()
+            groups = list(
+                self.object.grupos_associados.values_list('name', flat=True))
+            globalrules.rules.groups_remove_user(self.object.user, groups)
+
+            return MasterDetailCrudPermission.DeleteView.post(
+                self, request, *args, **kwargs)
+    
+    class ListView(CrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
+
+        def get(self, request, *args, **kwargs):
+            return CrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = CrudSaap.ListView.get_context_data(self, **kwargs)
+            context['subnav_template_name'] = None
+            context['title'] = _('Operadores das Áreas de Trabalho')
+            return context
+
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(user__first_name__icontains=q_param)
+                q |= Q(user__email__icontains=q_param)
+                q |= Q(areatrabalho__nome__icontains=q_param)
+                qs = qs.filter(q)
+
+            o_param = self.request.GET.get('o', '')
+            ordering='user'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering = 'user__first_name'
+                elif abs(o_param) == 2:
+                    ordering = 'areatrabalho__nome'
+                elif abs(o_param) == 3:
+                    ordering = 'grupos_associados'
+                elif abs(o_param) == 4:
+                    ordering = 'preferencial'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
+
+#-------------------------------------------------
+
+TipoLogradouroCrud = DetailMasterCrudSaap.build(TipoLogradouro, None, 'tipo_logradouro')
+
+class DistritoCrud(DetailMasterCrudSaap):
+    help_text = 'distrito'
+    model = Distrito
+
+    class BaseMixin(DetailMasterCrudSaap.BaseMixin):
+        list_field_names = ['nome', 'municipio', 'estado']
+
+    class ListView(DetailMasterCrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
+
+        def get(self, request, *args, **kwargs):
+            return DetailMasterCrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = DetailMasterCrudSaap.ListView.get_context_data(self, **kwargs)
+            return context
+
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(nome__icontains=q_param)
+                q |= Q(municipio__nome__icontains=q_param)
+                q |= Q(estado__nome__icontains=q_param)
+                qs = qs.filter(q)
+
+            o_param = self.request.GET.get('o', '')
+            ordering='nome'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='nome'
+                elif abs(o_param) == 2:
+                    ordering='municipio'
+                elif abs(o_param) == 3:
+                    ordering='estado'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
+
+
+class RegiaoMunicipalCrud(DetailMasterCrudSaap):
+    help_text = 'regiao_municipal'
+    model = RegiaoMunicipal
+
+    class BaseMixin(DetailMasterCrudSaap.BaseMixin):
+        list_field_names = ['nome', 'municipio', 'estado']
+
+    class ListView(DetailMasterCrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
+
+        def get(self, request, *args, **kwargs):
+            return DetailMasterCrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = DetailMasterCrudSaap.ListView.get_context_data(self, **kwargs)
+            return context
+
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(nome__icontains=q_param)
+                q |= Q(municipio__nome__icontains=q_param)
+                q |= Q(estado__nome__icontains=q_param)
+                qs = qs.filter(q)
+
+            o_param = self.request.GET.get('o', '')
+            ordering='nome'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='nome'
+                elif abs(o_param) == 2:
+                    ordering='municipio'
+                elif abs(o_param) == 3:
+                    ordering='estado'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
+
+
+class BairroCrud(DetailMasterCrudSaap):
+    help_text = 'bairro'
+    model = Bairro
+
+    class BaseMixin(DetailMasterCrudSaap.BaseMixin):
+        list_field_names = ['nome', 'municipio', 'estado']
+
+    class ListView(DetailMasterCrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
+
+        def get(self, request, *args, **kwargs):
+            return DetailMasterCrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = DetailMasterCrudSaap.ListView.get_context_data(self, **kwargs)
+            return context
+
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(nome__icontains=q_param)
+                q |= Q(municipio__nome__icontains=q_param)
+                q |= Q(estado__nome__icontains=q_param)
+                qs = qs.filter(q)
+
+            o_param = self.request.GET.get('o', '')
+            ordering='nome'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='nome'
+                elif abs(o_param) == 2:
+                    ordering='municipio'
+                elif abs(o_param) == 3:
+                    ordering='estado'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
+
+
+class LogradouroCrud(DetailMasterCrudSaap):
+    help_text = 'logradouro'
+    model = Logradouro
+
+    class BaseMixin(DetailMasterCrudSaap.BaseMixin):
+        list_field_names = ['nome']
+
+    class ListView(DetailMasterCrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
+
+        def get(self, request, *args, **kwargs):
+            return DetailMasterCrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = DetailMasterCrudSaap.ListView.get_context_data(self, **kwargs)
+            return context
+
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(nome__icontains=q_param)
+                qs = qs.filter(q)
+
+            o_param = self.request.GET.get('o', '')
+            ordering='nome'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='nome'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
+
+
+class MunicipioCrud(DetailMasterCrudSaap):
+    help_text = 'municipio'
+    model = Municipio
+
+    class BaseMixin(DetailMasterCrudSaap.BaseMixin):
+        list_field_names = ['nome', 'estado']
+
+    class ListView(DetailMasterCrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
+
+        def get(self, request, *args, **kwargs):
+            return DetailMasterCrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = DetailMasterCrudSaap.ListView.get_context_data(self, **kwargs)
+            return context
+
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(nome__icontains=q_param)
+                q |= Q(estado__nome__icontains=q_param)
+                q |= Q(estado__sigla=q_param)
+                qs = qs.filter(q)
+
+            o_param = self.request.GET.get('o', '')
+            ordering='nome'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='nome'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
+
+class CepCrud(DetailMasterCrudSaap):
+    help_text = 'cep'
+    model = Cep
+
+    class BaseMixin(DetailMasterCrudSaap.BaseMixin):
+        list_field_names = ['numero']
+
+    class ListView(DetailMasterCrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
+
+        def get(self, request, *args, **kwargs):
+            return DetailMasterCrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = DetailMasterCrudSaap.ListView.get_context_data(self, **kwargs)
+            return context
+
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(numero__icontains=q_param)
+                qs = qs.filter(q)
+
+            o_param = self.request.GET.get('o', '')
+            ordering='numero'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='numero'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
+
+
+EstadoCrud = DetailMasterCrudSaap.build(Estado, None, 'estado')
+
+class TrechoCrud(DetailMasterCrudSaap):
     help_text = 'trecho'
     model = Trecho
 
-    class BaseMixin(DetailMasterCrud.BaseMixin):
+    class BaseMixin(DetailMasterCrudSaap.BaseMixin):
         list_field_names = [
             ('tipo', 'logradouro'), 'bairro', 'municipio', 'cep', 'lado']
 
-    class ListView(DetailMasterCrud.ListView):
+    class ListView(DetailMasterCrudSaap.ListView):
         form_search_class = ListWithSearchForm
 
         def get(self, request, *args, **kwargs):
@@ -71,19 +580,19 @@ class TrechoCrud(DetailMasterCrud):
             for t in trechos:
                 t.search = str(t)
                 t.save(auto_update_search=False)"""
-            return DetailMasterCrud.ListView.get(
+            return DetailMasterCrudSaap.ListView.get(
                 self, request, *args, **kwargs)
 
         def get_context_data(self, **kwargs):
-            context = DetailMasterCrud.ListView.get_context_data(
+            context = DetailMasterCrudSaap.ListView.get_context_data(
                 self, **kwargs)
             context['title'] = _("Base de CEPs e Endereços")
             return context
 
-    class CreateView(DetailMasterCrud.CreateView):
+    class CreateView(DetailMasterCrudSaap.CreateView):
 
         def post(self, request, *args, **kwargs):
-            response = super(DetailMasterCrud.CreateView, self).post(
+            response = super(DetailMasterCrudSaap.CreateView, self).post(
                 self, request, *args, **kwargs)
 
             # FIXME: necessário enquanto o metodo save não tratar fields  m2m
@@ -92,10 +601,10 @@ class TrechoCrud(DetailMasterCrud):
 
             return response
 
-    class UpdateView(DetailMasterCrud.UpdateView):
+    class UpdateView(DetailMasterCrudSaap.UpdateView):
 
         def post(self, request, *args, **kwargs):
-            response = super(DetailMasterCrud.UpdateView, self).post(
+            response = super(DetailMasterCrudSaap.UpdateView, self).post(
                 self, request, *args, **kwargs)
 
             # FIXME: necessário enquanto o metodo save não tratar fields  m2m
@@ -166,157 +675,211 @@ class TrechoJsonView(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Trecho.objects.all()
 
 
-class AreaTrabalhoCrud(DetailMasterCrud):
-    model = AreaTrabalho
-    model_set = 'operadorareatrabalho_set'
+#----------------------------------------------------
 
-    class BaseMixin(DetailMasterCrud.BaseMixin):
-        
-        list_field_names = ['nome', 'parlamentar', 'descricao']
+class ParlamentarCrud(CrudSaap):
+    help_text = 'parlamentar'
+    model = Parlamentar
+
+    class BaseMixin(CrudSaap.BaseMixin):
+        list_field_names = ['nome_parlamentar', 'nome_completo', 'ativo']
+
+    class DetailView(CrudSaap.DetailView):
+        layout_key = 'Parlamentar'
+
+    class CreateView(CrudSaap.CreateView):
+        layout_key = 'Parlamentar'
+
+    class ListView(CrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
+
+        def get(self, request, *args, **kwargs):
+            return CrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = CrudSaap.ListView.get_context_data(self, **kwargs)
+            return context
+
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(nome_completo__icontains=q_param)
+                q |= Q(nome_parlamentar__icontains=q_param)
+                qs = qs.filter(q)
+
+            o_param = self.request.GET.get('o', '')
+            ordering='nome_parlamentar'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='nome_completo'
+                elif abs(o_param) ==2:
+                    ordering='nome_parlamentar'
+                elif abs(o_param) ==3:
+                    ordering='ativo'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
+
+class PartidoCrud(DetailMasterCrudSaap):
+    help_text = 'partidos'
+    model_set = 'filiacao_set'
+    model = Partido
+
+    def hook_header_data(self, *args, **kwargs):
+        return 'Data de filiação'
+
+
+    class BaseMixin(DetailMasterCrudSaap.BaseMixin):
+        list_field_names = ['sigla', 'nome', 'data_criacao', 'data_extincao']
+
+    class DetailView(DetailMasterCrudSaap.DetailView):
+        list_field_names_set = ['parlamentar', 'data', 'data_desfiliacao']
+
+    class CreateView(DetailMasterCrudSaap.CreateView):
+        layout_key = 'Partido'
+
+    class ListView(DetailMasterCrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
+
+        def get(self, request, *args, **kwargs):
+            return DetailMasterCrudSaap.ListView.get(
+                self, request, *args, **kwargs)
+
+        def get_context_data(self, **kwargs):
+            context = DetailMasterCrudSaap.ListView.get_context_data(self, **kwargs)
+            return context
+
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(sigla__icontains=q_param)
+                q |= Q(nome__icontains=q_param)
+                qs = qs.filter(q)
+
+            o_param = self.request.GET.get('o', '')
+            ordering='sigla'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering='sigla'
+                elif abs(o_param) ==2:
+                    ordering='nome'
+                elif abs(o_param) ==3:
+                    ordering='data_criacao'
+                elif abs(o_param) ==4:
+                    ordering='data_extincao'
+
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
+
+class FiliacaoCrud(CrudSaap):
+    model = Filiacao
+    help_text = 'filiacao'
+
+    class BaseMixin(CrudSaap.BaseMixin):
+
+        list_field_names = ['parlamentar', 'partido', 'data', 'data_desfiliacao']
 
         def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
-            context['subnav_template_name'] = 'core/subnav_areatrabalho.yaml'
+            #context['subnav_template_name'] = 'core/subnav_areatrabalho.yaml'
             return context
 
-    class DetailView(DetailMasterCrud.DetailView):
-        list_field_names_set = []
-
-    def change(request, workspace_id=None):
-        workspaces = OperadorAreaTrabalho.objects.filter(user=request.user.pk)
-        workspaces.update(preferencial=False)
-        workspaces.filter(areatrabalho=workspace_id).update(preferencial=True)
-
-        return HttpResponseRedirect(reverse('saap.cerimonial:contato_list'))
-
-class OperadorAreaTrabalhoCrud(MasterDetailCrudPermission):
-    parent_field = 'areatrabalho'
-    model = OperadorAreaTrabalho
-    help_path = 'operadorareatrabalho'
-
-    class BaseMixin(MasterDetailCrudPermission.BaseMixin):
-
-        def get_context_data(self, **kwargs):
-            context = super().get_context_data(**kwargs)
-            context[
-                'subnav_template_name'] = 'core/subnav_areatrabalho.yaml'
-            return context
-
-    class UpdateView(MasterDetailCrudPermission.UpdateView):
-        form_class = OperadorAreaTrabalhoForm
-
-        # TODO tornar operador readonly na edição
-        def form_valid(self, form):
-            old = OperadorAreaTrabalho.objects.get(pk=self.object.pk)
-
-            groups = list(old.grupos_associados.values_list('name', flat=True))
-            globalrules.rules.groups_remove_user(old.user, groups)
-
-            response = super().form_valid(form)
-
-            groups = list(self.object.grupos_associados.values_list(
-                'name', flat=True))
-            globalrules.rules.groups_add_user(self.object.user, groups)
-
-            return response
-
-    class CreateView(MasterDetailCrudPermission.CreateView):
-        form_class = OperadorAreaTrabalhoForm
-        # TODO mostrar apenas usuários que não possuem grupo ou que são de
-        # acesso social
+    class CreateView(CrudSaap.CreateView):
 
         def form_valid(self, form):
             self.object = form.save(commit=False)
-            oper = OperadorAreaTrabalho.objects.filter(
-                user_id=self.object.user_id,
-                areatrabalho_id=self.object.areatrabalho_id
+            oper = Filiacao.objects.filter(
+                parlamentar_id=self.object.parlamentar_id,
+                partido_id=self.object.partido_id
             ).first()
 
             if oper:
-                form._errors['user'] = ErrorList([_(
-                    'Este Operador já está registrado '
-                    'nesta Área de Trabalho.')])
+                form._errors['parlamentar'] = ErrorList([_(
+                    'Este Parlamentar já está filiado '
+                    'neste Partido.')])
                 return self.form_invalid(form)
 
             response = super().form_valid(form)
 
-            groups = list(self.object.grupos_associados.values_list(
-                'name', flat=True))
-            globalrules.rules.groups_add_user(self.object.user, groups)
-
             return response
 
-    class DeleteView(MasterDetailCrudPermission.DeleteView):
+    class DetailView(CrudSaap.DetailView):
 
-        def post(self, request, *args, **kwargs):
+        def get_context_data(self, **kwargs):
+            context = CrudSaap.DetailView.get_context_data(self, **kwargs)
+            context['title'] = '{} <br><small>{}</small>'.format(
+                self.object.parlamentar or '...',
+                self.object.partido
+            )
+            return context
 
-            self.object = self.get_object()
-            groups = list(
-                self.object.grupos_associados.values_list('name', flat=True))
-            globalrules.rules.groups_remove_user(self.object.user, groups)
-
-            return MasterDetailCrudPermission.DeleteView.post(
-                self, request, *args, **kwargs)
-
-class PartidoCrud(DetailMasterCrud):
-    help_text = 'partidos'
-    model_set = 'filiacaopartidaria_set'
-    model = Partido
-    container_field_set = 'contato__workspace__operadores'
-    # container_field = 'filiacoes_partidarias_set__contato__workspace__operadores'
-
-    class DetailView(DetailMasterCrud.DetailView):
-        list_field_names_set = ['contato_nome', ]
-
-    class ListView(DetailMasterCrud.ListView):
+    class ListView(CrudSaap.ListView):
+        form_search_class = ListWithSearchForm
+        paginate_by = 50
 
         def get(self, request, *args, **kwargs):
-
-            ws = AreaTrabalho.objects.filter(operadores=request.user).first()
-
-            if ws and ws.parlamentar:
-                filiacao_parlamentar = Filiacao.objects.filter(
-                    parlamentar=ws.parlamentar)
-
-                if filiacao_parlamentar.exists():
-                    partido = filiacao_parlamentar.first().partido
-                    return redirect(
-                        reverse(
-                            'saap.core:partido_detail',
-                            args=(partido.pk,)))
-
-            """else:
-                self.kwargs['queryset_liberar_sem_container'] = True"""
-
-            return DetailMasterCrud.ListView.get(
+            return CrudSaap.ListView.get(
                 self, request, *args, **kwargs)
 
-        """def get_queryset(self):
-            queryset = CrudListView.get_queryset(self)
-            if not self.request.user.is_authenticated():
-                return queryset
+        def get_context_data(self, **kwargs):
+            context = CrudSaap.ListView.get_context_data(self, **kwargs)
+            context['subnav_template_name'] = None
+            return context
 
-            if 'queryset_liberar_sem_container' in self.kwargs and\
-                    self.kwargs['queryset_liberar_sem_container']:
-                return queryset
+        def get_queryset(self):
+            qs = self.model.objects.all()
+            q_param = self.request.GET.get('q', '')
+            if q_param:
+                q = Q(parlamentar__nome_parlamentar__icontains=q_param)
+                q |= Q(parlamentar__nome_completo__icontains=q_param)
+                q |= Q(partido__sigla__icontains=q_param)
+                q |= Q(partido__nome__icontains=q_param)
+                qs = qs.filter(q)
 
-            if self.container_field:
-                params = {}
-                params[self.container_field] = self.request.user.pk
-                return queryset.filter(**params)
+            o_param = self.request.GET.get('o', '')
+            ordering='parlamentar'
+            if o_param:
+                o_param = int(o_param)
+                if abs(o_param) == 1:
+                    ordering = 'parlamentar'
+                elif abs(o_param) == 2:
+                    ordering = 'partido'
+                elif abs(o_param) == 3:
+                    ordering = 'data'
+                elif abs(o_param) == 4:
+                    ordering = 'data_desfiliacao'
 
-            return queryset"""
+                if int(o_param)<0:
+                    ordering = '-' + ordering
+
+            return qs.order_by(ordering)
 
 
-class ImpressoEnderecamentoCrud(DetailMasterCrud):
+
+
+#-------------------------------------------------
+
+class ImpressoEnderecamentoCrud(DetailMasterCrudSaap):
     model = ImpressoEnderecamento
 
-    class UpdateView(DetailMasterCrud.UpdateView):
+    class UpdateView(DetailMasterCrudSaap.UpdateView):
         form_class = ImpressoEnderecamentoForm
 
-    class CreateView(DetailMasterCrud.CreateView):
+    class CreateView(DetailMasterCrudSaap.CreateView):
         form_class = ImpressoEnderecamentoForm
 
+#------------------------------------------------
 
 class HelpTopicView(TemplateView):
 

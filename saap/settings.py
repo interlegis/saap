@@ -57,7 +57,7 @@ DADOS_TELEFONE = config('DADOS_TELEFONE');
 DADOS_SITE = config('DADOS_SITE');
 BRASAO_PROPRIO = config('BRASAO_PROPRIO');
 
-VERSION='3.1.3'
+VERSION='3.1.4'
 
 INSTALLED_APPS = (
     'django_admin_bootstrapped',
@@ -308,7 +308,7 @@ BOWER_INSTALLED_APPS = (
     'jquery-runner#2.3.3',
     'jQuery-Mask-Plugin#1.13.4',
     'jsdiff#2.2.1',
-    'https://github.com/hoarrd/drunken-parrot-flat-ui.git',
+    'https://github.com/hoarrd/drunken-parrot-flat-ui.git@main',
 )
 
 # Additional search paths for SASS files when using the @import statement

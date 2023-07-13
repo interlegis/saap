@@ -15,22 +15,12 @@ NEXT_VERSION=$MAIN_REV'.'$NEXT_NUMBER
 
 FINAL_VERSION=
 
-function update_repo {
-
-   echo "Sincronizando e atualizando repositório local..."
-
-   git fetch upstream
-   git checkout master
-   git merge upstream/master
-
-   echo "Release atual: "$LATEST_VERSION
-}
-
 function change_files {
 
     echo "Atualizando de "$LATEST_VERSION" para "$NEXT_VERSION"..."
 
     sed -E -i "s|$LATEST_VERSION|$NEXT_VERSION|g" saap/settings.py
+    sed -E -i "s|$LATEST_VERSION|$NEXT_VERSION|g" docker/docker.sh
 }
 
 function commit_and_push {

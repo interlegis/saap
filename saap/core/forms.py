@@ -12,13 +12,12 @@ from django_filters.filterset import FilterSet
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
+from django.contrib.auth import get_user_model, password_validation
 
 from image_cropping.widgets import ImageCropWidget, CropWidget
-from saap.crispy_layout_mixin import to_row
+from saap.crispy_layout_mixin import SaapFormHelper, SaapFormLayout, to_row
 from saap.core.models import * 
 from saap.settings import SITE_DOMAIN, SITE_NAME
-
-#import django_filter
 
 from saap.core.models import Trecho, TipoLogradouro, User, OperadorAreaTrabalho,\
     ImpressoEnderecamento
@@ -120,6 +119,145 @@ class PasswordForm(SetPasswordForm):
                 'name': 'new_password2',
                 'placeholder': _('Repita sua nova senha')}))
 
+class UserAdminForm(ModelForm):
+    is_active = forms.TypedChoiceField(label=_('Usuário Ativo'),
+                                       choices=YES_NO_CHOICES,
+                                       coerce=lambda x: x == 'True')
+
+    new_password1 = forms.CharField(
+        label='Nova senha',
+        max_length=50,
+        strip=False,
+        required=False,
+        widget=forms.PasswordInput(),
+        help_text='Deixe os campos em branco para não fazer alteração de senha')
+
+    new_password2 = forms.CharField(
+        label='Confirmar senha',
+        max_length=50,
+        strip=False,
+        required=False,
+        widget=forms.PasswordInput(),
+        help_text='Deixe os campos em branco para não fazer alteração de senha')
+
+    class Meta:
+        model = get_user_model()
+        fields = [
+            get_user_model().USERNAME_FIELD,
+            'first_name',
+            'last_name',
+            'is_active',
+            'new_password1',
+            'new_password2',
+            'groups',
+        ]
+
+        if get_user_model().USERNAME_FIELD != 'email':
+            fields.extend(['email'])
+
+    def __init__(self, *args, **kwargs):
+
+        self.user_session = kwargs.pop('user_session', None)
+        self.granular = kwargs.pop('granular', None)
+        self.instance = kwargs.get('instance', None)
+
+        row_pwd = [
+            ('username', 4),
+            ('email', 6),
+            ('is_active', 2),
+            ('first_name', 6),
+            ('last_name', 6),
+            ('new_password1', 3 if self.instance and self.instance.pk else 6),
+            ('new_password2', 3 if self.instance and self.instance.pk else 6),
+        ]
+
+        if self.instance and self.instance.pk:
+            row_pwd += [
+                (
+                    FieldWithButtons(
+                        'token',
+                        StrictButton(
+                            'Renovar',
+                            id="renovar-token",
+                            css_class="btn-outline-primary"),
+                        css_class='' if self.instance and self.instance.pk else 'd-none'),
+                    6
+                )
+            ]
+
+        row_pwd += [
+
+            ('groups', 12),
+
+        ] + ([('user_permissions', 12)] if not self.granular is None else [])
+
+        row_pwd = to_row(row_pwd)
+
+        self.helper = SaapFormHelper()
+        self.helper.layout = SaapFormLayout(row_pwd)
+        super(UserAdminForm, self).__init__(*args, **kwargs)
+
+        self.fields['groups'].widget = forms.CheckboxSelectMultiple()
+
+        if not self.instance.pk:
+            self.fields['groups'].choices = [
+                (g.id, g) for g in Group.objects.exclude(
+                    name__in=[]
+                ).order_by('name')
+            ]
+
+
+    def save(self, commit=True):
+        if self.cleaned_data['new_password1']:
+            self.instance.set_password(self.cleaned_data['new_password1'])
+        permissions = None
+        votante = None
+        operadorautor = None
+        if self.instance.id:
+            inst_old = get_user_model().objects.get(pk=self.instance.pk)
+            if self.granular is None:
+                permissions = list(inst_old.user_permissions.all())
+
+        inst = super().save(commit)
+
+        if permissions:
+            inst.user_permissions.add(*permissions)
+
+    def clean(self):
+        data = super().clean()
+
+        if self.errors:
+            return data
+
+        new_password1 = data.get('new_password1', '')
+        new_password2 = data.get('new_password2', '')
+
+        if new_password1 != new_password2:
+            raise forms.ValidationError(
+                _("As senhas informadas são diferentes"),
+            )
+        else:
+            if new_password1 and new_password2:
+                password_validation.validate_password(
+                    new_password2, self.instance)
+
+        """
+        
+        if 'email' in data and data['email']:
+            duplicidade = get_user_model().objects.filter(email=data['email'])
+            if self.instance.id:
+                duplicidade = duplicidade.exclude(id=self.instance.id)
+
+            if duplicidade.exists():
+                raise forms.ValidationError(
+                    "Email já cadastrado para: {}".format(
+                        ', '.join(map(lambda x: str(x), duplicidade.all())),
+                    )
+                )"""
+
+        return data
+
+
 class UserCreationForm(BaseUserCreationForm):
 
     class Meta(BaseUserCreationForm.Meta):
@@ -168,7 +306,7 @@ class OperadorAreaTrabalhoForm(ModelForm):
         fields = ['user',
                   'grupos_associados',
                   'preferencial',
-                  #'areatrabalho'
+                  'areatrabalho'
                   ]
 
     def __init__(self, *args, **kwargs):
@@ -235,7 +373,7 @@ class ListWithSearchForm(forms.Form):
                       placeholder=_('Filtrar Lista'),
                       css_class='input-lg'),
                 StrictButton(
-                    _('Filtrar'), css_class='btn-default btn-lg',
+                    _('Filtrar'), css_class='btn-lg btn-default btn-lrg',
                     type='submit'))
         )
 

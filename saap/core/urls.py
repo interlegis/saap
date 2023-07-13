@@ -7,7 +7,7 @@ from saap.settings import EMAIL_SEND_USER, SITE_NAME
 from saap.core.forms import LoginForm, NewPasswordForm, ResetPasswordForm, PasswordForm
 from saap.core.views import CepCrud, RegiaoMunicipalCrud, DistritoCrud,\
     BairroCrud, MunicipioCrud, EstadoCrud, TipoLogradouroCrud, LogradouroCrud, TrechoCrud, \
-    TrechoJsonSearchView, TrechoJsonView, AreaTrabalhoCrud, ParlamentarCrud, \
+    TrechoJsonSearchView, TrechoJsonView, AreaTrabalhoCrud, ParlamentarCrud, FiliacaoCrud, \
     OperadorAreaTrabalhoCrud, PartidoCrud, ImpressoEnderecamentoCrud, HelpTopicView, UserCrud
 
 from saap.core.utils import AreaTrabalho
@@ -62,10 +62,11 @@ urlpatterns = [
 #    url(r'^enderecos/', login_required(
 #       TrechoSearchView.as_view()), name='search_view'),
 
-    url(r'^areatrabalho/', include(AreaTrabalhoCrud.get_urls() +
-                                   OperadorAreaTrabalhoCrud.get_urls())),
+    url(r'^areatrabalho/', include(AreaTrabalhoCrud.get_urls())),
+    url(r'^operadorareatrabalho/', include(OperadorAreaTrabalhoCrud.get_urls())),
 
     url(r'^usuarios/', include(UserCrud.get_urls())),
+    url(r'^parlamentar/', include(ParlamentarCrud.get_urls())),
 
     url(r'^api/enderecos.json', TrechoJsonSearchView.as_view(
         {'get': 'list'}), name='trecho_search_rest_json'),
@@ -88,7 +89,7 @@ urlpatterns = [
         include(ImpressoEnderecamentoCrud.get_urls())),
 
     url(r'^sistema/core/partido/', include(PartidoCrud.get_urls())),
-    url(r'^sistema/core/parlamentar/', include(ParlamentarCrud.get_urls())),
+    url(r'^sistema/core/filiacaopartidaria/', include(FiliacaoCrud.get_urls())),
     
     url(r'^tabelas$', permission_required(
         'core.menu_tabelas_auxiliares', login_url='saap.core:login')(

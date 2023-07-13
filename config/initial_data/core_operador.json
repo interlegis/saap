@@ -1,0 +1,18 @@
+[
+   {
+      "model":"core.operadorareatrabalho",
+      "pk":1,
+      "fields":{
+         "created":"2018-08-01T12:00:00.792Z",
+         "modified":"2018-08-01T12:00:00.792Z",
+         "owner":1,
+         "modifier":1,
+         "user":1,
+         "areatrabalho":1,
+         "preferencial":true,
+         "grupos_associados":[
+
+         ]
+      }
+   }
+]

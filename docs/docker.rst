@@ -91,6 +91,7 @@ Para que o sistema pronto, devemos carregar o banco com os dados iniciais, bem c
     ./manage.py loaddata config/initial_data/auth_permission.json
     ./manage.py loaddata config/initial_data/auth_group.json
     ./manage.py loaddata config/initial_data/saap_*.json
+    ./manage.py loaddata config/initial_data/core*.json
     exit
 
 Para concluir, deve-se criar a função ``unaccent``, que será usada em diversas consultas dentro do SAAP:

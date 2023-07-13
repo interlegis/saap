@@ -2,7 +2,7 @@
 Instalação do Ambiente de Desenvolvimento
 ***********************************************
 
-Procedimento testado no ``Debian 10 Buster x64`` e ``Ubuntu 20.04 Focal Fossa x64``.
+Procedimento testado no ``Debian 11 Bullseye x64`` e ``Ubuntu 22.04 Jammy Jellyfish x64``. Algumas instruções foram atualizadas, pois até então o procedimento era homologado para Debian 10 e Ubuntu 20.04.
 
 Você pode escolher qualquer usuário de sistema para esse processo - todas as referências para ``$USER`` devem ser substituídas por esse usuário. O mesmo deve ter as devidas permissões para instalação e configuração. 
 
@@ -20,26 +20,24 @@ Instale os pacotes:
 ::
 
     sudo apt-get install -y git python3-dev libpq-dev graphviz-dev graphviz \
-    pkg-config postgresql postgresql-contrib pgadmin3 python3-psycopg2 \
+    pkg-config postgresql postgresql-contrib python3-psycopg2 \
     software-properties-common build-essential libxml2-dev libjpeg-dev \
-    libssl-dev libffi-dev libxslt1-dev python3-setuptools \
+    libssl-dev libmagic-dev libffi-dev libxslt1-dev python3-setuptools \
     python3-pip poppler-utils antiword default-jre python3-venv \
     curl vim openssh-client
+
+Configure o sistema para usar a codificação UTF-8:
+
+::
+
+    sudo localedef -i pt_BR -f UTF-8 pt_BR.UTF-8
 
 Instale o Node.js e o Bower
 
 ::
 
-    curl -fsSL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+    curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
     sudo apt-get install -y nodejs
-
-::
-
-    curl -L https://npmjs.org/install.sh | sudo sh
-
-::
-
-    sudo npm install npm -g
     sudo npm install bower -g
 
 2) Instalar o virtualenv usando Python 3 para o projeto
@@ -93,7 +91,7 @@ Carregue as configurações do virtualenvwrapper:
 
 ::
 
-    git clone git://github.com/interlegis/saap
+    git clone https://github.com/interlegis/saap
     
 
 Para fazer um fork e depois clonar, clique `aqui <https://help.github.com/articles/fork-a-repo>`_ e siga as instruções, que basicamente são:
@@ -119,8 +117,26 @@ As configurações e instruções de uso para o Git estão espalhadas pela Inter
 
     pip install -r /var/interlegis/saap/requirements/dev-requirements.txt
 
+
+Após a instalação, foram detectados alguns problemas em pacotes como o Django, Rest Framework, Bootstrap, entre outros. Obviamente esses problemas exigem uma análise mais aprofundada e uma solução mais precisa. Porém, para que o sistema possa funcionar corretamente, os arquivos com as devidas correções estão dentro da pasta ``config``.
+
+Todas as correções estão em um arquivo executável dentro desta pasta, e para fazê-las, basta executar o comando:
+
+::
+
+    sudo chmod a+x /var/interlegis/saap/config/config.sh
+    bash /var/interlegis/saap/config/config.sh
+
+
 5) Configurar o banco de dados PostgreSQL
 -----------------------------------------------------
+
+Antes de mais nada, é preciso ter certeza de que o Postgres está funcionando e configurado para iniciar junto do sistema:
+
+::
+
+    sudo service postgresql start
+    sudo update-rc.d postgresql enable
 
 Crie o usuário ``saap`` que será usado no banco. Caso você queira alterar a senha, fique a vontade - só lembre de informá-la no arquivo ``.env``:
 
@@ -241,54 +257,8 @@ Como exemplo de arquivo ``.env``, veja:
     DADOS_SITE='interlegis.leg.br'
     BRASAO_PROPRIO=False
 
-7) Corrigir problemas de configuração em alguns pacotes
------------------------------------------------------
 
-Após a instalação, foram detectados alguns problemas em pacotes como o Django, Rest Framework, Bootstrap, entre outros. Obviamente esses problemas exigem uma análise mais aprofundada e uma solução mais precisa. Porém, para que o sistema possa funcionar corretamente, os arquivos com as devidas correções estão dentro da pasta ``config``, e devem ser copiados com os seguintes comandos:
-
-Lembrando, antes, que [PYTHON] deve ser trocada pela pasta com a versão do Python que foi instalada - por exemplo, o Python 3.7.
-
-* Django Models
-
-::
-
-    cp /var/interlegis/saap/config/django_db_models/base.py /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/django/db/models/
-
-
-* Django Core Management
-
-::
-
-    cp /var/interlegis/saap/config/django_core_management/base.py /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/django/core/management/
-
-
-* Rest Framework
-
-::
-
-    rm /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/rest_framework/* -R
-
-    cp /var/interlegis/saap/config/rest_framework/* /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/rest_framework/ -R 
-
-* Smart Selects (usado para carregar os campos de Estado, Município, Bairro...)
-
-::
-
-    cp /var/interlegis/saap/config/smart-selects/* /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/smart_selects/static/smart-selects/admin/js/
-
-* ReportLab (usado na geração de relatórios PDF)
-
-::
-
-    cp /var/interlegis/saap/config/reportlab/* /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/reportlab/platypus/
-    
-* Image Cropping
-
-::
-
-    cp /var/interlegis/saap/config/image_cropping/* /var/interlegis/.virtualenvs/saap/lib/[PYTHON]/site-packages/image_cropping/
-
-8) Gerar a chave secreta
+7) Gerar a chave secreta
 -----------------------------------------------------
 
 Daqui pra frente, os comandos devem ser executados dentro da pasta ``/var/interlegis/saap``.
@@ -305,7 +275,7 @@ Copie a chave para o arquivo ``.env``, na linha correspondente. O conteúdo deve
 
     SECRET_KEY='MUDE-PARA-RESULTADO-GENERATE-SECRET-KEY'
 
-9) Carregar o banco de dados
+8) Carregar o banco de dados
 -----------------------------------------------------
 
 Inicialmente, atualize a base de dados, para refletir o modelo da versão clonada:
@@ -326,13 +296,20 @@ Após isto, é necessário fazer a carga de dados básicos. Para isto, rode os c
     ./manage.py loaddata config/initial_data/auth_group.json
     ./manage.py loaddata config/initial_data/saap*.json
 
-Para concluir, é necessário criar o super-usuário, que terá permissão de admin. Ele solicitará e-mail e senha.
+Após, é necessário criar o super-usuário, que terá permissão de admin. Ele solicitará e-mail e senha.
 
 ::
 
     ./manage.py createsuperuser
 
-10) Configurar bower e arquivos estáticos
+Por fim, é necessário configurar as permissões de Área de Trabalho para esse usuário, a fim de que já possa utilizar o sistema após o primeiro login.
+
+::
+
+    ./manage.py loaddata config/initial_data/core*.json
+
+
+9) Configurar bower e arquivos estáticos
 -----------------------------------------------------
 
 Instale as dependências do ``bower``
@@ -341,13 +318,13 @@ Instale as dependências do ``bower``
 
     ./manage.py bower install
 
-Por fim, atualize os arquivos estáticos. Lembre-se de colocar na pasta ``/var/interlegis/saap/saap/static/img`` o brasão do seu município, caso não queira usar o brasão da república. Para maiores dúvidas, leia o final da explicação sobre o arquivo ``.env``:
+Por fim, atualize os arquivos estáticos. Lembre-se de, antes, colocar na pasta ``/var/interlegis/saap/saap/static/img`` o brasão do seu município, caso não queira usar o brasão da república. Para maiores dúvidas, leia o final da explicação sobre o arquivo ``.env``:
 
 ::
 
     ./manage.py collectstatic --noinput
 
-Subir o servidor
+10) Subir o servidor
 -----------------------------------------------------
 
 ::
