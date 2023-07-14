@@ -3,49 +3,45 @@ FROM python:3.9-slim-buster
 # Define o mantenedor da imagem
 LABEL maintainer="Interlegis"
 
-# Setup env
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
+# Configura o sistema para usar UTF-8
+RUN apt-get update -y &&\
+    apt-get install -y locales &&\
+    rm -rf /var/lib/apt/lists/* &&\
+    localedef -i pt_BR -c -f UTF-8 -A /usr/share/locale/locale.alias pt_BR.UTF-8
+
+ENV LANG pt_BR.UTF-8
+ENV LC_ALL pt_BR.UTF-8
 ENV DEBIAN_FRONTEND noninteractive
 ENV SAAPDIR=/var/interlegis/saap
-
-# Configura o sistema para usar UTF-8
-#RUN apt-get update -y &&\
-#    apt-get install -y locales &&\
-#    rm -rf /var/lib/apt/lists/* &&\
-#    localedef -i pt_BR -c -f UTF-8 -A /usr/share/locale/locale.alias pt_BR.UTF-8
 
 # Pacotes usados na construcao da imagem
 ENV BUILD_PACKAGES apt-utils apt-file build-essential dialog graphviz-dev \
                    libpq-dev libxml2-dev libjpeg-dev libssl-dev libcairo2-dev \
-                   libffi-dev libxslt1-dev libmagic-dev libfreetype6-dev git sudo \ 
-                   pkg-config python3-setuptools python3-pip python3-dev software-properties-common
+                   libffi-dev libxslt1-dev libmagic-dev libfreetype6-dev \
+                   pkg-config python3-setuptools python3-pip python3-dev \
+                   software-properties-common curl
 
 # Pacotes usados na execucao da imagem
-ENV RUN_PACKAGES bash curl vim \
+ENV RUN_PACKAGES bash vim sudo git \ 
                  fontconfig graphviz jq ttf-dejavu poppler-utils tzdata \
                  python python3-lxml python3-magic python3-psycopg2 python3-venv \
                  nginx postgresql-client
 
-#RUN mkdir -p /var/interlegis/saap
-
 # Instalacao dos pacotes
 RUN apt-get update -y &&\
     apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends $BUILD_PACKAGES $RUN_PACKAGES && \
+    apt-get install -y --no-install-recommends $BUILD_PACKAGES $RUN_PACKAGES &&\
     fc-cache -fv
 
-# Instalacao do Bower e Node.js
+# Instalacao do Node.js e Bower
 RUN curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash - &&\
     sudo apt-get install -y nodejs &&\
     sudo npm install bower -g
 
-# Clone do projeto do Github
-RUN sudo git clone https://github.com/interlegis/saap $SAAPDIR && \
+# Clone do projeto do Github e Instalacao dos requerimentos
+RUN sudo mkdir -p /var/interlegis &&\
+    sudo git clone https://github.com/interlegis/saap $SAAPDIR && \
     pip install --ignore-installed --no-cache-dir -r /var/interlegis/saap/requirements/requirements.txt
-
-# Instalacao do ambiente virtual
-#RUN pip install virtualenvwrapper 
 
 # Remocao dos pacotes usados na construcao da imagem
 RUN SUDO_FORCE_REMOVE=yes apt-get purge -y --auto-remove $BUILD_PACKAGES &&\

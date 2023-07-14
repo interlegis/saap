@@ -90,7 +90,7 @@ Para que o sistema pronto, devemos carregar o banco com os dados iniciais, bem c
     sudo docker exec -it saap bash
     ./manage.py loaddata config/initial_data/auth_permission.json
     ./manage.py loaddata config/initial_data/auth_group.json
-    ./manage.py loaddata config/initial_data/saap_*.json
+    ./manage.py loaddata config/initial_data/saap*.json
     ./manage.py loaddata config/initial_data/core*.json
     exit
 
