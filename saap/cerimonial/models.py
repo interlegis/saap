@@ -940,8 +940,8 @@ class FiliacaoPartidaria(SaapAuditoriaModelMixin):
         return str(self.contato)
 
     class Meta:
-        verbose_name = _('Filiação partidária')
-        verbose_name_plural = _('Filiações partidárias')
+        verbose_name = _('Filiação partidária do contato')
+        verbose_name_plural = _('Filiações partidárias do contato')
 
     def __str__(self):
         return str(self.partido)
@@ -1170,7 +1170,7 @@ class ProcessoContato(Processo):
         verbose_name_plural = _('Processos do contato')
 
 
-class GrupoDeContatos(SaapAuditoriaModelMixin):
+class GrupoDeContatos(SaapAuditoriaModelMixin, SaapSearchMixin):
 
     nome = models.CharField(max_length=100,
                             verbose_name=_('Nome do grupo'))
@@ -1190,8 +1190,9 @@ class GrupoDeContatos(SaapAuditoriaModelMixin):
         verbose_name_plural = _('Grupos de contatos')
         ordering = ('nome', )
 
+    @cached_property
+    def fields_search(self):
+        return ['nome']
+
     def __str__(self):
         return str(self.nome)
-
-
-

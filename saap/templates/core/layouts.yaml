@@ -40,9 +40,8 @@ Logradouro:
 
 Partido:
   {% trans 'Partido' %}:
-  - sigla
-  - nome
-  - data_criacao data_extincao
+  - sigla:2 nome:8
+  - data_criacao:2 data_extincao:2
 
 Trecho:
   {% trans 'Trecho' %}:
@@ -51,14 +50,37 @@ Trecho:
   - lado numero_inicial numero_final
   - cep
 
+User:
+  {% trans 'Usuário' %}:
+  - first_name last_name email:6
+  - new_password1 new_password2 is_active:2
+  - groups #is_staff:3
+
+UserDetail:
+  {% trans 'Usuário' %}:
+  - first_name last_name
+  - is_active:3 is_staff:3
+  - groups
+
 AreaTrabalho:
   {% trans 'Área de Trabalho' %}:
-  - nome:5 parlamentar
-  - descricao
+   - nome:3 parlamentar:4 descricao
+
+AreaTrabalhoDetail:
+  {% trans 'Área de Trabalho' %}:
+  - nome:3 parlamentar:4 descricao
+  - operadores
+
 OperadorAreaTrabalho:
   {% trans 'Operador de Área de Trabalho' %}:
-  - user preferencial #areatrabalho
+  - user preferencial areatrabalho
   - grupos_associados
+
+OperadorAreaTrabalhoDetail:
+  {% trans 'Operador de Área de Trabalho' %}:
+  - user preferencial
+  - grupos_associados
+
 ImpressoEnderecamento:
   {% trans 'Dados Básicos' %}:
     - nome:8 tipo
@@ -68,12 +90,14 @@ ImpressoEnderecamento:
     - colunasfolha linhasfolha entre_colunas entre_linhas
     - larguraetiqueta alturaetiqueta fontsize rotate
 
-User:
-  {% trans 'Usuário' %}:
-  - first_name last_name email:6
-  - groups is_active:3 is_staff:3
-
 Parlamentar:
   {% trans 'Parlamentar' %}:
-  - nome_completo nome_parlamentar
-  - ativo sexo data_nascimento 
+  - nome_completo nome_parlamentar ativo:2
+  - telefone:2 email endereco_web
+  - profissao data_nascimento:2 sexo:2
+  - biografia
+
+Filiacao:
+  {% trans 'Filiação partidária' %}:
+  - parlamentar partido
+  - data:2 data_desfiliacao:2

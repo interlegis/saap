@@ -70,7 +70,6 @@
                             <ul class="dropdown-menu">
                         {% endif %}
 	        {% endblock base_workspace %}
-                    <!---<li><a href="{# url 'saap.cerimonial:perfil_detail' #}">{# trans "Meu perfil" #}</a></li>--->
                     <li><a href="{% url 'saap.core:password_change' %}">{% trans "Alterar minha senha" %}</a></li>
                     <li><a href="{% url 'saap.core:logout' %}">{% trans "Sair" %}</a></li>
                   </ul>
@@ -151,8 +150,10 @@
                       <a href="#fakeLink" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">{% trans "Sistema" %}<span class="caret"></span></a>
                       <ul class="dropdown-menu menu-right">
  	                 <li class="nav__sub-item"><a href="{% url 'saap.core:tabelas_auxiliares' %}">{% trans "Tabelas auxiliares" %}</a></li>
-                         <li class="nav__sub-item"><a href="{% url 'saap.core:user_list' %}">{% trans "Administração de Usuários" %}</a></li>
-                         <li class="nav__sub-item"><a href="{% url 'saap.core:areatrabalho_list' %}">{% trans "&Aacute;reas de trabalho e Operadores" %}</a></li>
+			 <li class="nav__sub-item"><a href="{% url 'saap.core:parlamentar_list' %}">{% trans "Parlamentares" %}</a></li>
+                         <li class="nav__sub-item"><a href="{% url 'saap.core:user_list' %}">{% trans "Usuários" %}</a></li>
+                         <li class="nav__sub-item"><a href="{% url 'saap.core:areatrabalho_list' %}">{% trans "&Aacute;reas de trabalho" %}</a></li>
+                         <li class="nav__sub-item"><a href="{% url 'saap.core:operadorareatrabalho_list' %}">{% trans "Operadores" %}</a></li>
                       </ul>
                     </li>
                   {% endif %}

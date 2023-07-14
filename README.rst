@@ -21,6 +21,11 @@ Docker
 =========================================
    `Container SAAP + Postgres <https://github.com/interlegis/saap/blob/master/docs/docker.rst>`_
 
+Suporte aos utilizadores
+=========================================
+
+   `Sala do Discord "Somos Interlegis" sobre o SAAP <https://discord.gg/fzXSbhZbcy>`_ 
+
 
 Tradução
 =========================================
@@ -53,7 +58,7 @@ Issues
 Referências
 =========================================
 
-Estes guias, o projeto e as configurações do ambiente foram desenvolvidos, corrigidos e aperfeiçoados a partir do fork de `Jonatha Cardoso <https://github.com/ojonathacardoso/saap>`_ (servidor na `Câmara Municipal de Novo Hamburgo/RS <http://portal.camaranh.rs.gov.br>`_). 
+Estes guias, o projeto e as configurações do ambiente foram desenvolvidos, corrigidos e aperfeiçoados a partir do fork de `Jonatha Cardoso <https://github.com/ojonathacardoso/saap>`_ (ex-servidor da `Câmara Municipal de Novo Hamburgo/RS <http://portal.camaranh.rs.gov.br>`_). 
 
 O mesmo teve como ponto de partida o projeto original do SAAP, desenvolvido por  `Leandro Silva <https://github.com/LeandroJatai>`_ (servidor na `Câmara Municipal de Jataí/GO <https://www.jatai.go.leg.br>`_) e `Ramiro Luz <https://github.com/ramiroluz>`_ (servidor na `Câmara Municipal de Curitiba/PR <https://www.curitiba.pr.leg.br/>`_).
 

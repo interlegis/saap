@@ -2695,11 +2695,11 @@ class RelatorioContatosView(RelatorioProcessosView):
         if 'print' in request.GET and self.object_list.exists():
             filename = str("Contatos_") +\
                         str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S'))
+            response = HttpResponse(content_type='application/pdf')
             content = 'inline; filename="%s.pdf"' % filename
-            content = 'attachment; filename="%s.pdf"' % filename
-            response = HttpResponse(self.build_pdf())
-            response['Content-Type'] = 'application/pdf'
+            #content = 'attachment; filename="%s.pdf"' % filename
             response['Content-Disposition'] = content
+            self.build_pdf(response)
             return response
         
         context = self.get_context_data(filter=self.filterset,
@@ -2710,7 +2710,8 @@ class RelatorioContatosView(RelatorioProcessosView):
     def get_filterset(self, filterset_class):
         kwargs = self.get_filterset_kwargs(filterset_class)
         try:
-            kwargs['workspace'] = OperadorAreaTrabalho.objects.filter(user=self.request.user.pk, preferencial=True)[0].areatrabalho
+            kwargs['workspace'] = AreaTrabalho.objects.filter(
+                operadores=self.request.user.pk)[0]
         except:
             raise PermissionDenied(_('Sem permissão de acesso!'))
 
@@ -2744,100 +2745,66 @@ class RelatorioContatosView(RelatorioProcessosView):
         context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
 
         for contato in context['page_obj']:            
+            endpref = contato.endereco_set.filter(principal=True).first()
+            grupo = contato.grupodecontatos_set.all()
+            
+            if endpref:
+                contato.bairro = endpref.bairro.nome if endpref.bairro else ''
+                contato.municipio = '%s/%s' % (endpref.municipio, endpref.estado.sigla) if endpref.municipio else ''
+            else:
+                contato.bairro = ''
+                contato.municipio = ''
 
-            enderecos = contato.endereco_set.all()
-            contato.endereco = ''
-            contato.municipio = ''          
-            for endpref in enderecos:
-                if endpref.permite_contato == True:
-                    contato.endereco = endpref.endereco if endpref.endereco else ''
-                    contato.municipio = '%s/%s' % (endpref.municipio.nome, endpref.estado.sigla)
-
-            telefones = contato.telefone_set.all()
-            contato.telefone = ''
-            for telpref in telefones:
-                if telpref.principal == True:
-                    contato.telefone = telpref.telefone
-
-            emails = contato.email_set.all()
-            contato.email = ''
-            for mailpref in emails:
-                if mailpref.principal == True:
-                    contato.email = mailpref.email
-
-
-            contato.grupo = contato.grupodecontatos_set.all()
+            contato.grupo = grupo
+           
+            telefone = contato.telefone_set.filter(principal=True).first()
+            contato.telefone = telefone.telefone if telefone else ''
+            
+            email = contato.email_set.filter(permite_contato=True).first()
+            contato.email = email.email if email else ''
 
         return context
 
-    def build_pdf(self):
+    def build_pdf(self, response):
+        CONTATO = 0
+        ENDERECOS = 1
+        TELEFONES = 2
+        EMAILS = 3
+        GRUPOS = 4
 
+        ID = 0
+        NOME = 1
+        NASCIMENTO = 2
+
+        self.set_headings()
+        self.set_styles()
+        self.set_cabec(self.h5)
 
         if self.filterset.form.cleaned_data['orientacao'] == 'P':
-            fonte_tamanho = '13px'
+            estilo = ParagraphStyle(
+                name='Normal',
+                fontSize=8,
+            )   
         elif self.filterset.form.cleaned_data['orientacao'] == 'R':
-            fonte_tamanho = '11px'
- 
+            estilo = ParagraphStyle(
+                name='Normal',
+                fontSize=7,
+            )   
+
+        corpo_relatorio = []
+        self.add_relat_title(corpo_relatorio)
+
         tipo_dado_contato = self.filterset.form.cleaned_data['tipo_dado_contato']
 
-        html = "\
-                <!DOCTYPE html>\
-                <html>\
-                <head>\
-                    <meta charset='utf-8'>\
-                    <style>\
-                        body {\
-                          font-family: 'Liberation Sans';\
-                        }\
-                        table, th, td {\
-                          border: 1px solid black;\
-                          border-collapse: collapse;\
-                          vertical-align: top;\
-                          padding: 5px;\
-                        }\
-                        th {\
-                          font-size: 16px;}\
-                        td {\
-                          font-size: " + fonte_tamanho + ";\
-                        } \
-                    </style>\
-                </head>\
-                <body>\
-                <center><h2>Relatório de Contatos</h2></center>\
-              "
-
-        tabela = "<table>\
-                    <colgroup>\
-                       <col span='1' style='width: 20%;'>\
-                       <col span='1' style='width: 10%;'>\
-                       <col span='1' style='width: 20%;'>\
-                       <col span='1' style='width: 15%;'>\
-                       <col span='1' style='width: 10%;'>\
-                       <col span='1' style='width: 15%;'>\
-                       <col span='1' style='width: 10%;'>\
-                    </colgroup>\
-                    <thead><tr>\
-                        <th>Nome</th>\
-                        <th>Nascimento</th>\
-                        <th>Endereço / Bairro</th>\
-                        <th>Cidade / CEP</th>\
-                        <th>Telefone</th>\
-                        <th>E-mail</th>\
-                        <th>Grupos</th>\
-                    </tr></thead>\
-                    <tbody>"
-
-        html += tabela 
-
-        registros = self.object_list
-        
+        registros = self.get_data()
         for dados in registros:
+
             enderecos = ''      
             municipios = ''
 
-            if(dados.endereco_set.all().count() > 0):
+            if(dados[ENDERECOS] != None):
 
-                for endereco in dados.endereco_set.all():
+                for endereco in dados[ENDERECOS]:
 
                     if(endereco.endereco != '' and endereco.endereco != None):
                         
@@ -2887,13 +2854,13 @@ class RelatorioContatosView(RelatorioProcessosView):
 
             nascimento = ''
 
-            if(dados.data_nascimento != '' and dados.data_nascimento != None):
-                nascimento = dados.data_nascimento.strftime('%d/%m/%Y')
+            if(dados[CONTATO][NASCIMENTO] != '' and dados[CONTATO][NASCIMENTO] != None):
+                nascimento = dados[CONTATO][NASCIMENTO].strftime('%d/%m/%Y')
 
             telefones = ''
 
-            if(dados.telefone_set.all().count() > 0):
-                for telefone in dados.telefone_set.all():
+            if(dados[TELEFONES] != None):
+                for telefone in dados[TELEFONES]:
                     if ((tipo_dado_contato == 'P' and telefone.principal == True) or
                             (tipo_dado_contato == 'C' and telefone.permite_contato == True) or
                             (tipo_dado_contato == 'A')):
@@ -2909,8 +2876,8 @@ class RelatorioContatosView(RelatorioProcessosView):
              
             emails = ''
 
-            if(dados.email_set.all().count() > 0):
-                for email in dados.email_set.all():
+            if(dados[EMAILS] != None):
+                for email in dados[EMAILS]:
                      if ((tipo_dado_contato == 'P' and email.principal == True) or
                             (tipo_dado_contato == 'C' and email.permite_contato == True) or
                             (tipo_dado_contato == 'A')):
@@ -2926,42 +2893,166 @@ class RelatorioContatosView(RelatorioProcessosView):
 
             grupos = ''
 
-            if(dados.grupodecontatos_set.all().count() > 0):
-                for grupo in dados.grupodecontatos_set.all():
+            if(dados[GRUPOS] != None):
+                for grupo in dados[GRUPOS]:
                     grupos += grupo.nome + "<br/>"
 
-            html += "\
-                    <tr class='page-break'>\
-                        <td>" + dados.nome + "</td>\
-                        <td>" + nascimento + "</td>\
-                        <td>" + enderecos + "</td>\
-                        <td>" + municipios + "</td>\
-                        <td>" + telefones + "</td>\
-                        <td>" + emails + "</td>\
-                        <td>" + grupos + "</td>\
-                    </tr>"
 
-        html += "   </tbody>\
-                    </table>\
-                 </html>"
+            item = [
+                Paragraph(dados[CONTATO][NOME], estilo),
+                Paragraph(nascimento, estilo),
+                Paragraph(enderecos, estilo),
+                Paragraph(municipios, estilo),
+                Paragraph(telefones, estilo),
+                Paragraph(emails, estilo),
+                Paragraph(grupos, estilo),
+            ]
+            corpo_relatorio.append(item)
+
+        style = TableStyle([
+            ('FONTSIZE', (0, 0), (-1, -1), 6),
+            ('LEADING', (0, 0), (-1, -1), 7),
+            ('GRID', (0, 0), (-1, -1), 0.1, colors.black),
+            ('INNERGRID', (0, 0), (-1, -1), 0.1, colors.black),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+        ])
+        style.add('VALIGN', (0, 0), (-1, -1), 'TOP')
+
+        for i, value in enumerate(corpo_relatorio):
+            if len(value) <= 1:
+                style.add('SPAN', (0, i), (-1, i))
+
+            if len(value) == 0:
+                style.add('INNERGRID', (0, i), (-1, i), 0, colors.black),
+                style.add('GRID', (0, i), (-1, i), -1, colors.white)
+                style.add('LINEABOVE', (0, i), (-1, i), 0.1, colors.black)
+
+            if len(value) == 1:
+                style.add('LINEABOVE', (0, i), (-1, i), 0.1, colors.black)
 
         if self.filterset.form.cleaned_data['orientacao'] == 'P':
-            orientacao = 'landscape'
+            if tipo_dado_contato == 'A':
+                rowHeights = 80
+            else:
+                rowHeights = 40
         elif self.filterset.form.cleaned_data['orientacao'] == 'R':
-            orientacao = 'portrait'
+            if tipo_dado_contato == 'A':
+                rowHeights = 100
+            else:
+                rowHeights = 50
 
-        options = {
-            'page-size': 'A4',
-            'orientation': orientacao,
-            'margin-top': '0.40in',
-            'margin-right': '0.40in',
-            'margin-bottom': '0.40in',
-            'margin-left': '0.40in',
-            'encoding': "UTF-8",
-            'no-outline': None
-        }
+        t = LongTable(corpo_relatorio, rowHeights=None, splitByRow=True)
+        #t = LongTable(corpo_relatorio, rowHeights=rowHeights, splitByRow=True)
+        t.setStyle(style)
+       
+        if self.filterset.form.cleaned_data['orientacao'] == 'P':
+            t._argW[0] = 5 * cm
+            t._argW[1] = 2.5 * cm
+            t._argW[2] = 5 * cm
+            t._argW[3] = 3.5 * cm
+            t._argW[4] = 3 * cm
+            t._argW[5] = 5 * cm
+            t._argW[6] = 3 * cm
+        elif self.filterset.form.cleaned_data['orientacao'] == 'R':
+            t._argW[0] = 3.3 * cm
+            t._argW[1] = 2 * cm
+            t._argW[2] = 3.3 * cm
+            t._argW[3] = 3 * cm
+            t._argW[4] = 2.3 * cm
+            t._argW[5] = 3.3 * cm
+            t._argW[6] = 2 * cm
 
-        return pdfkit.from_string(html, options=options) 
+        #for i, value in enumerate(corpo_relatorio):
+        #    if len(value) == 0:
+        #        t._argH[i] = 7
+        #        continue
+        #    for cell in value:
+        #        if isinstance(cell, list):
+        #            t._argH[i] = (height) * (
+        #                len(cell) - (0 if len(cell) > 1 else 0))
+        #            break
+
+        elements = [t]
+
+        if self.filterset.form.cleaned_data['orientacao'] == 'P':
+            orientacao = landscape(A4)
+        elif self.filterset.form.cleaned_data['orientacao'] == 'R':
+            orientacao = A4
+
+        doc = SimpleDocTemplate(
+            response,
+            title=self.relat_title,
+            pagesize=orientacao,
+            rightMargin=1.25 * cm,
+            leftMargin=1.25 * cm,
+            topMargin=1.1 * cm,
+            bottomMargin=0.8 * cm)
+        
+        doc.build(elements, canvasmaker=NumberedCanvas)
+
+    def get_data(self):
+        contatos = []
+        consulta_agregada = self.object_list.order_by('nome',)
+        consulta_agregada = consulta_agregada.values_list(
+            'id',
+            'nome',
+            'data_nascimento',
+        )
+
+        for contato in consulta_agregada.all():
+            query = (Q(principal=True))
+            query.add(Q(permite_contato=True), Q.OR)
+            query.add(Q(contato__id=contato[0]), Q.AND)
+
+            endereco = Endereco.objects.filter(query)
+            telefone = Telefone.objects.filter(query)
+            email = Email.objects.filter(query)
+            grupos = GrupoDeContatos.objects.filter(contatos__id=contato[0])[:2]
+
+            contatos.append((contato, endereco, telefone, email, grupos))
+
+        return contatos
+
+    def validate_data(self):
+        contatos = []
+        consulta_agregada = self.object_list.order_by('nome',)
+        consulta_agregada = consulta_agregada.values_list(
+            'id',
+        )
+
+        total_erros = 0
+
+        for contato in consulta_agregada.all():
+            query = (Q(permite_contato=True))
+            query.add(Q(contato__id=contato[0]), Q.AND)
+
+            email = Email.objects.filter(query).count()
+
+            if(email == 0):
+                total_erros = total_erros + 1
+
+        return total_erros
+
+    def set_cabec(self, h5):
+        cabec = [Paragraph(_('Nome'), h5)]
+        cabec.append(Paragraph(_('Nascimento'), h5))
+        cabec.append(Paragraph(_('Endereço / Bairro'), h5))
+        cabec.append(Paragraph(_('Cidade / CEP'), h5))
+        cabec.append(Paragraph(_('Telefone'), h5))
+        cabec.append(Paragraph(_('E-mail'), h5))
+        cabec.append(Paragraph(_('Grupos'), h5))
+        self.cabec = cabec
+
+    def add_relat_title(self, corpo_relatorio):
+        tit_relatorio = _(self.relat_title)
+        tit_relatorio = force_text(tit_relatorio) + ' '
+
+        corpo_relatorio.append([Paragraph(tit_relatorio, self.h3)])
+
+        corpo_relatorio.append(self.cabec)
 
 
 #

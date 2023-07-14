@@ -7,7 +7,7 @@ from crispy_forms.layout import HTML, Div, Fieldset, Layout, Submit
 from django import template
 from django.utils import formats
 from django.utils.translation import ugettext as _
-
+from django.utils.encoding import force_text
 
 def heads_and_tails(list_of_lists):
     for alist in list_of_lists:
@@ -36,6 +36,26 @@ def to_fieldsets(fields):
 def form_actions(more=[], save_label=_('Salvar')):
     return FormActions(
         Submit('salvar', save_label, css_class='pull-right'), *more)
+
+class SaapFormHelper(FormHelper):
+    render_hidden_fields = True  # default = False
+
+#class SaapFormLayout(Layout):
+
+#    def __init__(self, *fields, cancel_label=_('Cancelar'),
+#                 save_label=_('Salvar'), actions=None):
+
+#        buttons = actions
+#        if not buttons:
+#            buttons = form_actions(label=save_label, more=[
+#                HTML('<a href="{{ view.cancel_url }}"'
+#                     ' class="btn btn-dark">%s</a>' % cancel_label)
+#                if cancel_label else None])
+
+#        _fields = list(to_fieldsets(fields))
+#        if buttons:
+#            _fields += [to_row([(buttons, 12)])]
+#        super(SaapFormLayout, self).__init__(*_fields)
 
 
 class SaapFormLayout(Layout):
@@ -110,6 +130,12 @@ class CrispyLayoutFormMixin:
     def get_layout(self):
         yaml_layout = '%s/layouts.yaml' % self.model._meta.app_config.label
         return read_layout_from_yaml(yaml_layout, self.layout_key)
+
+    def get_layout_set(self):
+        obj = self.crud if hasattr(self, 'crud') else self
+        yaml_layout = '%s/layouts.yaml' % getattr(
+            obj.model, obj.model_set).field.model._meta.app_config.label
+        return read_layout_from_yaml(yaml_layout, self.layout_key_set)
 
     @property
     def fields(self):
