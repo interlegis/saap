@@ -23,7 +23,7 @@ Instale os pacotes:
     pkg-config postgresql postgresql-contrib python3-psycopg2 \
     software-properties-common build-essential libxml2-dev libjpeg-dev \
     libssl-dev libmagic-dev libffi-dev libxslt1-dev python3-setuptools \
-    python3-pip poppler-utils antiword default-jre python3-venv \
+    python3-pip poppler-utils python3-venv \
     curl vim openssh-client
 
 Configure o sistema para usar a codificação UTF-8:
@@ -108,6 +108,10 @@ As configurações e instruções de uso para o Git estão espalhadas pela Inter
 
 4) Criar o ambiente virtual de desenvolvimento para o SAAP
 -------------------------------------------------------
+
+::
+
+    pip install --upgrade pip
 
 ::
 
